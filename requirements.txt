@@ -1,0 +1,14 @@
+av==10.0.0
+black==23.3.0
+datalad==0.19.2
+fiftyone==0.21.1
+flake8==5.0.4
+ipython==8.12.2
+isort==5.11.5
+jupyter==1.0.0
+nibabel==5.1.0
+nilearn==0.10.1
+numpy==1.24.3
+Pillow==9.5.0
+pre-commit==3.3.1
+scipy==1.10.1

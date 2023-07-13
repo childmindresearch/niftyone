@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "niftyone"
+description = "Large-scale neuroimaging visualization using FiftyOne"
+authors = [
+    {name = "Connor Lane", email = "connor.lane858@gmail.com"},
+]
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT License"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "av",
+    "fiftyone",
+    "nibabel",
+    "nilearn",
+    "numpy",
+    "Pillow",
+    "scipy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "black==23.3.0",
+    "flake8==5.0.4",
+    "isort==5.11.5",
+    "pre-commit==3.3.1",
+    "setuptools-scm",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/cmi-dair/niftyone"
+
+[tool.setuptools_scm]
+write_to = "src/niftyone/_version.py"
+
+[tool.black]
+line-length = 88
+target_version = ['py37']
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
