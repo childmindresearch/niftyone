@@ -1,48 +1,53 @@
-from typing import Any, List, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import nibabel as nib
 import numpy as np
 
-from ._coord import coord2ind
+from niftyone.checks import check_4d
+from niftyone.typing import NiftiLike
+
 from ._convert import get_fdata
+from ._coord import coord2ind
 
 
 def slice_volume(
-    img: Union[nib.Nifti1Image, np.ndarray],
-    affine: Optional[np.ndarray] = None,
+    img: NiftiLike,
     coord: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     axis: int = 0,
-    idx: int = 0,
+    idx: Optional[int] = 0,
 ):
     """
     Slice volume at a coordinate along an axis. The affine is optional for nibabel nifti
     images.
     """
-    if affine is None:
-        affine = img.affine
-    # TODO: trying to be more careful about slicing the dataobj wasn't obviously
-    # better. Test more thoroughly.
-    img = get_fdata(img)
     if img.ndim == 4:
-        img = img[..., idx]
-    ind = coord2ind(affine, coord)
-    slc = slice_array(img, ind[axis], axis=axis)
+        img = index_img(img, idx=idx)
+    data = get_fdata(img)
+
+    if isinstance(img, nib.Nifti1Image):
+        coord = coord2ind(img.affine, coord)
+    slc = slice_array(data, int(coord[axis]), axis=axis)
     return slc
 
 
-def index_img(img: nib.Nifti1Image, idx: int = 0):
+def index_img(img: NiftiLike, idx: Optional[int] = 0) -> NiftiLike:
     """
-    Index a 4D nifti image.
+    Index a 4D nifti image. If `idx` is `None`, return the middle volume.
     """
-    assert img.ndim == 4, "expected a 4d image"
+    check_4d(img)
+    if idx is None:
+        idx = img.shape[-1] // 2
+
     # NOTE: We currently assume throughout that 4d nifti can be loaded in memory in
     # full, and that calls to get_fdata() typically return cached data. This
     # dramatically improves access times, compared to interacting with the memmapped
     # dataobj.
-    img_data = img.get_fdata()
-    # TODO: what about header? 
-    img = nib.Nifti1Image(img_data[..., idx], img.affine)
-    return img
+    data = get_fdata(img)
+    slc = data[..., idx]
+
+    if isinstance(img, nib.Nifti1Image):
+        slc = nib.Nifti1Image(slc, affine=img.affine)
+    return slc
 
 
 def crop_middle_third(data: np.ndarray, axis: Union[int, Tuple[int, ...]] = 0):
@@ -59,9 +64,7 @@ def crop_middle_third(data: np.ndarray, axis: Union[int, Tuple[int, ...]] = 0):
     return cropped
 
 
-def slice_array(
-    data: np.ndarray, idx: Union[int, slice], axis: int = 0
-) -> np.ndarray:
+def slice_array(data: np.ndarray, idx: Union[int, slice], axis: int = 0) -> np.ndarray:
     """
     Slice a numpy array along an axis. `idx` should be an integer or slice object.
     Similar to `np.take()` but faster since it doesn't default to fancy indexing.
@@ -70,6 +73,6 @@ def slice_array(
         https://stackoverflow.com/a/52378197
     """
     if isinstance(idx, int):
-        idx = idx % data.ndim
+        idx = idx % data.shape[axis]
     slice_tup = axis * (slice(None),) + (idx,)
     return data[slice_tup]

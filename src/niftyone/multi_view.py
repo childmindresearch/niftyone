@@ -116,12 +116,11 @@ def three_view_video(
     """
     check_4d(img)
 
-    img_mid = noimg.index_img(img, idx=None)
     if coord is None:
-        coord = get_default_coord(img_mid)
+        coord = get_default_coord(img)
 
     if vmin is None or vmax is None:
-        window = get_default_window(img_mid)
+        window = get_default_window(img)
         if vmin is None:
             vmin = window.vmin
         if vmax is None:
@@ -145,11 +144,11 @@ def three_view_video(
             writer.put(frame)
 
 
-def get_default_coord(img: nib.nifti1.Nifti1Image) -> Tuple[float, float, float]:
+def get_default_coord(img: nib.Nifti1Image) -> Tuple[float, float, float]:
     coord = noimg.peak_of_mass(img, mask=True)
     coord = tuple(coord + [1.0, 0.0, 0.0])
     return coord
 
 
-def get_default_window(img: nib.nifti1.Nifti1Image) -> noimg.Window:
+def get_default_window(img: nib.Nifti1Image) -> noimg.Window:
     return noimg.center_minmax(img)

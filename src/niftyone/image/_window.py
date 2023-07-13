@@ -9,8 +9,9 @@ import numpy as np
 from niftyone.checks import check_3d_4d
 from niftyone.typing import NiftiLike
 
+from ._centroid import peak_of_mass
 from ._convert import get_fdata
-from ._slice import crop_middle_third
+from ._slice import crop_middle_third, index_img
 
 EPS = 1e-8
 
@@ -29,17 +30,17 @@ def minmax(img: NiftiLike) -> Window:
     return Window(vmin, vmax)
 
 
-def center_minmax(img: NiftiLike, idx: int = 0) -> Window:
+def center_minmax(img: NiftiLike) -> Window:
     """
     Compute the min-max window for just the middle third of the axial slice passing
     through the volume "peak" of mass. If 4d, compute over the `idx` volume.
     """
+    check_3d_4d(img)
+    if img.ndim == 4:
+        img = index_img(img, idx=None)
     data = get_fdata(img)
-    check_3d_4d(data)
-    if data.ndim == 4:
-        data = data[..., idx]
-    if data.ndim == 3:
-        zidx = np.argmax(np.sum(np.abs(data), axis=(0, 1)))
-        data = data[..., zidx]
+
+    centroid = peak_of_mass(data, mask=True)
+    data = data[..., centroid[2]]
     data = crop_middle_third(data, axis=(0, 1))
     return minmax(data)
