@@ -1,3 +1,6 @@
 [submodule "tests/data/ds000102"]
 	path = tests/data/ds000102
 	url = https://github.com/OpenNeuroDatasets/ds000102.git
+[submodule "tests/data/ds000102-mriqc"]
+	path = tests/data/ds000102-mriqc
+	url = https://github.com/OpenNeuroDerivatives/ds000102-mriqc
