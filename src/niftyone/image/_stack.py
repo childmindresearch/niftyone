@@ -18,10 +18,10 @@ def image_grid(
     rows = []
     ncols = math.ceil(len(imgs) / nrows)
     for ii in range(nrows):
-        row_imgs = imgs[ii*ncols: (ii + 1)*ncols]
+        row_imgs = imgs[ii * ncols : (ii + 1) * ncols]
         row = stack_images(row_imgs, axis=1, pad=pad, fill_value=fill_value)
         rows.append(row)
-    
+
     if nrows == 1:
         grid = rows[0]
     else:

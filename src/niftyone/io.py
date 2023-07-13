@@ -5,8 +5,8 @@ import av
 import numpy as np
 from PIL import Image
 
-from niftyone.typing import StrPath
 from niftyone.image._convert import topil
+from niftyone.typing import StrPath
 
 
 class VideoWriter:

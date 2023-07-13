@@ -1,11 +1,11 @@
 from typing import Optional
 
+import matplotlib as mpl
 import nibabel as nib
 import numpy as np
 from nilearn.image import reorder_img, resample_img
 from PIL import Image
 
-import matplotlib as mpl
 from niftyone.typing import NiftiLike
 
 EPS = 1e-8
@@ -46,7 +46,9 @@ def topil(
 
 
 def normalize(
-    data: np.ndarray, vmin: Optional[float] = None, vmax: Optional[float] = None,
+    data: np.ndarray,
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
 ) -> np.ndarray:
     """
     Normalize data to [0, 1] using vmin and vmax. If vmin and/or vmax are None, default

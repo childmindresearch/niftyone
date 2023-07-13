@@ -1,5 +1,5 @@
-import numpy as np
 import nibabel as nib
+import numpy as np
 from scipy import ndimage
 
 from niftyone.checks import check_3d_4d
@@ -52,7 +52,9 @@ def ind2coord(affine: np.ndarray, ind: np.ndarray) -> np.ndarray:
     return coord
 
 
-def center_of_mass(img: nib.nifti1.Nifti1Image, idx: int = 0, mask: bool = False) -> np.ndarray:
+def center_of_mass(
+    img: nib.nifti1.Nifti1Image, idx: int = 0, mask: bool = False
+) -> np.ndarray:
     """
     Find the coordinate for the image center of mass.
     """
@@ -71,7 +73,9 @@ def center_of_mass(img: nib.nifti1.Nifti1Image, idx: int = 0, mask: bool = False
     return centroid
 
 
-def peak_of_mass(img: nib.nifti1.Nifti1Image, idx: int = 0, mask: bool = False) -> np.ndarray:
+def peak_of_mass(
+    img: nib.nifti1.Nifti1Image, idx: int = 0, mask: bool = False
+) -> np.ndarray:
     """
     Find the coordinate for the "peak" of image mass.
 

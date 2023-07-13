@@ -2,15 +2,15 @@
 Utilities for normalizing value ranges.
 """
 
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 import numpy as np
 
 from niftyone.checks import check_3d_4d
 from niftyone.typing import NiftiLike
 
-from ._slice import crop_middle_third
 from ._convert import get_fdata
+from ._slice import crop_middle_third
 
 EPS = 1e-8
 

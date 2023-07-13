@@ -3,6 +3,7 @@ from typing import Any, List
 
 import numpy as np
 
+
 class Align(Enum):
     LEFT = "left"
     CENTER = "center"
@@ -26,7 +27,7 @@ def pad_to_size(
     assert current_size <= size, f"Size {size} is too small for image"
     if current_size == size:
         return img
-    
+
     padding = size - current_size
     align = Align(align)
     if align in {Align.LEFT, Align.TOP}:
@@ -35,7 +36,7 @@ def pad_to_size(
         padding = (padding, 0)
     else:
         padding = (padding // 2, padding - padding // 2)
-    
+
     padding = [padding if ii == axis else (0, 0) for ii in range(img.ndim)]
     img = np.pad(img, padding, constant_values=fill_value)
     return img

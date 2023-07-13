@@ -48,9 +48,7 @@ def multi_view_frame(
     for panel, coord, axis in zip(panels, coords, axes):
         img = noimg.topil(panel, vmin=vmin, vmax=vmax, cmap=cmap)
         if panel_height:
-            img = noimg.scale(
-                img, panel_height, resample=Image.Resampling.NEAREST
-            )
+            img = noimg.scale(img, panel_height, resample=Image.Resampling.NEAREST)
 
         # Annotation for coordinate and left side
         axis_name = "XYZ"[axis]
@@ -64,15 +62,15 @@ def multi_view_frame(
             )
         rendered.append(img)
 
-    grid = noimg.image_grid(rendered, nrows=nrows)    
+    grid = noimg.image_grid(rendered, nrows=nrows)
     grid = noimg.topil(grid)
-    return grid 
+    return grid
 
 
 def three_view_frame(
     img: nib.Nifti1Image,
     coord: Optional[Tuple[float, float, float]] = None,
-    idx: int = 0,
+    idx: Optional[int] = 0,
     vmin: Optional[float] = None,
     vmax: Optional[float] = None,
     panel_height: Optional[int] = 256,
@@ -83,9 +81,7 @@ def three_view_frame(
     Construct a three view image panel. Returns a PIL Image.
     """
     check_3d_4d(img)
-
-    is_4d = img.ndim == 4
-    if is_4d:
+    if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
 
     if coord is None:
@@ -93,7 +89,7 @@ def three_view_frame(
 
     grid = multi_view_frame(
         img,
-        coords=3*[coord],
+        coords=3 * [coord],
         # ax, cor, sag
         axes=[2, 1, 0],
         vmin=vmin,
@@ -120,8 +116,7 @@ def three_view_video(
     """
     check_4d(img)
 
-    img_mid = noimg.index_img(img, idx=img.shape[3] // 2)
-
+    img_mid = noimg.index_img(img, idx=None)
     if coord is None:
         coord = get_default_coord(img_mid)
 
@@ -144,7 +139,9 @@ def three_view_video(
                 cmap=cmap,
                 fontsize=fontsize,
             )
-            frame = noimg.annotate(frame, text=f"T={idx}", loc="upper right", size=fontsize)
+            frame = noimg.annotate(
+                frame, text=f"T={idx}", loc="upper right", size=fontsize
+            )
             writer.put(frame)
 
 
