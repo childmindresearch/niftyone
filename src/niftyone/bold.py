@@ -86,7 +86,7 @@ def carpet_plot(
     # axial bold mean and label overlay
     coord = get_default_coord(bold_mean)
     vmin, vmax = get_default_vmin_vmax(bold_mean)
-    panel_mean = noimg.render_slice(
+    panel = noimg.render_slice(
         bold_mean,
         axis=2,
         coord=coord,
@@ -99,8 +99,9 @@ def carpet_plot(
         axis=2,
         coord=coord,
         cmap=label_cmap,
+        fontsize=18,
     )
-    panel_label = noimg.overlay(panel_mean, panel_label, alpha=alpha)
+    panel = noimg.overlay(panel, panel_label, alpha=alpha)
 
     # assume nan is background; apply mask
     label_data = label.get_fdata()
@@ -124,32 +125,27 @@ def carpet_plot(
 
     # generate plots
     fig = plt.figure(layout="tight", dpi=150, figsize=(6.4, 4.8))
-    gs = GridSpec(1, 4, figure=fig)
+    gs = GridSpec(1, 3, figure=fig)
 
     ax1 = fig.add_subplot(gs[0, 0])
-    ax1.imshow(panel_mean)
+    ax1.imshow(panel)
     ax1.axis("off")
 
-    ax2 = fig.add_subplot(gs[0, 1])
-    ax2.imshow(panel_label)
-    ax2.axis("off")
-
-    ax3 = fig.add_subplot(gs[0, 2:])
+    ax2 = fig.add_subplot(gs[0, 1:])
     h, w = carpet.shape
     # extra space for label
-    label_w = math.ceil(0.05 * w)
-    ax3.imshow(example_label[:, None], cmap=label_cmap, extent=(-label_w, 0, 0, h))
-    ax3.imshow(carpet, cmap="gray", vmin=-2.0, vmax=2.0, extent=(0, w, 0, h))
-    ax3.set_xlim(-label_w, w)
-    ax3.set_ylim(0, h)
-    ax3.set_yticks([])
+    label_w = math.ceil(0.025 * w)
+    ax2.imshow(example_label[:, None], cmap=label_cmap, extent=(-label_w, 0, 0, h))
+    ax2.imshow(carpet, cmap="gray", vmin=-2.0, vmax=2.0, extent=(0, w, 0, h))
+    ax2.set_xlim(-label_w, w)
+    ax2.set_ylim(0, h)
+    ax2.set_yticks([])
     # HACK: annoying hack to make the aspect ratio work
     aspect = (label_w + w) / h / 2
-    ax3.set_aspect(aspect)
-    ax3.tick_params(colors="w", labelsize=8, direction="in", pad=-8)
+    ax2.set_aspect(aspect)
+    ax2.tick_params(colors="w", labelsize=8, direction="in", pad=-8)
 
-    fig.set_facecolor("gray")
-
+    fig.set_facecolor("black")
     if out is not None:
         fig.savefig(out, bbox_inches="tight", dpi=150)
     return fig
