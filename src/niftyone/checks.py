@@ -44,3 +44,13 @@ def check_ras(img: nib.nifti1.Nifti1Image):
     expected = np.abs(np.diag(np.diag(rot)))
     if not np.allclose(rot, expected, rtol=0.1, atol=0.1):
         raise ValueError(f"Expected RAS orientation; got rotation {rot}")
+
+
+def check_iso_ras(img: nib.nifti1.Nifti1Image):
+    """
+    Check that an image has RAS axis orientation with isotropic voxels.
+    """
+    check_ras(img)
+    pixdim = np.diag(img.affine[:3, :3])
+    if not np.allclose(pixdim, pixdim[0]):
+        raise ValueError(f"Expected isotropic voxels; got pixdim {pixdim}")

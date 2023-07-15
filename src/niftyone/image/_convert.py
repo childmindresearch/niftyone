@@ -1,3 +1,4 @@
+import warnings
 from typing import Optional
 
 import matplotlib as mpl
@@ -42,6 +43,23 @@ def topil(
         data = (255 * data).astype("uint8")
 
     img = Image.fromarray(data)
+    return img
+
+
+def overlay(
+    img1: Image.Image,
+    img2: Image.Image,
+    alpha: Optional[float] = 0.5,
+):
+    """
+    Overlay two PIL images with alpha compositing.
+    """
+    img1 = img1.convert("RGBA")
+    img2 = img2.convert("RGBA")
+
+    if alpha is not None:
+        img2.putalpha(int(alpha * 255))
+    img = Image.alpha_composite(img1, img2)
     return img
 
 
@@ -94,5 +112,10 @@ def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
         res = np.min(pixdim)
         target_affine = affine.copy()
         np.fill_diagonal(target_affine[:3, :3], res)
-        img = resample_img(img, target_affine=target_affine, interpolation="nearest")
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            img = resample_img(
+                img, target_affine=target_affine, interpolation="nearest"
+            )
     return img
