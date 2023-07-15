@@ -123,7 +123,7 @@ def carpet_plot(
     carpet = carpet / (carpet.std() + EPS)
 
     # generate plots
-    fig = plt.figure(layout="tight")
+    fig = plt.figure(layout="tight", dpi=150, figsize=(6.4, 4.8))
     gs = GridSpec(1, 4, figure=fig)
 
     ax1 = fig.add_subplot(gs[0, 0])
@@ -155,10 +155,10 @@ def carpet_plot(
     return fig
 
 
-def bold_mean_tsnr(
+def bold_mean_std(
     bold: nib.Nifti1Image,
     out: Optional[StrPath] = None,
-    tsnr_vmax: float = 100.0,
+    std_vmax_ratio: float = 0.1,
 ):
     """
     Panel showing three-view BOLD mean and three-view tSNR.
@@ -166,17 +166,22 @@ def bold_mean_tsnr(
     check_4d(bold)
     check_iso_ras(bold)
 
+    # bold mean and std
     bold_data = bold.get_fdata()
     bold_mean_data = bold_data.mean(axis=-1)
     bold_std_data = bold_data.std(axis=-1)
-    bold_tsnr_data = bold_mean_data / (bold_std_data + EPS)
+
+    # summary stats computed over a rough mask
     mask = bold_mean_data > bold_mean_data.mean()
+    mean_med = np.median(bold_mean_data[mask])
+    std_med = np.median(bold_std_data[mask])
 
     bold_mean = nib.Nifti1Image(bold_mean_data, affine=bold.affine)
-    bold_tsnr = nib.Nifti1Image(bold_tsnr_data, affine=bold.affine)
+    bold_std = nib.Nifti1Image(bold_std_data, affine=bold.affine)
 
     coord = get_default_coord(bold_mean)
     vmin, vmax = get_default_vmin_vmax(bold_mean)
+    std_vmax = std_vmax_ratio * mean_med
 
     panel_mean = three_view_frame(
         bold_mean,
@@ -184,33 +189,31 @@ def bold_mean_tsnr(
         vmin=vmin,
         vmax=vmax,
     )
-    panel_tsnr = three_view_frame(
-        bold_tsnr,
+    panel_std = three_view_frame(
+        bold_std,
         coord=coord,
         vmin=0.0,
-        vmax=tsnr_vmax,
+        vmax=std_vmax,
         cmap="viridis",
     )
 
     noimg.annotate(
         panel_mean,
-        "Mean",
+        f"Mean med={mean_med:.0f}",
         loc="upper right",
         size=18,
         inplace=True,
     )
 
-    tsnr_med = np.median(bold_tsnr_data[mask])
-    tsnr_max = np.max(bold_tsnr_data[mask])
     noimg.annotate(
-        panel_tsnr,
-        f"tSNR med={tsnr_med:.0f}, max={tsnr_max:.0f}",
+        panel_std,
+        f"Stdev med={std_med:.0f}, vmax={std_vmax:.0f}",
         loc="upper right",
         size=18,
         inplace=True,
     )
 
-    grid = noimg.stack_images([panel_mean, panel_tsnr], axis=0)
+    grid = noimg.stack_images([panel_mean, panel_std], axis=0)
     grid = noimg.topil(grid)
 
     if out is not None:
