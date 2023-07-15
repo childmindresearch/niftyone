@@ -10,6 +10,7 @@ from sklearn.cluster import KMeans
 import niftyone.image as noimg
 from niftyone.checks import check_3d, check_4d, check_iso_ras
 from niftyone.defaults import get_default_coord, get_default_vmin_vmax
+from niftyone.multi_view import three_view_frame
 from niftyone.typing import StrPath
 
 EPS = 1e-6
@@ -152,3 +153,66 @@ def carpet_plot(
     if out is not None:
         fig.savefig(out, bbox_inches="tight", dpi=150)
     return fig
+
+
+def bold_mean_tsnr(
+    bold: nib.Nifti1Image,
+    out: Optional[StrPath] = None,
+    tsnr_vmax: float = 100.0,
+):
+    """
+    Panel showing three-view BOLD mean and three-view tSNR.
+    """
+    check_4d(bold)
+    check_iso_ras(bold)
+
+    bold_data = bold.get_fdata()
+    bold_mean_data = bold_data.mean(axis=-1)
+    bold_std_data = bold_data.std(axis=-1)
+    bold_tsnr_data = bold_mean_data / (bold_std_data + EPS)
+    mask = bold_mean_data > bold_mean_data.mean()
+
+    bold_mean = nib.Nifti1Image(bold_mean_data, affine=bold.affine)
+    bold_tsnr = nib.Nifti1Image(bold_tsnr_data, affine=bold.affine)
+
+    coord = get_default_coord(bold_mean)
+    vmin, vmax = get_default_vmin_vmax(bold_mean)
+
+    panel_mean = three_view_frame(
+        bold_mean,
+        coord=coord,
+        vmin=vmin,
+        vmax=vmax,
+    )
+    panel_tsnr = three_view_frame(
+        bold_tsnr,
+        coord=coord,
+        vmin=0.0,
+        vmax=tsnr_vmax,
+        cmap="viridis",
+    )
+
+    noimg.annotate(
+        panel_mean,
+        "Mean",
+        loc="upper right",
+        size=18,
+        inplace=True,
+    )
+
+    tsnr_med = np.median(bold_tsnr_data[mask])
+    tsnr_max = np.max(bold_tsnr_data[mask])
+    noimg.annotate(
+        panel_tsnr,
+        f"tSNR med={tsnr_med:.0f}, max={tsnr_max:.0f}",
+        loc="upper right",
+        size=18,
+        inplace=True,
+    )
+
+    grid = noimg.stack_images([panel_mean, panel_tsnr], axis=0)
+    grid = noimg.topil(grid)
+
+    if out is not None:
+        grid.save(out)
+    return grid
