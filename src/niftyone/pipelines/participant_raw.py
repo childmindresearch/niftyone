@@ -19,7 +19,7 @@ from niftyone.figures.multi_view import slice_video, three_view_frame, three_vie
 from niftyone.typing import StrPath
 
 
-def participant_raw(
+def participant_raw_pipeline(
     bids_dir: StrPath,
     out_dir: StrPath,
     sub: Optional[str] = None,
@@ -212,17 +212,10 @@ def _participant_raw_bold(
     img = nib.load(img_path)
     img = noimg.to_iso_ras(img)
 
-    out_path = entities.with_update(desc="threeView", ext=".png").to_path(
-        prefix=out_dir
-    )
-    out_path.parent.mkdir(exist_ok=True, parents=True)
-    if not out_path.exists() or overwrite:
-        logging.info("Generating: %s", out_path)
-        three_view_frame(img, out=out_path)
-
     out_path = entities.with_update(desc="threeViewVideo", ext=".mp4").to_path(
         prefix=out_dir
     )
+    out_path.parent.mkdir(exist_ok=True, parents=True)
     if not out_path.exists() or overwrite:
         logging.info("Generating: %s", out_path)
         three_view_video(img, out=out_path)

@@ -1,10 +1,31 @@
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from elbow.utils import setup_logging
 
-from niftyone.pipelines.participant_raw import participant_raw
+import niftyone
+from niftyone.pipelines.group import group_pipeline
+from niftyone.pipelines.participant_raw import participant_raw_pipeline
+
+
+def _make_dataset_description():
+    description = {
+        "Name": "NiftyOne",
+        "BIDSVersion": "1.8.0",
+        "DatasetType": "derivative",
+        "GeneratedBy": [
+            {
+                "Name": "NiftyOne",
+                "Version": f"{niftyone.__version__}",
+                "CodeURL": "https://github.com/cmi-dair/niftyone",
+            }
+        ],
+        "HowToAcknowledge": "Please cite our repo (https://github.com/cmi-dair/niftyone).",
+        "License": "LGPL-2.1",
+    }
+    return description
 
 
 def main():
@@ -74,8 +95,15 @@ def main():
 
     setup_logging("INFO" if args.verbose else "ERROR")
 
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(exist_ok=True, parents=True)
+
+    description = _make_dataset_description()
+    with (out_dir / "dataset_description.json").open("w") as f:
+        json.dump(description, f, indent=4)
+
     if args.analysis_level == "participant":
-        participant_raw(
+        participant_raw_pipeline(
             bids_dir=args.bids_dir,
             out_dir=args.out_dir,
             sub=args.participant_label,
@@ -83,6 +111,9 @@ def main():
             mriqc_dir=args.mriqc_dir,
             nprocs=args.nprocs,
         )
+    elif args.analysis_level == "group":
+        group_pipeline(bids_dir=args.bids_dir, out_dir=args.out_dir)
+
     else:
         raise NotImplementedError(
             f"Analysis level {args.analysis_level} not implemented"
