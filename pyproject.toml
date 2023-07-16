@@ -50,6 +50,9 @@ dev = [
 [project.urls]
 "Homepage" = "https://github.com/cmi-dair/niftyone"
 
+[project.scripts]
+niftyone = "niftyone.__main__:main"
+
 [tool.setuptools_scm]
 write_to = "src/niftyone/_version.py"
 
