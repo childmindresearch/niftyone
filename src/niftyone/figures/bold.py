@@ -1,6 +1,7 @@
 import math
 from typing import Optional
 
+import matplotlib as mpl
 import nibabel as nib
 import numpy as np
 from matplotlib import pyplot as plt
@@ -10,11 +11,13 @@ from sklearn.cluster import KMeans
 import niftyone.image as noimg
 from niftyone.checks import check_3d, check_4d, check_iso_ras
 from niftyone.defaults import get_default_coord, get_default_vmin_vmax
-from niftyone.multi_view import three_view_frame
 from niftyone.typing import StrPath
+
+from .multi_view import three_view_frame
 
 EPS = 1e-6
 plt.style.use("bmh")
+mpl.use("Agg")
 
 
 def cluster_timeseries(

@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 
 import niftyone.image as noimg
-from niftyone.checks import check_3d, check_3d_4d, check_4d
+from niftyone.checks import check_3d, check_3d_4d, check_4d, check_iso_ras
 from niftyone.defaults import get_default_coord, get_default_vmin_vmax
 from niftyone.io import VideoWriter
 from niftyone.typing import Coord, StrPath
@@ -30,10 +30,10 @@ def multi_view_frame(
     Construct a multi view image panel. Returns a PIL Image.
     """
     check_3d(img)
-    img = noimg.to_iso_ras(img)
+    check_iso_ras(img)
     if overlay is not None:
         check_3d(overlay)
-        overlay = noimg.to_iso_ras(overlay)
+        overlay = check_iso_ras(overlay)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     panels = []
@@ -166,7 +166,7 @@ def slice_video(
     check_3d_4d(img)
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
-    img = noimg.to_iso_ras(img)
+    check_iso_ras(img)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     # Find range of slices that intersect with a rough mask
