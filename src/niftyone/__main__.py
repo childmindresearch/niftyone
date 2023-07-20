@@ -6,6 +6,7 @@ from pathlib import Path
 from elbow.utils import setup_logging
 
 import niftyone
+from niftyone.launch import launch
 from niftyone.pipelines.group import group_pipeline
 from niftyone.pipelines.participant_raw import participant_raw_pipeline
 
@@ -113,6 +114,9 @@ def main():
         )
     elif args.analysis_level == "group":
         group_pipeline(bids_dir=args.bids_dir, out_dir=args.out_dir)
+
+    elif args.analysis_level == "launch":
+        launch(bids_dir=args.bids_dir, out_dir=args.out_dir)
 
     else:
         raise NotImplementedError(
