@@ -51,7 +51,7 @@ def main():
         "analysis_level",
         metavar="analysis_level",
         type=str,
-        choices=["participant", "group"],
+        choices=["participant", "group", "launch"],
         help="Analysis level",
     )
     parser.add_argument(
