@@ -29,6 +29,7 @@ benchmarks/*/data
 
 # Local scratch
 .scratch
+tests/results
 
 # Local environment
 .venv

@@ -3,7 +3,7 @@ bids2table @ git+https://github.com/cmi-dair/bids2table
 black==23.3.0
 datalad==0.19.2
 elbow @ git+https://github.com/cmi-dair/elbow
-fiftyone==0.21.1
+fiftyone==0.21.4
 flake8==5.0.4
 ipython==8.12.2
 isort==5.11.5
