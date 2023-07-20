@@ -26,11 +26,13 @@ classifiers = [
 dependencies = [
     "av",
     "fiftyone",
+    "matplotlib",
     "nibabel",
     "nilearn",
     "numpy",
     "Pillow",
     "scipy",
+    "scikit-learn",
 ]
 dynamic = ["version"]
 
