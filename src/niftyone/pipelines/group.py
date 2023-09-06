@@ -15,7 +15,12 @@ IMG_EXTENSIONS = {".png", ".mp4"}
 LABEL_CLS_LOOKUP = {"T1w": labels.MRIQCT1w, "bold": labels.MRIQCBold}
 
 
-def group_pipeline(bids_dir: StrPath, out_dir: StrPath, ds_name: Optional[str] = None):
+def group_pipeline(
+    bids_dir: StrPath,
+    out_dir: StrPath,
+    ds_name: Optional[str] = None,
+    overwrite: bool = False,
+):
     """
     NiftyOne group pipeline. Collects image samples into a FiftyOne dataset and exports
     to the output directory.
@@ -27,10 +32,11 @@ def group_pipeline(bids_dir: StrPath, out_dir: StrPath, ds_name: Optional[str] =
         ds_name = Path(bids_dir).name
 
     logging.info(
-        "Starting niftyone participant raw pipeline:"
+        "Starting niftyone group pipeline:"
         f"\n\tdataset: {bids_dir}"
         f"\n\tout: {out_dir}"
         f"\n\tds_name: {ds_name}"
+        f"\n\toverwrite: {overwrite}"
     )
 
     logging.info("Loading dataset index")
@@ -40,19 +46,19 @@ def group_pipeline(bids_dir: StrPath, out_dir: StrPath, ds_name: Optional[str] =
         return
 
     # extract out just the entities and the file paths
-    # TODO: this interaction with the dataframe feels too low-level and subject to
-    # breaks due to schema changes.
-    entities = index["entities"].copy()
+    entities = index.ent.copy()
     entities.dropna(axis=1, how="all", inplace=True)
     entities.drop("extra_entities", axis=1, inplace=True)
-    paths = index["file"][["file_path"]]
+    paths = index.finfo[["file_path"]]
     index = pd.concat([entities, paths], axis=1)
 
     by = [k for k in entities.columns if k not in {"desc", "ext"}]
     grouped = index.groupby(by, dropna=False)
 
     logging.info("Collecting dataset samples for %d groups", len(grouped))
-    dataset = fo.Dataset(ds_name)
+
+    dataset: fo.Dataset = fo.Dataset(ds_name, persistent=True, overwrite=overwrite)
+
     dataset.add_group_field("group")
     samples = []
     for _, group_index in tqdm(grouped):

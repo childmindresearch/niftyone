@@ -8,8 +8,8 @@ from typing import List, Optional
 import nibabel as nib
 import numpy as np
 import pandas as pd
-from bids2table import bids2table
-from bids2table.extractors.entities import BIDSEntities
+from bids2table import BIDSTable, bids2table
+from bids2table.entities import BIDSEntities
 from elbow.utils import cpu_count, setup_logging
 from matplotlib import pyplot as plt
 
@@ -25,7 +25,7 @@ def participant_raw_pipeline(
     sub: Optional[str] = None,
     index_path: Optional[StrPath] = None,
     mriqc_dir: Optional[StrPath] = None,
-    nprocs: Optional[int] = None,
+    workers: Optional[int] = None,
     overwrite: bool = False,
 ):
     """
@@ -37,15 +37,15 @@ def participant_raw_pipeline(
     default_mriqc_dir = bids_dir / "derivatives" / "mriqc"
     if mriqc_dir is None and default_mriqc_dir.exists():
         mriqc_dir = default_mriqc_dir
-    else:
+    elif mriqc_dir is not None:
         mriqc_dir = Path(mriqc_dir)
 
-    if nprocs is None:
-        nprocs = 1
-    elif nprocs == -1:
-        nprocs = cpu_count()
-    elif nprocs <= 0:
-        raise ValueError(f"Invalid nprocs {nprocs}; expected -1 or > 0")
+    if workers is None:
+        workers = 1
+    elif workers == -1:
+        workers = cpu_count()
+    elif workers <= 0:
+        raise ValueError(f"Invalid workers {workers}; expected -1 or > 0")
 
     logging.info(
         "Starting niftyone participant raw pipeline:"
@@ -54,37 +54,34 @@ def participant_raw_pipeline(
         f"\n\tsubject: {sub}"
         f"\n\tindex: {index_path}"
         f"\n\tmriqc: {mriqc_dir}"
-        f"\n\tnprocs: {nprocs}"
+        f"\n\tworkers: {workers}"
         f"\n\toverwrite: {overwrite}"
     )
 
     logging.info("Loading dataset index")
-    # TODO: change output arg name to index_path. output suggests it will always be
-    # created.
-    # TODO: make bids2table use multiple workers when generating in-memory df
-    index = bids2table(bids_dir, output=index_path)
+    index = bids2table(bids_dir, index_path=index_path, workers=workers)
 
     if sub is None:
-        subs = np.unique(index["entities"]["sub"])
+        subs = index.subjects
         logging.info("Found %d subjects", len(subs))
     else:
         subs = [sub]
 
     _worker = partial(
         _participant_raw_worker,
-        nprocs=nprocs,
+        workers=workers,
         subs=subs,
         index=index,
         out_dir=out_dir,
         mriqc_dir=mriqc_dir,
         overwrite=overwrite,
         # propagate log level into worker processes
-        log_level=logging.getLogger().level if nprocs > 1 else None,
+        log_level=logging.getLogger().level if workers > 1 else None,
     )
 
-    if nprocs > 1:
-        with ProcessPoolExecutor(nprocs) as pool:
-            futures_to_id = {pool.submit(_worker, ii): ii for ii in range(nprocs)}
+    if workers > 1:
+        with ProcessPoolExecutor(workers) as pool:
+            futures_to_id = {pool.submit(_worker, ii): ii for ii in range(workers)}
 
             for future in as_completed(futures_to_id):
                 try:
@@ -101,9 +98,9 @@ def participant_raw_pipeline(
 def _participant_raw_worker(
     worker_id: int,
     *,
-    nprocs: int,
+    workers: int,
     subs: List[str],
-    index: pd.DataFrame,
+    index: BIDSTable,
     out_dir: Path,
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
@@ -113,8 +110,8 @@ def _participant_raw_worker(
         setup_logging(log_level)
 
     # find current worker's partition of subjects
-    if nprocs > 1:
-        subs = np.array_split(subs, nprocs)[worker_id]
+    if workers > 1:
+        subs = np.array_split(subs, workers)[worker_id]
 
     for sub in subs:
         _participant_raw_single(
@@ -128,7 +125,7 @@ def _participant_raw_worker(
 
 def _participant_raw_single(
     sub: str,
-    index: pd.DataFrame,
+    index: BIDSTable,
     out_dir: Path,
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
@@ -136,12 +133,12 @@ def _participant_raw_single(
     tic = time.monotonic()
     logging.info("Generating raw figures for subject: %s", sub)
 
-    entities: pd.DataFrame = index["entities"]
-    images = index.loc[
-        (entities["sub"] == sub)
-        & (entities["suffix"].isin({"T1w", "bold"}))
-        & (entities["ext"].isin({".nii", ".nii.gz"}))
-    ]
+    images = (
+        index
+        .filter("sub", sub)
+        .filter("suffix", items={"T1w", "bold"})
+        .filter("ext", items={".nii", ".nii.gz"})
+    )
     if len(images) == 0:
         logging.info("Found no images")
         return
@@ -149,15 +146,15 @@ def _participant_raw_single(
     logging.info(
         "Found %d images:\n\t%s",
         len(images),
-        "\n\t".join(images["file"]["file_path"].tolist()),
+        "\n\t".join(images.finfo["file_path"].tolist()),
     )
 
-    for _, record in images.iterrows():
-        if record["entities"]["suffix"] == "T1w":
+    for _, record in images.nested.iterrows():
+        if record["ent"]["suffix"] == "T1w":
             _participant_raw_t1w(
                 record, out_dir, mriqc_dir=mriqc_dir, overwrite=overwrite
             )
-        elif record["entities"]["suffix"] == "bold":
+        elif record["ent"]["suffix"] == "bold":
             _participant_raw_bold(
                 record, out_dir, mriqc_dir=mriqc_dir, overwrite=overwrite
             )
@@ -173,9 +170,9 @@ def _participant_raw_t1w(
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
 ):
-    entities = BIDSEntities.from_dict(record["entities"])
+    entities = BIDSEntities.from_dict(record["ent"])
 
-    img_path = Path(record["file"]["file_path"])
+    img_path = Path(record["finfo"]["file_path"])
     logging.info("Processing: %s", img_path)
     img = nib.load(img_path)
     img = noimg.to_iso_ras(img)
@@ -205,9 +202,9 @@ def _participant_raw_bold(
     mriqc_dir: Optional[Path],
     overwrite: bool = False,
 ):
-    entities = BIDSEntities.from_dict(record["entities"])
+    entities = BIDSEntities.from_dict(record["ent"])
 
-    img_path = Path(record["file"]["file_path"])
+    img_path = Path(record["finfo"]["file_path"])
     logging.info("Processing: %s", img_path)
     img = nib.load(img_path)
     img = noimg.to_iso_ras(img)
@@ -252,7 +249,7 @@ def _mriqc_metrics_tsv(
 
     if metrics is not None:
         # find metrics matching this image
-        query = record["entities"].dropna().to_dict()
+        query = record["ent"].dropna().to_dict()
         for k in ["datatype", "ext", "extra_entities"]:
             query.pop(k, None)
         query = " and ".join(f"{k} == {repr(v)}" for k, v in query.items())

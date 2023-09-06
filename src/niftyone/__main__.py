@@ -80,15 +80,19 @@ def main():
         ),
     )
     parser.add_argument(
-        "--nprocs",
-        "-J",
+        "--workers",
+        "-w",
         metavar="COUNT",
         type=int,
-        help=(
-            "Number of worker processes. Setting to -1 runs as many procs as "
-            "there are cpus. (default: 1)"
-        ),
+        help="Number of worker processes. Setting to -1 runs as many processes as "
+        "there are cores available. (default: 1)",
         default=1,
+    )
+    parser.add_argument(
+        "--overwrite",
+        "-x",
+        help="Overwrite previous results",
+        action="store_true",
     )
     parser.add_argument("--verbose", "-v", help="Verbose logging.", action="store_true")
 
@@ -110,10 +114,13 @@ def main():
             sub=args.participant_label,
             index_path=args.index,
             mriqc_dir=args.mriqc_dir,
-            nprocs=args.nprocs,
+            workers=args.workers,
+            overwrite=args.overwrite,
         )
     elif args.analysis_level == "group":
-        group_pipeline(bids_dir=args.bids_dir, out_dir=args.out_dir)
+        group_pipeline(
+            bids_dir=args.bids_dir, out_dir=args.out_dir, overwrite=args.overwrite
+        )
 
     elif args.analysis_level == "launch":
         launch(bids_dir=args.bids_dir, out_dir=args.out_dir)

@@ -22,7 +22,7 @@ pip install git+https://github.com/cmi-dair/niftyone.git
 ### 1. Generate figures for each participant
 
 ```bash
-niftyone bids_dir output_dir participant --nprocs 8
+niftyone bids_dir output_dir participant --workers 8
 ```
 
 ### 2. Collect participant figures into a FiftyOne dataset
