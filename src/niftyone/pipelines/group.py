@@ -1,18 +1,41 @@
 import logging
 import time
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import fiftyone as fo
 import pandas as pd
+from PIL import Image
 from bids2table import bids2table
+from bids2table.entities import BIDSEntities
 from tqdm import tqdm
 
 from niftyone import labels
+from niftyone.io import VideoWriter
 from niftyone.typing import StrPath
 
 IMG_EXTENSIONS = {".png", ".mp4"}
 LABEL_CLS_LOOKUP = {"T1w": labels.MRIQCT1w, "bold": labels.MRIQCBold}
+TAGS = [
+    "Fail",
+    "Borderline",
+    "Head motion",
+    "Eye spillover",
+    "Non-eye spillover",
+    "Coil failure",
+    "Global noise",
+    "Local noise",
+    "EM interference",
+    "Bad FoV",
+    "Wrap-around",
+    "Aliasing ghosts",
+    "Other ghosts",
+    "Intensity non-uniformity",
+    "Temporal field variation",
+    "Postproc artifact",
+    "Other artifact",
+]
 
 
 def group_pipeline(
@@ -62,7 +85,8 @@ def group_pipeline(
     dataset.add_group_field("group")
     samples = []
     for _, group_index in tqdm(grouped):
-        _add_group_samples(samples, group_index)
+        group_samples = _get_group_samples(group_index)
+        samples.extend(group_samples)
 
     logging.info("Collected samples: %d", len(samples))
     logging.info("Adding samples to the dataset")
@@ -71,18 +95,31 @@ def group_pipeline(
     logging.info("Dataset group slices: %s", dataset.group_slices)
     logging.info("Dataset media types: %s", dataset.group_media_types)
 
+    # Dummy samples for initializing tags. Currently creating empty tags is not
+    # supported in FiftyOne, this is a workaround.
+    # TODO: update if/when FiftyOne supports empty tags
+    dummy_group = fo.Group()
+    dummy_samples = []
+    for element, modality in dataset.group_media_types.items():
+        sample = _get_dummy_sample(dummy_group, element, modality, out_dir)
+        dummy_samples.append(sample)
+    dataset.add_samples(dummy_samples)
+
     logging.info("Exporting dataset")
+    fo_dir = out_dir / "fiftyone"
     dataset.export(
-        export_dir=str(out_dir),
+        export_dir=str(fo_dir),
         dataset_type=fo.types.FiftyOneDataset,
         export_media=False,
-        rel_dir=str(out_dir),
+        rel_dir=str(fo_dir),
+        overwrite=overwrite,
     )
 
     logging.info("Done! elapsed: %.2fs", time.monotonic() - tic)
 
 
-def _add_group_samples(samples: List[fo.Sample], group_index: pd.DataFrame):
+def _get_group_samples(group_index: pd.DataFrame) -> List[fo.Sample]:
+    samples = []
     group = fo.Group()
 
     qc_metrics = _load_qc_metrics(group_index)
@@ -94,6 +131,9 @@ def _add_group_samples(samples: List[fo.Sample], group_index: pd.DataFrame):
             # create sample
             element = f"{record.datatype}/{record.suffix}/{record.desc}"
             sample = fo.Sample(filepath=filepath, group=group.element(element))
+            
+            group_key = _get_group_key(record)
+            sample["group_key"] = _get_group_label(group_key)
 
             # add entity fields
             for k, v in record.items():
@@ -105,6 +145,7 @@ def _add_group_samples(samples: List[fo.Sample], group_index: pd.DataFrame):
             sample[label_cls.__name__] = label_cls(**qc_metrics)
 
             samples.append(sample)
+    return samples
 
 
 def _load_qc_metrics(group_index: pd.DataFrame) -> Dict[str, Any]:
@@ -120,3 +161,51 @@ def _load_qc_metrics(group_index: pd.DataFrame) -> Dict[str, Any]:
     metrics.drop("bids_name", axis=1, inplace=True)
     metrics = metrics.iloc[0].to_dict()
     return metrics
+
+
+def _get_group_key(record: pd.Series) -> fo.Classification:
+    group_ent = BIDSEntities.from_dict(
+        {k: v for k, v in record.items() if k not in {"desc", "ext", "file_path"}}
+    )
+    key = Path(group_ent.to_path(valid_only=True)).name
+    return key
+
+
+@lru_cache()
+def _get_group_label(key: str) -> fo.Classification:
+    # Cache the labels so that tags are shared
+    label = fo.Classification(label=key)
+    return label
+
+
+def _get_dummy_sample(
+    group: fo.Group, element: str, modality: str, out_dir: Path
+) -> fo.Sample:
+    dummy_dir = out_dir / ".DUMMY"
+    dummy_dir.mkdir(exist_ok=True)
+
+    name = element.replace("/", "_")
+    if modality == "image":
+        dummy_path = dummy_dir / (name + ".png")
+        _dummy_image(dummy_path)
+    elif modality == "video":
+        dummy_path = dummy_dir / (name + ".mp4")
+        _dummy_video(dummy_path)
+    else:
+        raise ValueError(f"Unknown modality: {modality}")
+
+    sample = fo.Sample(dummy_path, group=group.element(element))
+    label = fo.Classification(label="DUMMY")
+    label.tags = TAGS
+    sample["group_key"] = label
+    return sample
+
+
+def _dummy_image(path: StrPath):
+    Image.new("RGB", (256, 256), (0, 0, 0)).save(path)
+
+
+def _dummy_video(path: StrPath):
+    with VideoWriter(path, 10) as writer:
+        for _ in range(10):
+            writer.put(Image.new("RGB", (256, 256), (0, 0, 0)))

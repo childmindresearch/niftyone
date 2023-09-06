@@ -116,6 +116,7 @@ def main():
             mriqc_dir=args.mriqc_dir,
             workers=args.workers,
             overwrite=args.overwrite,
+            verbose=args.verbose,
         )
     elif args.analysis_level == "group":
         group_pipeline(

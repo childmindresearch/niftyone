@@ -27,6 +27,7 @@ def participant_raw_pipeline(
     mriqc_dir: Optional[StrPath] = None,
     workers: Optional[int] = None,
     overwrite: bool = False,
+    verbose: bool = False,
 ):
     """
     Participant-level niftyone raw MRI pipeline.
@@ -47,6 +48,7 @@ def participant_raw_pipeline(
     elif workers <= 0:
         raise ValueError(f"Invalid workers {workers}; expected -1 or > 0")
 
+    setup_logging("INFO" if verbose else "WARNING", max_repeats=None)
     logging.info(
         "Starting niftyone participant raw pipeline:"
         f"\n\tdataset: {bids_dir}"
@@ -62,7 +64,7 @@ def participant_raw_pipeline(
     index = bids2table(bids_dir, index_path=index_path, workers=workers)
 
     if sub is None:
-        subs = index.subjects
+        subs = sorted(index.subjects)
         logging.info("Found %d subjects", len(subs))
     else:
         subs = [sub]
@@ -75,8 +77,7 @@ def participant_raw_pipeline(
         out_dir=out_dir,
         mriqc_dir=mriqc_dir,
         overwrite=overwrite,
-        # propagate log level into worker processes
-        log_level=logging.getLogger().level if workers > 1 else None,
+        verbose=verbose,
     )
 
     if workers > 1:
@@ -104,10 +105,11 @@ def _participant_raw_worker(
     out_dir: Path,
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
-    log_level: Optional[int] = None,
+    verbose: bool = False,
 ):
-    if log_level is not None:
-        setup_logging(log_level)
+    # reset logger for each worker
+    # TODO: this is a hack, should be fixed in elbow
+    setup_logging("INFO" if verbose else "WARNING", max_repeats=None)
 
     # find current worker's partition of subjects
     if workers > 1:
