@@ -13,29 +13,11 @@ from tqdm import tqdm
 
 from niftyone import labels
 from niftyone.io import VideoWriter
+from niftyone.tags import TAGS
 from niftyone.typing import StrPath
 
 IMG_EXTENSIONS = {".png", ".mp4"}
 LABEL_CLS_LOOKUP = {"T1w": labels.MRIQCT1w, "bold": labels.MRIQCBold}
-TAGS = [
-    "Fail",
-    "Borderline",
-    "Head motion",
-    "Eye spillover",
-    "Non-eye spillover",
-    "Coil failure",
-    "Global noise",
-    "Local noise",
-    "EM interference",
-    "Bad FoV",
-    "Wrap-around",
-    "Aliasing ghosts",
-    "Other ghosts",
-    "Intensity non-uniformity",
-    "Temporal field variation",
-    "Postproc artifact",
-    "Other artifact",
-]
 
 
 def group_pipeline(

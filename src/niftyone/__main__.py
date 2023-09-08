@@ -80,6 +80,13 @@ def main():
         ),
     )
     parser.add_argument(
+        "--qc-key",
+        metavar="LABEL",
+        type=str,
+        default=None,
+        help="Extra identifier for the QC session",
+    )
+    parser.add_argument(
         "--workers",
         "-w",
         metavar="COUNT",
@@ -101,7 +108,7 @@ def main():
     setup_logging("INFO" if args.verbose else "ERROR")
 
     out_dir = Path(args.out_dir)
-    out_dir.mkdir(exist_ok=True, parents=True)
+    out_dir.mkdir(exist_ok=True)
 
     description = _make_dataset_description()
     with (out_dir / "dataset_description.json").open("w") as f:
@@ -124,7 +131,7 @@ def main():
         )
 
     elif args.analysis_level == "launch":
-        launch(bids_dir=args.bids_dir, out_dir=args.out_dir)
+        launch(bids_dir=args.bids_dir, out_dir=args.out_dir, qc_key=args.qc_key)
 
     else:
         raise NotImplementedError(
