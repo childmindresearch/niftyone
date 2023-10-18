@@ -5,6 +5,14 @@
 
 NiftyOne is a platform for bulk visualization of large-scale neuroimaging datasets. It is built with [FiftyOne](https://docs.voxel51.com/).
 
+- [NiftyOne](#niftyone)
+  * [Installation](#installation)
+  * [Testing](#testing)
+  * [Usage](#usage)
+  * [Running NiftyOne on a remote cluster](#running-niftyone-on-a-remote-cluster)
+  * [FAQ](#faq)
+
+
 ## Installation
 **1. Install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)**
 For stability, NiftyOne should be installed in it's own environment. For example,
