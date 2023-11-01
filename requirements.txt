@@ -1,6 +1,6 @@
 av==10.0.0
-bids2table @ git+https://github.com/cmi-dair/bids2table
-elbow @ git+https://github.com/cmi-dair/elbow
+bids2table==0.1.0a0
+elbow==0.1.0
 fiftyone==0.21.6
 matplotlib==3.7.1
 nibabel==5.1.0
