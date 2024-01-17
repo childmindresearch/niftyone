@@ -13,8 +13,8 @@ conda create -y -n niftyone python=3.10
 conda activate niftyone
 
 pip install -U pip
-pip install -r https://raw.githubusercontent.com/cmi-dair/niftyone/main/requirements.txt
-pip install git+https://github.com/cmi-dair/niftyone.git
+pip install -r https://raw.githubusercontent.com/childmindresearch/niftyone/main/requirements.txt
+pip install git+https://github.com/childmindresearch/niftyone.git
 ```
 
 ## Usage

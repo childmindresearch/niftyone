@@ -50,7 +50,7 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/cmi-dair/niftyone"
+"Homepage" = "https://github.com/childmindresearch/niftyone"
 
 [project.scripts]
 niftyone = "niftyone.__main__:main"

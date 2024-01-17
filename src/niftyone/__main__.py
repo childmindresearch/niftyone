@@ -20,10 +20,10 @@ def _make_dataset_description():
             {
                 "Name": "NiftyOne",
                 "Version": f"{niftyone.__version__}",
-                "CodeURL": "https://github.com/cmi-dair/niftyone",
+                "CodeURL": "https://github.com/childmindresearch/niftyone",
             }
         ],
-        "HowToAcknowledge": "Please cite our repo (https://github.com/cmi-dair/niftyone).",
+        "HowToAcknowledge": "Please cite our repo (https://github.com/childmindresearch/niftyone).",
         "License": "LGPL-2.1",
     }
     return description
