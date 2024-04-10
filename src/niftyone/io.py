@@ -5,6 +5,8 @@ from typing import Any, Union
 
 import av
 import numpy as np
+from av.container import OutputContainer
+from av.stream import Stream
 from PIL import Image
 
 from niftyone.image._convert import topil
@@ -21,8 +23,8 @@ class VideoWriter:
 
         self.where = where
         self.fps = fps
-        self._container = None
-        self._stream = None
+        self._container: OutputContainer = None
+        self._stream: Stream = None
 
     def put(self, img: Union[np.ndarray, Image.Image]) -> None:
         """Add frame to the stream."""
@@ -33,16 +35,17 @@ class VideoWriter:
             self.init_stream(width=img.width, height=img.height)
 
         frame = av.VideoFrame.from_image(img)
-        for packet in self._stream.encode(frame):  # type: ignore [attr-defined]
-            self._container.mux(packet)  # type: ignore [attr-defined]
+        for packet in self._stream.encode(frame):
+            assert self._container is not None
+            self._container.mux(packet)
 
     def init_stream(self, width: int, height: int) -> None:
         """Initialize the stream."""
         self._container = av.open(str(self.where), mode="w")
-        self._stream = self._container.add_stream("h264", rate=self.fps)  # type: ignore [attr-defined]
-        self._stream.width = width  # type: ignore [attr-defined]
-        self._stream.height = height  # type: ignore [attr-defined]
-        self._stream.pix_fmt = "yuv420p"  # type: ignore [attr-defined]
+        self._stream = self._container.add_stream("h264", rate=self.fps)
+        self._stream.width = width
+        self._stream.height = height
+        self._stream.pix_fmt = "yuv420p"
 
     def close(self) -> None:
         """Close the stream."""

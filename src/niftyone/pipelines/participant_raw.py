@@ -277,9 +277,9 @@ def _load_mriqc_group_metrics(
     entities = pd.DataFrame.from_records(entities)
 
     # drop all NA columns
-    entities.dropna(axis=1, how="all", inplace=True)  # type: ignore [attr-defined]
+    entities.dropna(axis=1, how="all", inplace=True)
 
     # cat and set entities to index
     metrics = pd.concat([entities, metrics], axis=1)
-    metrics.set_index(entities.columns.to_list(), inplace=True)  # type: ignore [attr-defined]
+    metrics.set_index(entities.columns.to_list(), inplace=True)
     return metrics

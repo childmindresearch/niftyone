@@ -61,6 +61,8 @@ testpaths = ["tests"]
 log_cli = true
 log_cli_level = "DEBUG"
 
+[tool.mypy]
+
 [tool.ruff]
 line-length = 88
 indent-width = 4
