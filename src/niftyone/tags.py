@@ -80,7 +80,7 @@ class GroupTags:
     @classmethod
     def from_json(cls, path: Union[str, Path]) -> "GroupTags":
         """Return tags from json file."""
-        with open(path, "r") as f:
+        with open(path) as f:
             return cls(json.load(f))
 
     def apply(self, dataset: fo.Dataset) -> None:

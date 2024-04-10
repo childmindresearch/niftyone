@@ -156,7 +156,7 @@ def _get_group_key(record: pd.Series) -> fo.Classification:
     return key
 
 
-@lru_cache()
+@lru_cache
 def _get_group_label(key: str) -> fo.Classification:
     # Cache the labels so that tags are shared
     label = fo.Classification(label=key)
