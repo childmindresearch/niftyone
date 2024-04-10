@@ -1,5 +1,5 @@
 import math
-from typing import Any, List
+from typing import List
 
 import numpy as np
 
@@ -10,11 +10,9 @@ def image_grid(
     imgs: List[np.ndarray],
     nrows: int = 1,
     pad: int = 2,
-    fill_value: Any = 0,
-):
-    """
-    Combine a list of images, possibly different sizes, into a grid.
-    """
+    fill_value: int = 0,
+) -> np.ndarray:
+    """Combine a list of images, possibly different sizes, into a grid."""
     rows = []
     ncols = math.ceil(len(imgs) / nrows)
     for ii in range(nrows):
@@ -35,12 +33,10 @@ def stack_images(
     imgs: List[np.ndarray],
     axis: int = 1,
     pad: int = 2,
-    fill_value: Any = 0,
+    fill_value: int = 0,
     align: Align = Align.CENTER,
 ) -> np.ndarray:
-    """
-    Stack a list of images along an axis.
-    """
+    """Stack a list of images along an axis."""
     imgs = [np.asarray(img) for img in imgs]
 
     ndims = {img.ndim for img in imgs}

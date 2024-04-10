@@ -11,9 +11,7 @@ from ._slice import index_img
 
 
 def center_of_mass(img: NiftiLike, mask: bool = False) -> np.ndarray:
-    """
-    Find the coordinate for the image center of mass.
-    """
+    """Find the coordinate for the image center of mass."""
     check_3d_4d(img)
     if img.ndim == 4:
         img = index_img(img, idx=None)
@@ -31,8 +29,7 @@ def center_of_mass(img: NiftiLike, mask: bool = False) -> np.ndarray:
 
 
 def peak_of_mass(img: NiftiLike, mask: bool = False) -> np.ndarray:
-    """
-    Find the coordinate for the "peak" of image mass.
+    """Find the coordinate for the "peak" of image mass.
 
     First identifies the peak in the Z axis, and then finds the X and Y axis peaks
     constrained to that slice. The goal is basically to find the planes passing through

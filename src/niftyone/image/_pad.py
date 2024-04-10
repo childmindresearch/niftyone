@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List
+from typing import List
 
 import numpy as np
 
@@ -16,12 +16,10 @@ def pad_to_size(
     img: np.ndarray,
     size: int,
     axis: int,
-    fill_value: Any = 0,
+    fill_value: int = 0,
     align: Align = Align.CENTER,
 ) -> np.ndarray:
-    """
-    Pad an image to a target size on one of the axes.
-    """
+    """Pad an image to a target size on one of the axes."""
     img = np.asarray(img)
     current_size = img.shape[axis]
     assert current_size <= size, f"Size {size} is too small for image"
@@ -45,12 +43,10 @@ def pad_to_size(
 def pad_to_equal(
     imgs: List[np.ndarray],
     axis: int,
-    fill_value: Any = 0,
+    fill_value: int = 0,
     align: Align = Align.CENTER,
 ) -> List[np.ndarray]:
-    """
-    Pad images to be all the same dimension for a given axis.
-    """
+    """Pad images to be all the same dimension for a given axis."""
     imgs = [np.asarray(img) for img in imgs]
 
     size = max(img.shape[axis] for img in imgs)
@@ -61,10 +57,8 @@ def pad_to_equal(
     return imgs
 
 
-def pad_to_square(img: np.ndarray, fill_value: Any = 0) -> np.ndarray:
-    """
-    Pad an image to be square.
-    """
+def pad_to_square(img: np.ndarray, fill_value: int = 0) -> np.ndarray:
+    """Pad an image to be square."""
     img = np.asarray(img)
     h, w = img.shape[:2]
     size = max(w, h)

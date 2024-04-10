@@ -1,3 +1,5 @@
+"""Niftyone types."""
+
 import os
 from typing import Tuple, Union
 

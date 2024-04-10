@@ -1,3 +1,4 @@
+"""Niftyone tags."""
 
 import ast
 import json
@@ -32,25 +33,26 @@ _TAG_SET = set(TAGS)
 
 
 class GroupTags:
-    """
-    QC tags for individual data acquisitions. Interfaces between FiftyOne datasets and
+    """QC tags for individual data acquisitions.
+
+    Interfaces between FiftyOne datasets and
     pandas DataFrames, CSV, JSON.
     """
-    def __init__(self, tags_dict: Dict[str, Any]):
+
+    def __init__(self, tags_dict: Dict[str, Any]) -> None:
+        """Initialize class."""
         self.tags_dict = tags_dict
 
     @classmethod
-    def from_dataset(cls, dataset: fo.Dataset):
-        """
-        Extract tags from a FiftyOne dataset.
-        """
+    def from_dataset(cls, dataset: fo.Dataset) -> "GroupTags":
+        """Extract tags from a FiftyOne dataset."""
 
         def new_record() -> Dict[str, Any]:
             record = {tag: False for tag in TAGS}
-            record["_Extra"] = []
+            record["_Extra"] = []  # type: ignore [assignment]
             return record
 
-        tags_dict = defaultdict(new_record)
+        tags_dict: dict[str, Any] = defaultdict(new_record)
         for sample in dataset:
             label: fo.Classification = sample["group_key"]
             record = tags_dict[label.label]
@@ -64,24 +66,25 @@ class GroupTags:
         return cls(dict(tags_dict))
 
     @classmethod
-    def from_df(cls, df: pd.DataFrame):
+    def from_df(cls, df: pd.DataFrame) -> "GroupTags":
+        """Return tags from datafame."""
         return cls(df.to_dict(orient="index"))
 
     @classmethod
-    def from_csv(cls, path: Union[str, Path]):
+    def from_csv(cls, path: Union[str, Path]) -> "GroupTags":
+        """Return tags from csv."""
         # TODO: is there a better way to read the _Extra column?
         df = pd.read_csv(path, index_col=0, converters={"_Extra": ast.literal_eval})
         return cls.from_df(df)
 
     @classmethod
-    def from_json(cls, path: Union[str, Path]):
+    def from_json(cls, path: Union[str, Path]) -> "GroupTags":
+        """Return tags from json file."""
         with open(path, "r") as f:
             return cls(json.load(f))
 
-    def apply(self, dataset: fo.Dataset):
-        """
-        Apply tags to a given FiftyOne dataset. This will overwrite any existing tags.
-        """
+    def apply(self, dataset: fo.Dataset) -> None:
+        """Apply tags to a given FiftyOne dataset, overwriting existing tags."""
         for sample in dataset:
             label: fo.Classification = sample["group_key"]
             label.tags = []
@@ -93,15 +96,19 @@ class GroupTags:
                     elif value:
                         label.tags.append(tag)
 
-    def to_df(self):
+    def to_df(self) -> pd.DataFrame:
+        """Convert tags dict to pandas dataframe."""
         return pd.DataFrame.from_dict(self.tags_dict, orient="index")
 
-    def to_csv(self, path: Union[str, Path]):
+    def to_csv(self, path: Union[str, Path]) -> None:
+        """Save to csv."""
         self.to_df().to_csv(path)
 
-    def to_json(self, path: Union[str, Path]):
+    def to_json(self, path: Union[str, Path]) -> None:
+        """Save to json."""
         with open(path, "w") as f:
             json.dump(self.tags_dict, f)
 
-    def equals(self, other: "GroupTags"):
+    def equals(self, other: "GroupTags") -> bool:
+        """Assert two groups of tabs are equal."""
         return self.tags_dict == other.tags_dict

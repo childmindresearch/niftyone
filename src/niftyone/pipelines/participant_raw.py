@@ -1,3 +1,5 @@
+"""Raw participant-label pipeline."""
+
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -25,13 +27,11 @@ def participant_raw_pipeline(
     sub: Optional[str] = None,
     index_path: Optional[StrPath] = None,
     mriqc_dir: Optional[StrPath] = None,
-    workers: Optional[int] = None,
+    workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
-):
-    """
-    Participant-level niftyone raw MRI pipeline.
-    """
+) -> None:
+    """Participant-level niftyone raw MRI pipeline."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
@@ -41,8 +41,6 @@ def participant_raw_pipeline(
     elif mriqc_dir is not None:
         mriqc_dir = Path(mriqc_dir)
 
-    if workers is None:
-        workers = 1
     elif workers == -1:
         workers = cpu_count()
     elif workers <= 0:
@@ -82,7 +80,7 @@ def participant_raw_pipeline(
 
     if workers > 1:
         with ProcessPoolExecutor(workers) as pool:
-            futures_to_id = {pool.submit(_worker, ii): ii for ii in range(workers)}
+            futures_to_id = {pool.submit(_worker, ii): ii for ii in range(workers)}  # type: ignore [arg-type]
 
             for future in as_completed(futures_to_id):
                 try:
@@ -106,7 +104,7 @@ def _participant_raw_worker(
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
     verbose: bool = False,
-):
+) -> None:
     # reset logger for each worker
     # TODO: this is a hack, should be fixed in elbow
     setup_logging("INFO" if verbose else "WARNING", max_repeats=None)
@@ -131,13 +129,12 @@ def _participant_raw_single(
     out_dir: Path,
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
-):
+) -> None:
     tic = time.monotonic()
     logging.info("Generating raw figures for subject: %s", sub)
 
     images = (
-        index
-        .filter("sub", sub)
+        index.filter("sub", sub)
         .filter("suffix", items={"T1w", "bold"})
         .filter("ext", items={".nii", ".nii.gz"})
     )
@@ -171,7 +168,7 @@ def _participant_raw_t1w(
     out_dir: Path,
     mriqc_dir: Optional[Path] = None,
     overwrite: bool = False,
-):
+) -> None:
     entities = BIDSEntities.from_dict(record["ent"])
 
     img_path = Path(record["finfo"]["file_path"])
@@ -203,7 +200,7 @@ def _participant_raw_bold(
     out_dir: Path,
     mriqc_dir: Optional[Path],
     overwrite: bool = False,
-):
+) -> None:
     entities = BIDSEntities.from_dict(record["ent"])
 
     img_path = Path(record["finfo"]["file_path"])
@@ -240,7 +237,7 @@ def _mriqc_metrics_tsv(
     out_dir: Path,
     mriqc_dir: Path,
     overwrite: bool = False,
-):
+) -> None:
     out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
         prefix=out_dir
     )
@@ -280,9 +277,9 @@ def _load_mriqc_group_metrics(
     entities = pd.DataFrame.from_records(entities)
 
     # drop all NA columns
-    entities.dropna(axis=1, how="all", inplace=True)
+    entities.dropna(axis=1, how="all", inplace=True)  # type: ignore [attr-defined]
 
     # cat and set entities to index
     metrics = pd.concat([entities, metrics], axis=1)
-    metrics.set_index(entities.columns.to_list(), inplace=True)
+    metrics.set_index(entities.columns.to_list(), inplace=True)  # type: ignore [attr-defined]
     return metrics

@@ -1,3 +1,5 @@
+"""Launch application."""
+
 import logging
 from pathlib import Path
 from typing import Optional
@@ -13,10 +15,8 @@ def launch(
     out_dir: StrPath,
     ds_name: Optional[str] = None,
     qc_key: Optional[str] = None,
-):
-    """
-    Launch the FiftyOne app to visualize a dataset (after it has been generated).
-    """
+) -> None:
+    """Launch the FiftyOne app to visualize a dataset (after it has been generated)."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
     if ds_name is None:
@@ -33,9 +33,9 @@ def launch(
             dataset_dir=out_dir / "fiftyone",
             dataset_type=fo.types.FiftyOneDataset,
             name=ds_name,
-            persistent=True
+            persistent=True,
         )
-    
+
     tags_path = out_dir / "QC" / f"{ds_name}_tags.json"
     if tags_path.exists():
         logging.info("Loading QC tags from %s", tags_path)

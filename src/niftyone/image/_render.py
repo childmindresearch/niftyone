@@ -21,9 +21,7 @@ def render_slice(
     annotate: bool = True,
     fontsize: int = 14,
 ) -> Image.Image:
-    """
-    Render one slice of a volume as a PIL image.
-    """
+    """Render one slice of a volume as a PIL image."""
     frame = slice_volume(img, coord=coord, axis=axis)
     frame = reorient(frame)
     frame = topil(frame, vmin=vmin, vmax=vmax, cmap=cmap)

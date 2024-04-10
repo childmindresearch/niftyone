@@ -1,6 +1,8 @@
+"""Entrypoint of application."""
+
 import argparse
 import json
-import sys
+from collections.abc import Collection, Sequence
 from pathlib import Path
 
 from elbow.utils import setup_logging
@@ -11,10 +13,10 @@ from niftyone.pipelines.group import group_pipeline
 from niftyone.pipelines.participant_raw import participant_raw_pipeline
 
 
-def _make_dataset_description():
+def _make_dataset_description() -> dict[str, str | Sequence[Collection[str]]]:
     description = {
         "Name": "NiftyOne",
-        "BIDSVersion": "1.8.0",
+        "BIDSVersion": "1.9.0",
         "DatasetType": "derivative",
         "GeneratedBy": [
             {
@@ -29,10 +31,8 @@ def _make_dataset_description():
     return description
 
 
-def main():
-    """
-    NiftyOne BIDS-app entrypoint.
-    """
+def main() -> None:
+    """NiftyOne BIDS-app entrypoint."""
     parser = argparse.ArgumentParser("niftyone")
 
     parser.add_argument(
@@ -135,9 +135,9 @@ def main():
 
     else:
         raise NotImplementedError(
-            f"Analysis level {args.analysis_level} not implemented"
+            f"Analysis level {args.analysis_level} not implemented."
         )
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

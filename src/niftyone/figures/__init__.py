@@ -1,0 +1,1 @@
+"""Initialize figures module."""

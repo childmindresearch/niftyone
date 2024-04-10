@@ -1,6 +1,6 @@
 from functools import lru_cache
 from importlib import resources
-from typing import Any, Union
+from typing import Union
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -11,15 +11,14 @@ def annotate(
     text: str,
     loc: str,
     size: int = 10,
-    fill: Any = "white",
+    fill: str = "white",
     inplace: bool = False,
 ) -> Image.Image:
-    """
-    Annotate an image with text. Locations follow the convention from pyplot, e.g.
-    "upper left", "lower right". However, only a subset of locations are currently
-    implemented.
-    """
+    """Annotate an image with text.
 
+    Locations follow the convention from pyplot, e.g. "upper left", "lower right".
+    However, only a subset of locations are currently implemented.
+    """
     if isinstance(img, np.ndarray):
         img = Image.fromarray(img)
 

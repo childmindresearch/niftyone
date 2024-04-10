@@ -1,6 +1,4 @@
-"""
-Utilities for normalizing value ranges.
-"""
+"""Utilities for normalizing value ranges."""
 
 from typing import NamedTuple
 
@@ -22,19 +20,14 @@ class Window(NamedTuple):
 
 
 def minmax(img: NiftiLike) -> Window:
-    """
-    Compute the min-max window for an image.
-    """
+    """Compute the min-max window for an image."""
     data = get_fdata(img)
     vmin, vmax = np.nanmin(data), np.nanmax(data)
     return Window(vmin, vmax)
 
 
 def center_minmax(img: NiftiLike) -> Window:
-    """
-    Compute the min-max window for just the middle third of the axial slice passing
-    through the volume "peak" of mass. If 4d, compute over the `idx` volume.
-    """
+    """Compute min-max window over center of axial slice; compute over `idx` if 4D."""
     check_3d_4d(img)
     if img.ndim == 4:
         img = index_img(img, idx=None)

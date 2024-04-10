@@ -15,11 +15,8 @@ def slice_volume(
     coord: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     axis: int = 0,
     idx: Optional[int] = 0,
-):
-    """
-    Slice volume at a coordinate along an axis. The affine is optional for nibabel nifti
-    images.
-    """
+) -> np.ndarray:
+    """Slice volume at a coordinate along an axis."""
     if img.ndim == 4:
         img = index_img(img, idx=idx)
     data = get_fdata(img)
@@ -31,9 +28,7 @@ def slice_volume(
 
 
 def index_img(img: NiftiLike, idx: Optional[int] = 0) -> NiftiLike:
-    """
-    Index a 4D nifti image. If `idx` is `None`, return the middle volume.
-    """
+    """Index a 4D nifti image. If `idx` is `None`, return the middle volume."""
     check_4d(img)
     if idx is None:
         idx = img.shape[-1] // 2
@@ -50,10 +45,10 @@ def index_img(img: NiftiLike, idx: Optional[int] = 0) -> NiftiLike:
     return slc
 
 
-def crop_middle_third(data: np.ndarray, axis: Union[int, Tuple[int, ...]] = 0):
-    """
-    Crop a data array to the middle third along one or axes.
-    """
+def crop_middle_third(
+    data: np.ndarray, axis: Union[int, Tuple[int, ...]] = 0
+) -> np.ndarray:
+    """Crop a data array to the middle third along one or axes."""
     if isinstance(axis, int):
         sz = data.shape[axis]
         cropped = slice_array(data, slice(sz // 3, 2 * sz // 3), axis=axis)
@@ -65,8 +60,9 @@ def crop_middle_third(data: np.ndarray, axis: Union[int, Tuple[int, ...]] = 0):
 
 
 def slice_array(data: np.ndarray, idx: Union[int, slice], axis: int = 0) -> np.ndarray:
-    """
-    Slice a numpy array along an axis. `idx` should be an integer or slice object.
+    """Slice a numpy array along an axis.
+
+    `idx` should be an integer or slice object.
     Similar to `np.take()` but faster since it doesn't default to fancy indexing.
 
     Reference:
