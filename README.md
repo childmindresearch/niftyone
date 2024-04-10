@@ -6,14 +6,13 @@ NiftyOne is a platform for bulk visualization of large-scale neuroimaging datase
 
 ## Installation
 
-For stability, NiftyOne should be installed in it's own environment. For example,
+For stability, NiftyOne should be installed in it's own environment. For example, to install using python 3.10:
 
 ```bash
 conda create -y -n niftyone python=3.10
 conda activate niftyone
 
 pip install -U pip
-pip install -r https://raw.githubusercontent.com/childmindresearch/niftyone/main/requirements.txt
 pip install git+https://github.com/childmindresearch/niftyone.git
 ```
 
