@@ -40,7 +40,6 @@ class GroupTags:
     """
 
     def __init__(self, tags_dict: Dict[str, Any]) -> None:
-        """Initialize class."""
         self.tags_dict = tags_dict
 
     @classmethod

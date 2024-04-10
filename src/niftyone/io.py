@@ -15,7 +15,6 @@ class VideoWriter:
     """A simple video streaming writer."""
 
     def __init__(self, where: StrPath, fps: int) -> None:
-        """Initialize class."""
         where = Path(where)
         if where.suffix != ".mp4":
             raise ValueError("Only mp4 output supported")
@@ -55,9 +54,7 @@ class VideoWriter:
             self._container.close()
 
     def __enter__(self) -> "VideoWriter":
-        """Create and return class, allows for context management."""
         return self
 
     def __exit__(self, *args: tuple[Any]) -> None:
-        """Ensure class is closed."""
         self.close()

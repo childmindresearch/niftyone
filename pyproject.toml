@@ -71,7 +71,9 @@ target-version = "py38"
 select = ["ANN", "D", "E", "F", "I"]
 ignore = [
   "ANN101",  # self should not be annotated.
-  "ANN102"  # cls should not be annotated.
+  "ANN102",  # cls should not be annotated.
+  "D105",  # undocumented-magic-method (e.g. __str__)
+  "D107"  # undocumented-public-init (e.g. __init__)
 ]
 fixable = ["ALL"]
 unfixable = []
