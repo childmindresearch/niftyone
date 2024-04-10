@@ -33,6 +33,7 @@ tests/results
 
 # Local environment
 .venv
+*venv*
 
 # Jupyter
 .ipynb_checkpoints
