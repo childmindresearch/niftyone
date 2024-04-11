@@ -80,7 +80,7 @@ def participant_raw_pipeline(
 
     if workers > 1:
         with ProcessPoolExecutor(workers) as pool:
-            futures_to_id = {pool.submit(_worker, ii): ii for ii in range(workers)}  # type: ignore [arg-type]
+            futures_to_id = {pool.submit(_worker, ii): ii for ii in range(workers)}
 
             for future in as_completed(futures_to_id):
                 try:
@@ -273,8 +273,8 @@ def _load_mriqc_group_metrics(
 
     # parse bids names to entities
     bids_names = metrics["bids_name"]
-    entities = [BIDSEntities.from_path(bids_name).to_dict() for bids_name in bids_names]
-    entities = pd.DataFrame.from_records(entities)
+    records = [BIDSEntities.from_path(bids_name).to_dict() for bids_name in bids_names]
+    entities = pd.DataFrame.from_records(records)
 
     # drop all NA columns
     entities.dropna(axis=1, how="all", inplace=True)
