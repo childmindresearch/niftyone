@@ -47,8 +47,8 @@ class GroupTags:
         """Extract tags from a FiftyOne dataset."""
 
         def new_record() -> Dict[str, Any]:
-            record = {tag: False for tag in TAGS}
-            record["_Extra"] = []  # type: ignore [assignment]
+            record: dict[str, Any] = {tag: False for tag in TAGS}
+            record["_Extra"] = []
             return record
 
         tags_dict: dict[str, Any] = defaultdict(new_record)
