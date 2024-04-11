@@ -1,15 +1,11 @@
-"""
-Custom labels used in the niftyone dashboard
-"""
+"""Custom labels used in the niftyone dashboard."""
 
 import fiftyone.core.fields as fof
 from fiftyone.core.labels import Label
 
 
 class MRIQCT1w(Label):
-    """
-    MRIQC T1w IQMs
-    """
+    """MRIQC T1w IQMs."""
 
     cjv = fof.FloatField()
     cnr = fof.FloatField()
@@ -50,9 +46,7 @@ class MRIQCT1w(Label):
 
 
 class MRIQCBold(Label):
-    """
-    MRIQC BOLD IQMs
-    """
+    """MRIQC BOLD IQMs."""
 
     aor = fof.FloatField()
     aqi = fof.FloatField()

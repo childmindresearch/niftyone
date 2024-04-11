@@ -2,8 +2,7 @@ import numpy as np
 
 
 def apply_affine(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
-    """
-    Apply an affine transformation to an array of 3D coordinates
+    """Apply an affine transformation to an array of 3D coordinates.
 
     Args:
         affine: affine transform, shape (4, 4)
@@ -30,17 +29,13 @@ def apply_affine(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
 
 
 def coord2ind(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
-    """
-    Transform coordinates to volume indices.
-    """
+    """Transform coordinates to volume indices."""
     ind = apply_affine(np.linalg.inv(affine), coord)
     ind = ind.astype(np.int32)
     return ind
 
 
 def ind2coord(affine: np.ndarray, ind: np.ndarray) -> np.ndarray:
-    """
-    Transform volume indices to coordinates.
-    """
+    """Transform volume indices to coordinates."""
     coord = apply_affine(affine, ind)
     return coord

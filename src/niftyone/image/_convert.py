@@ -13,9 +13,7 @@ EPS = 1e-8
 
 
 def get_fdata(img: NiftiLike) -> np.ndarray:
-    """
-    Get the array data of a nifti-like image.
-    """
+    """Get the array data of a nifti-like image."""
     if isinstance(img, nib.nifti1.Nifti1Image):
         img = img.get_fdata()
     img = np.asarray(img)
@@ -28,9 +26,7 @@ def topil(
     vmax: Optional[float] = None,
     cmap: str = "gray",
 ) -> Image.Image:
-    """
-    Convert a numpy array to a PIL image.
-    """
+    """Convert a numpy array to a PIL image."""
     if isinstance(data, Image.Image):
         return data
 
@@ -50,10 +46,8 @@ def overlay(
     img1: Image.Image,
     img2: Image.Image,
     alpha: Optional[float] = 0.5,
-):
-    """
-    Overlay two PIL images with alpha compositing.
-    """
+) -> Image.Image:
+    """Overlay two PIL images with alpha compositing."""
     img1 = img1.convert("RGBA")
     img2 = img2.convert("RGBA")
 
@@ -68,10 +62,7 @@ def normalize(
     vmin: Optional[float] = None,
     vmax: Optional[float] = None,
 ) -> np.ndarray:
-    """
-    Normalize data to [0, 1] using vmin and vmax. If vmin and/or vmax are None, default
-    to the data min/max.
-    """
+    """Normalize data using vmin/vmax if provided, otherwise data min/max."""
     data = np.asarray(data)
     if vmin is None:
         vmin = np.nanmin(data)
@@ -85,26 +76,20 @@ def normalize(
 def scale(
     img: Image.Image, height: int, resample: Optional[Image.Resampling] = None
 ) -> Image.Image:
-    """
-    Scale an image to a target height.
-    """
+    """Scale an image to a target height."""
     scale = height / img.height
     size = int(scale * img.width), height
     img = img.resize(size, resample=resample)
     return img
 
 
-def reorient(img: np.ndarray):
-    """
-    Reorient image axes from XY (i.e. Nifti-like) to IJ (i.e. typical image-like).
-    """
+def reorient(img: np.ndarray) -> np.ndarray:
+    """Reorient image axes from XY (i.e. Nifti-like) to IJ (i.e. typical image-like)."""
     return np.flipud(np.swapaxes(img, 0, 1))
 
 
 def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
-    """
-    Convert a nifti image to RAS orientation with isotropic resolution.
-    """
+    """Convert a nifti image to RAS orientation with isotropic resolution."""
     img = reorder_img(img)
     affine = img.affine
     pixdim = np.diag(affine)[:3]

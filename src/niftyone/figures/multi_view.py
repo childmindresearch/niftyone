@@ -1,3 +1,5 @@
+"""Generation of different multi-views."""
+
 from typing import List, Optional, Tuple
 
 import nibabel as nib
@@ -26,14 +28,12 @@ def multi_view_frame(
     alpha: float = 0.5,
     fontsize: int = 14,
 ) -> Image.Image:
-    """
-    Construct a multi view image panel. Returns a PIL Image.
-    """
+    """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
     check_iso_ras(img)
     if overlay is not None:
         check_3d(overlay)
-        overlay = check_iso_ras(overlay)
+        check_iso_ras(overlay)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     panels = []
@@ -87,9 +87,7 @@ def three_view_frame(
     alpha: float = 0.5,
     fontsize: int = 14,
 ) -> Image.Image:
-    """
-    Construct a three view image panel. Returns a PIL Image.
-    """
+    """Construct a three view image panel. Returns a PIL Image."""
     check_3d_4d(img)
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
@@ -124,10 +122,8 @@ def three_view_video(
     panel_height: Optional[int] = 256,
     cmap: str = "gray",
     fontsize: int = 14,
-):
-    """
-    Save a three view panel video.
-    """
+) -> None:
+    """Save a three view panel video."""
     check_4d(img)
 
     if coord is None:
@@ -162,7 +158,8 @@ def slice_video(
     panel_height: Optional[int] = 256,
     cmap: str = "gray",
     fontsize: int = 14,
-):
+) -> None:
+    """Save video scrolling through range of slices."""
     check_3d_4d(img)
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
@@ -177,7 +174,7 @@ def slice_video(
     start, stop = indices[0], indices[-1]
 
     # Initial coord
-    coord = [0.0, 0.0, 0.0]
+    coord = (0.0, 0.0, 0.0)
     ind = noimg.coord2ind(img.affine, coord)
 
     with VideoWriter(out, fps=10) as writer:

@@ -1,11 +1,15 @@
+"""Bold fMRI figure generation module."""
+
 import math
 from typing import Optional
 
 import matplotlib as mpl
+import matplotlib.figure as mpl_figure
 import nibabel as nib
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
+from PIL import Image
 from sklearn.cluster import KMeans
 
 import niftyone.image as noimg
@@ -26,9 +30,7 @@ def cluster_timeseries(
     n_samples: int = 10000,
     seed: int = 42,
 ) -> nib.Nifti1Image:
-    """
-    Segment a BOLD volume by k-means clustering to the timeseries.
-    """
+    """Segment a BOLD volume by k-means clustering to the timeseries."""
     rng = np.random.default_rng(seed)
 
     # bold data and mean volume
@@ -68,10 +70,8 @@ def carpet_plot(
     seed: int = 42,
     label_cmap: str = "brg",
     alpha: float = 0.3,
-):
-    """
-    BOLD "carpet" plot showing timeseries for a subset of voxels.
-    """
+) -> mpl_figure.Figure:
+    """BOLD "carpet" plot showing timeseries for a subset of voxels."""
     rng = np.random.default_rng(seed)
 
     check_4d(bold)
@@ -158,10 +158,8 @@ def bold_mean_std(
     bold: nib.Nifti1Image,
     out: Optional[StrPath] = None,
     std_vmax_ratio: float = 0.1,
-):
-    """
-    Panel showing three-view BOLD mean and three-view tSNR.
-    """
+) -> Image.Image:
+    """Panel showing three-view BOLD mean and three-view tSNR."""
     check_4d(bold)
     check_iso_ras(bold)
 

@@ -1,3 +1,5 @@
+"""Pipeline for group-level."""
+
 import logging
 import time
 from functools import lru_cache
@@ -6,9 +8,9 @@ from typing import Any, Dict, List, Optional
 
 import fiftyone as fo
 import pandas as pd
-from PIL import Image
 from bids2table import bids2table
 from bids2table.entities import BIDSEntities
+from PIL import Image
 from tqdm import tqdm
 
 from niftyone import labels
@@ -25,9 +27,10 @@ def group_pipeline(
     out_dir: StrPath,
     ds_name: Optional[str] = None,
     overwrite: bool = False,
-):
-    """
-    NiftyOne group pipeline. Collects image samples into a FiftyOne dataset and exports
+) -> None:
+    """NiftyOne group pipeline.
+
+    Collects image samples into a FiftyOne dataset and exports
     to the output directory.
     """
     tic = time.monotonic()
@@ -113,7 +116,7 @@ def _get_group_samples(group_index: pd.DataFrame) -> List[fo.Sample]:
             # create sample
             element = f"{record.datatype}/{record.suffix}/{record.desc}"
             sample = fo.Sample(filepath=filepath, group=group.element(element))
-            
+
             group_key = _get_group_key(record)
             sample["group_key"] = _get_group_label(group_key)
 
@@ -153,7 +156,7 @@ def _get_group_key(record: pd.Series) -> fo.Classification:
     return key
 
 
-@lru_cache()
+@lru_cache
 def _get_group_label(key: str) -> fo.Classification:
     # Cache the labels so that tags are shared
     label = fo.Classification(label=key)
@@ -183,11 +186,11 @@ def _get_dummy_sample(
     return sample
 
 
-def _dummy_image(path: StrPath):
+def _dummy_image(path: StrPath) -> None:
     Image.new("RGB", (256, 256), (0, 0, 0)).save(path)
 
 
-def _dummy_video(path: StrPath):
+def _dummy_video(path: StrPath) -> None:
     with VideoWriter(path, 10) as writer:
         for _ in range(10):
             writer.put(Image.new("RGB", (256, 256), (0, 0, 0)))

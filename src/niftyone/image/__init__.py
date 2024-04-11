@@ -1,8 +1,4 @@
-# flake8: noqa
-
-"""
-Image processing utilities
-"""
+"""Image processing utilities."""
 
 from ._annotate import annotate
 from ._centroid import center_of_mass, peak_of_mass
