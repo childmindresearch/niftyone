@@ -22,18 +22,18 @@ classifiers = [
   "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
-  "av",
-  "bids2table",
-  "elbow",
-  "fiftyone",
-  "matplotlib",
-  "nibabel",
-  "nilearn",
-  "numpy",
-  "pandas",
-  "pillow",
-  "scikit-learn",
-  "scipy"
+    "av",
+    "bids2table",
+    "elbow",
+    "fiftyone",
+    "matplotlib",
+    "nibabel",
+    "nilearn",
+    "numpy",
+    "pandas >= 2.0, < 2.1",
+    "Pillow",
+    "scikit-learn",
+    "scipy",
 ]
 dynamic = ["version"]
 
