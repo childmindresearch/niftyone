@@ -3,8 +3,8 @@ from typing import Optional, Tuple, Union
 import nibabel as nib
 import numpy as np
 
-from niftyone.checks import check_4d
-from niftyone.typing import NiftiLike
+from niclips.checks import check_4d
+from niclips.typing import NiftiLike
 
 from ._convert import get_fdata
 from ._coord import coord2ind

@@ -4,8 +4,8 @@ from typing import NamedTuple
 
 import numpy as np
 
-from niftyone.checks import check_3d_4d
-from niftyone.typing import NiftiLike
+from niclips.checks import check_3d_4d
+from niclips.typing import NiftiLike
 
 from ._centroid import peak_of_mass
 from ._convert import get_fdata

@@ -6,11 +6,11 @@ import nibabel as nib
 import numpy as np
 from PIL import Image
 
-import niftyone.image as noimg
-from niftyone.checks import check_3d, check_3d_4d, check_4d, check_iso_ras
-from niftyone.defaults import get_default_coord, get_default_vmin_vmax
-from niftyone.io import VideoWriter
-from niftyone.typing import Coord, StrPath
+import niclips.image as noimg
+from niclips.checks import check_3d, check_3d_4d, check_4d, check_iso_ras
+from niclips.defaults import get_default_coord, get_default_vmin_vmax
+from niclips.io import VideoWriter
+from niclips.typing import Coord, StrPath
 
 
 def multi_view_frame(

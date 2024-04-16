@@ -15,9 +15,9 @@ from bids2table.entities import BIDSEntities
 from elbow.utils import cpu_count, setup_logging
 from matplotlib import pyplot as plt
 
-import niftyone.image as noimg
-from niftyone.figures.bold import bold_mean_std, carpet_plot
-from niftyone.figures.multi_view import slice_video, three_view_frame, three_view_video
+import niclips.image as noimg
+from niclips.figures.bold import bold_mean_std, carpet_plot
+from niclips.figures.multi_view import slice_video, three_view_frame, three_view_video
 from niftyone.typing import StrPath
 
 

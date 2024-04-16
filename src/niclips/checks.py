@@ -3,7 +3,7 @@
 import nibabel as nib
 import numpy as np
 
-from niftyone.typing import NiftiLike
+from niclips.typing import NiftiLike
 
 
 def check_3d(img: NiftiLike) -> None:
