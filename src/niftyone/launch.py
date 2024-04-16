@@ -29,13 +29,19 @@ def launch(
         dataset = fo.load_dataset(ds_name)
     else:
         logging.info("Loading dataset from %s", out_dir / "fiftyone")
-        dataset = fo.Dataset.from_dir(
-            dataset_dir=out_dir / "fiftyone",
-            dataset_type=fo.types.FiftyOneDataset,
-            name=ds_name,
-            persistent=True,
-        )
-
+        try:
+            dataset = fo.Dataset.from_dir(
+                dataset_dir=out_dir / "fiftyone",
+                dataset_type=fo.types.FiftyOneDataset,
+                name=ds_name,
+                persistent=True
+            )
+        except FileNotFoundError as err:
+            raise FileNotFoundError(
+                f"FiftyOne dataset not found in {out_dir}. "
+                "Did you run the participant and group level?"
+            ) from err
+    
     tags_path = out_dir / "QC" / f"{ds_name}_tags.json"
     if tags_path.exists():
         logging.info("Loading QC tags from %s", tags_path)
