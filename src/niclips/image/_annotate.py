@@ -48,6 +48,6 @@ def annotate(
 
 @lru_cache
 def _get_font(size: int) -> ImageFont:
-    with resources.path("niftyone.image", "SpaceMono-Regular.ttf") as p:
+    with resources.path("niclips.image._resources", "SpaceMono-Regular.ttf") as p:
         font = ImageFont.truetype(str(p), size=size)
     return font

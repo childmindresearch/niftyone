@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 import nibabel as nib
 
-import niftyone.image as noimg
+import niclips.image as noimg
 
 
 def get_default_coord(img: nib.Nifti1Image) -> Tuple[float, float, float]:

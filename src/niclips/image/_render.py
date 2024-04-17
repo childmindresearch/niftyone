@@ -3,7 +3,7 @@ from typing import Optional
 import nibabel as nib
 from PIL import Image
 
-from niftyone.typing import Coord
+from niclips.typing import Coord
 
 from ._annotate import annotate as draw_annotation
 from ._convert import reorient, scale, topil

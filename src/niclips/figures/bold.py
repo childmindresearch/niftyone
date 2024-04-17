@@ -12,10 +12,10 @@ from matplotlib.gridspec import GridSpec
 from PIL import Image
 from sklearn.cluster import KMeans
 
-import niftyone.image as noimg
-from niftyone.checks import check_3d, check_4d, check_iso_ras
-from niftyone.defaults import get_default_coord, get_default_vmin_vmax
-from niftyone.typing import StrPath
+import niclips.image as noimg
+from niclips.checks import check_3d, check_4d, check_iso_ras
+from niclips.defaults import get_default_coord, get_default_vmin_vmax
+from niclips.typing import StrPath
 
 from .multi_view import three_view_frame
 

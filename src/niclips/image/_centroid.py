@@ -2,8 +2,8 @@ import nibabel as nib
 import numpy as np
 from scipy import ndimage
 
-from niftyone.checks import check_3d_4d
-from niftyone.typing import NiftiLike
+from niclips.checks import check_3d_4d
+from niclips.typing import NiftiLike
 
 from ._convert import get_fdata
 from ._coord import ind2coord

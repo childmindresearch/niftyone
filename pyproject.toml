@@ -30,8 +30,8 @@ dependencies = [
   "nibabel",
   "nilearn",
   "numpy",
-  "pandas",
-  "pillow",
+  "pandas >= 2.0, < 2.1",
+  "Pillow",
   "scikit-learn",
   "scipy"
 ]

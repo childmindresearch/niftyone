@@ -7,7 +7,7 @@ import numpy as np
 from nilearn.image import reorder_img, resample_img
 from PIL import Image
 
-from niftyone.typing import NiftiLike
+from niclips.typing import NiftiLike
 
 EPS = 1e-8
 
