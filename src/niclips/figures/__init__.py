@@ -1,3 +1,1 @@
-"""
-High-level figure generation functions.
-"""
+"""High-level figure generation functions."""

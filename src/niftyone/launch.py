@@ -34,14 +34,14 @@ def launch(
                 dataset_dir=out_dir / "fiftyone",
                 dataset_type=fo.types.FiftyOneDataset,
                 name=ds_name,
-                persistent=True
+                persistent=True,
             )
         except FileNotFoundError as err:
             raise FileNotFoundError(
                 f"FiftyOne dataset not found in {out_dir}. "
                 "Did you run the participant and group level?"
             ) from err
-    
+
     tags_path = out_dir / "QC" / f"{ds_name}_tags.json"
     if tags_path.exists():
         logging.info("Loading QC tags from %s", tags_path)

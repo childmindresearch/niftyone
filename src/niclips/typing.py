@@ -1,3 +1,5 @@
+"""Defined types used in niclips."""
+
 import os
 from typing import Tuple, Union
 

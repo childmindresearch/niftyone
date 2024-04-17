@@ -1,3 +1,5 @@
+"""Test import/export of dataset tags."""
+
 from pathlib import Path
 
 import fiftyone as fo
@@ -9,11 +11,12 @@ from niftyone.tags import TAGS, GroupTags
 
 @pytest.fixture()
 def dummy_tag_ds(tmp_path: Path) -> fo.Dataset:
+    """Dataset with some dummy tags."""
     dataset: fo.Dataset = fo.Dataset("dummy_tag")
 
     dummy_path = tmp_path / "dummy.png"
     Image.new("RGB", (100, 100)).save(dummy_path)
-    
+
     samples = []
 
     for ii in range(10):
@@ -28,7 +31,8 @@ def dummy_tag_ds(tmp_path: Path) -> fo.Dataset:
     return dataset
 
 
-def test_group_tags(dummy_tag_ds: fo.Dataset, tmp_path: Path):
+def test_group_tags(dummy_tag_ds: fo.Dataset, tmp_path: Path) -> None:
+    """Test import/export of dataset tags."""
     # test from_dataset
     group_tags = GroupTags.from_dataset(dummy_tag_ds)
     assert len(group_tags.tags_dict) == len(dummy_tag_ds)
@@ -54,7 +58,7 @@ def test_group_tags(dummy_tag_ds: fo.Dataset, tmp_path: Path):
     dummy_tag_ds2 = dummy_tag_ds.clone(name="dummy_tag2")
     for sample in dummy_tag_ds2:
         sample["group_key"].tags = []
-    
+
     group_tags.apply(dummy_tag_ds2)
     group_tags2 = GroupTags.from_dataset(dummy_tag_ds2)
     assert group_tags.equals(group_tags2)
