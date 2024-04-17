@@ -54,8 +54,8 @@ def peak_of_mass(img: NiftiLike, mask: bool = False) -> np.ndarray:
     data = data[..., zidx]
     xidx = np.argmax(np.sum(data, axis=1))
     yidx = np.argmax(np.sum(data, axis=0))
-    centroid = (xidx, yidx, zidx)
+    centroid = np.asarray((xidx, yidx, zidx))
 
     if isinstance(img, nib.Nifti1Image):
         centroid = ind2coord(img.affine, centroid)
-    return centroid
+    return np.asarray(centroid)

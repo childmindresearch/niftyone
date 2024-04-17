@@ -4,7 +4,7 @@ import nibabel as nib
 import numpy as np
 
 from niclips.checks import check_4d
-from niclips.typing import NiftiLike
+from niclips.typing import Coord, NiftiLike
 
 from ._convert import get_fdata
 from ._coord import coord2ind
@@ -12,7 +12,7 @@ from ._coord import coord2ind
 
 def slice_volume(
     img: NiftiLike,
-    coord: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    coord: Coord = (0.0, 0.0, 0.0),
     axis: int = 0,
     idx: Optional[int] = 0,
 ) -> np.ndarray:
@@ -41,8 +41,8 @@ def index_img(img: NiftiLike, idx: Optional[int] = 0) -> NiftiLike:
     slc = data[..., idx]
 
     if isinstance(img, nib.Nifti1Image):
-        slc = nib.Nifti1Image(slc, affine=img.affine)
-    return slc
+        slc_nii = nib.Nifti1Image(slc, affine=img.affine)
+    return slc_nii
 
 
 def crop_middle_third(

@@ -62,6 +62,9 @@ log_cli = true
 log_cli_level = "DEBUG"
 
 [tool.mypy]
+ignore_missing_imports = true
+allow_redefinition = true
+disable_error_code = ["no-redef"]
 
 [tool.ruff]
 line-length = 88

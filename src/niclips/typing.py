@@ -8,6 +8,6 @@ import numpy as np
 
 StrPath = Union[str, os.PathLike]
 
-Coord = Tuple[float, float, float]
+Coord = Union[Tuple[float, float, float] | np.ndarray]
 
 NiftiLike = Union[nib.nifti1.Nifti1Image, np.ndarray]

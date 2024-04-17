@@ -111,7 +111,7 @@ def _participant_raw_worker(
 
     # find current worker's partition of subjects
     if workers > 1:
-        subs = np.array_split(subs, workers)[worker_id]
+        subs = np.array_split(subs, workers)[worker_id]  # type: ignore [assignment]
 
     for sub in subs:
         _participant_raw_single(
@@ -173,7 +173,7 @@ def _participant_raw_t1w(
 
     img_path = Path(record["finfo"]["file_path"])
     logging.info("Processing: %s", img_path)
-    img = nib.load(img_path)
+    img = nib.nifti1.load(img_path)
     img = noimg.to_iso_ras(img)
 
     out_path = entities.with_update(desc="threeView", ext=".png").to_path(
@@ -205,7 +205,7 @@ def _participant_raw_bold(
 
     img_path = Path(record["finfo"]["file_path"])
     logging.info("Processing: %s", img_path)
-    img = nib.load(img_path)
+    img = nib.nifti1.load(img_path)
     img = noimg.to_iso_ras(img)
 
     out_path = entities.with_update(desc="threeViewVideo", ext=".mp4").to_path(

@@ -58,8 +58,8 @@ def cluster_timeseries(
     # construct label volume
     label = np.full(bold.shape[:3], np.nan)
     label[mask] = mask_label
-    label = nib.Nifti1Image(label, affine=bold.affine)
-    return label
+    label_nii = nib.Nifti1Image(label, affine=bold.affine)
+    return label_nii
 
 
 def carpet_plot(
@@ -87,7 +87,7 @@ def carpet_plot(
     bold_mean = nib.Nifti1Image(bold_mean_data, affine=bold.affine)
 
     # axial bold mean and label overlay
-    coord = get_default_coord(bold_mean)
+    coord = np.asarray(get_default_coord(bold_mean))
     vmin, vmax = get_default_vmin_vmax(bold_mean)
     panel = noimg.render_slice(
         bold_mean,
@@ -211,8 +211,8 @@ def bold_mean_std(
     )
 
     grid = noimg.stack_images([panel_mean, panel_std], axis=0)
-    grid = noimg.topil(grid)
+    grid_img = noimg.topil(grid)
 
     if out is not None:
-        grid.save(out)
-    return grid
+        grid_img.save(out)
+    return grid_img

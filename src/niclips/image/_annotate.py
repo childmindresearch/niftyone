@@ -21,6 +21,7 @@ def annotate(
     """
     if isinstance(img, np.ndarray):
         img = Image.fromarray(img)
+    assert isinstance(img, Image.Image)
 
     offset = 2
     if loc == "upper left":
@@ -47,7 +48,7 @@ def annotate(
 
 
 @lru_cache
-def _get_font(size: int) -> ImageFont:
+def _get_font(size: int) -> ImageFont.FreeTypeFont:
     with resources.path("niclips.image._resources", "SpaceMono-Regular.ttf") as p:
         font = ImageFont.truetype(str(p), size=size)
     return font
