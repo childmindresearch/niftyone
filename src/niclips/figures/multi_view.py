@@ -1,7 +1,5 @@
 """Generation of different multi-views."""
 
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 import nibabel as nib

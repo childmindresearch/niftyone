@@ -1,13 +1,12 @@
 """Defined types used in niclips."""
 
 import os
-from typing import Union
 
 import nibabel as nib
 import numpy as np
 
-StrPath = Union[str, os.PathLike]
+StrPath = str | os.PathLike
 
-Coord = Union[tuple[float, float, float] | np.ndarray]
+Coord = tuple[float, float, float] | np.ndarray
 
-NiftiLike = Union[nib.nifti1.Nifti1Image, np.ndarray]
+NiftiLike = nib.nifti1.Nifti1Image | np.ndarray
