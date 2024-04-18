@@ -1,7 +1,6 @@
 """Bold fMRI figure generation module."""
 
 import math
-from typing import Optional
 
 import matplotlib as mpl
 import matplotlib.figure as mpl_figure
@@ -64,8 +63,8 @@ def cluster_timeseries(
 
 def carpet_plot(
     bold: nib.Nifti1Image,
-    out: Optional[StrPath] = None,
-    label: Optional[nib.Nifti1Image] = None,
+    out: StrPath | None = None,
+    label: nib.Nifti1Image | None = None,
     n_voxels: int = 2000,
     seed: int = 42,
     label_cmap: str = "brg",
@@ -156,7 +155,7 @@ def carpet_plot(
 
 def bold_mean_std(
     bold: nib.Nifti1Image,
-    out: Optional[StrPath] = None,
+    out: StrPath | None = None,
     std_vmax_ratio: float = 0.1,
 ) -> Image.Image:
     """Panel showing three-view BOLD mean and three-view tSNR."""

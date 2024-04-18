@@ -4,7 +4,7 @@ import logging
 import time
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import fiftyone as fo
 import pandas as pd
@@ -25,7 +25,7 @@ LABEL_CLS_LOOKUP = {"T1w": labels.MRIQCT1w, "bold": labels.MRIQCBold}
 def group_pipeline(
     bids_dir: StrPath,
     out_dir: StrPath,
-    ds_name: Optional[str] = None,
+    ds_name: str | None = None,
     overwrite: bool = False,
 ) -> None:
     """NiftyOne group pipeline.
@@ -103,7 +103,7 @@ def group_pipeline(
     logging.info("Done! elapsed: %.2fs", time.monotonic() - tic)
 
 
-def _get_group_samples(group_index: pd.DataFrame) -> List[fo.Sample]:
+def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
     samples = []
     group = fo.Group()
 
@@ -133,7 +133,7 @@ def _get_group_samples(group_index: pd.DataFrame) -> List[fo.Sample]:
     return samples
 
 
-def _load_qc_metrics(group_index: pd.DataFrame) -> Dict[str, Any]:
+def _load_qc_metrics(group_index: pd.DataFrame) -> dict[str, Any]:
     # Find the metrics record
     metrics = group_index.query("desc == 'QCMetrics' and ext == '.tsv'")
     assert len(metrics) in {0, 1}, "Expected at most QCMetrics tsv"

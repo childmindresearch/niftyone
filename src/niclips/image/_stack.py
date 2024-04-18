@@ -1,6 +1,5 @@
 import math
 from collections.abc import Sequence
-from typing import List
 
 import numpy as np
 from PIL import Image
@@ -9,7 +8,7 @@ from ._pad import Align, pad_to_equal
 
 
 def image_grid(
-    imgs: List[np.ndarray],
+    imgs: list[np.ndarray],
     nrows: int = 1,
     pad: int = 2,
     fill_value: int = 0,

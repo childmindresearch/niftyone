@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import nibabel as nib
 import numpy as np
@@ -18,13 +18,13 @@ from niclips.typing import Coord, NiftiLike, StrPath
 def multi_view_frame(
     img: nib.Nifti1Image,
     coords: Sequence[Coord],
-    axes: List[int],
-    out: Optional[StrPath] = None,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    overlay: Optional[nib.Nifti1Image] = None,
+    axes: list[int],
+    out: StrPath | None = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
     nrows: int = 1,
-    panel_height: Optional[int] = 256,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
@@ -77,13 +77,13 @@ def multi_view_frame(
 
 def three_view_frame(
     img: NiftiLike,
-    out: Optional[StrPath] = None,
-    coord: Optional[Tuple[float, float, float]] = None,
-    idx: Optional[int] = 0,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    overlay: Optional[nib.Nifti1Image] = None,
-    panel_height: Optional[int] = 256,
+    out: StrPath | None = None,
+    coord: tuple[float, float, float] | None = None,
+    idx: int | None = 0,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
@@ -119,10 +119,10 @@ def three_view_frame(
 def three_view_video(
     img: nib.Nifti1Image,
     out: StrPath,
-    coord: Optional[Tuple[float, float, float]] = None,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    panel_height: Optional[int] = 256,
+    coord: tuple[float, float, float] | None = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
 ) -> None:
@@ -155,10 +155,10 @@ def slice_video(
     img: NiftiLike,
     out: StrPath,
     axis: int = 2,
-    idx: Optional[int] = 0,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    panel_height: Optional[int] = 256,
+    idx: int | None = 0,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
 ) -> None:

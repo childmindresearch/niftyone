@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 import fiftyone as fo
 
@@ -13,8 +12,8 @@ from niftyone.typing import StrPath
 def launch(
     bids_dir: StrPath,
     out_dir: StrPath,
-    ds_name: Optional[str] = None,
-    qc_key: Optional[str] = None,
+    ds_name: str | None = None,
+    qc_key: str | None = None,
 ) -> None:
     """Launch the FiftyOne app to visualize a dataset (after it has been generated)."""
     bids_dir = Path(bids_dir)

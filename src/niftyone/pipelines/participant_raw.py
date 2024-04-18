@@ -5,7 +5,6 @@ import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import List, Optional
 
 import nibabel as nib
 import numpy as np
@@ -24,9 +23,9 @@ from niftyone.typing import StrPath
 def participant_raw_pipeline(
     bids_dir: StrPath,
     out_dir: StrPath,
-    sub: Optional[str] = None,
-    index_path: Optional[StrPath] = None,
-    mriqc_dir: Optional[StrPath] = None,
+    sub: str | None = None,
+    index_path: StrPath | None = None,
+    mriqc_dir: StrPath | None = None,
     workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
@@ -98,10 +97,10 @@ def _participant_raw_worker(
     worker_id: int,
     *,
     workers: int,
-    subs: List[str],
+    subs: list[str],
     index: BIDSTable,
     out_dir: Path,
-    mriqc_dir: Optional[Path] = None,
+    mriqc_dir: Path | None = None,
     overwrite: bool = False,
     verbose: bool = False,
 ) -> None:
@@ -127,7 +126,7 @@ def _participant_raw_single(
     sub: str,
     index: BIDSTable,
     out_dir: Path,
-    mriqc_dir: Optional[Path] = None,
+    mriqc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     tic = time.monotonic()
@@ -166,7 +165,7 @@ def _participant_raw_single(
 def _participant_raw_t1w(
     record: pd.Series,
     out_dir: Path,
-    mriqc_dir: Optional[Path] = None,
+    mriqc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     entities = BIDSEntities.from_dict(record["ent"])
@@ -198,7 +197,7 @@ def _participant_raw_t1w(
 def _participant_raw_bold(
     record: pd.Series,
     out_dir: Path,
-    mriqc_dir: Optional[Path],
+    mriqc_dir: Path | None,
     overwrite: bool = False,
 ) -> None:
     entities = BIDSEntities.from_dict(record["ent"])
@@ -262,7 +261,7 @@ def _mriqc_metrics_tsv(
 @lru_cache(maxsize=2)
 def _load_mriqc_group_metrics(
     mriqc_dir: Path, suffix: str = "T1w"
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     # TODO: this should probably be factored somewhere else
 
     metrics_path = mriqc_dir / f"group_{suffix}.tsv"

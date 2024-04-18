@@ -1,7 +1,7 @@
 """Handling of inputs/outputs."""
 
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import av
 import numpy as np
@@ -27,7 +27,7 @@ class VideoWriter:
         self._container: OutputContainer | None = None
         self._stream: Stream | VideoStream | None = None
 
-    def put(self, img: Union[np.ndarray, Image.Image]) -> None:
+    def put(self, img: np.ndarray | Image.Image) -> None:
         """Add frame to the stream."""
         if isinstance(img, np.ndarray):
             img = topil(img)

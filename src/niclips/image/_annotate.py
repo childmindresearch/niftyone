@@ -1,13 +1,12 @@
 from functools import lru_cache
 from importlib import resources
-from typing import Union
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 
 def annotate(
-    img: Union[np.ndarray, Image.Image],
+    img: np.ndarray | Image.Image,
     text: str,
     loc: str,
     size: int = 10,

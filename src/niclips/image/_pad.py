@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List
 
 import numpy as np
 from PIL import Image
@@ -44,11 +43,11 @@ def pad_to_size(
 
 
 def pad_to_equal(
-    imgs: List[np.ndarray] | List[Image.Image],
+    imgs: list[np.ndarray] | list[Image.Image],
     axis: int,
     fill_value: int = 0,
     align: Align = Align.CENTER,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Pad images to be all the same dimension for a given axis."""
     imgs = [np.asarray(img) for img in imgs]
 
