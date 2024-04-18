@@ -1,13 +1,14 @@
 import math
-from typing import List
+from collections.abc import Sequence
 
 import numpy as np
+from PIL import Image
 
 from ._pad import Align, pad_to_equal
 
 
 def image_grid(
-    imgs: List[np.ndarray],
+    imgs: list[np.ndarray],
     nrows: int = 1,
     pad: int = 2,
     fill_value: int = 0,
@@ -30,7 +31,7 @@ def image_grid(
 
 
 def stack_images(
-    imgs: List[np.ndarray],
+    imgs: Sequence[np.ndarray | Image.Image],
     axis: int = 1,
     pad: int = 2,
     fill_value: int = 0,

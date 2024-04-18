@@ -1,5 +1,5 @@
 av==12.0.0
-bid2table==0.1.0b0
+bids2table==0.1.0b0
 elbow==0.1.1
 fiftyone==0.23.7
 matplotlib==3.7.1

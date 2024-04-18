@@ -1,5 +1,4 @@
 import warnings
-from typing import Optional
 
 import matplotlib as mpl
 import nibabel as nib
@@ -22,8 +21,8 @@ def get_fdata(img: NiftiLike) -> np.ndarray:
 
 def topil(
     data: np.ndarray,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
     cmap: str = "gray",
 ) -> Image.Image:
     """Convert a numpy array to a PIL image."""
@@ -45,7 +44,7 @@ def topil(
 def overlay(
     img1: Image.Image,
     img2: Image.Image,
-    alpha: Optional[float] = 0.5,
+    alpha: float | None = 0.5,
 ) -> Image.Image:
     """Overlay two PIL images with alpha compositing."""
     img1 = img1.convert("RGBA")
@@ -59,8 +58,8 @@ def overlay(
 
 def normalize(
     data: np.ndarray,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
 ) -> np.ndarray:
     """Normalize data using vmin/vmax if provided, otherwise data min/max."""
     data = np.asarray(data)
@@ -74,7 +73,7 @@ def normalize(
 
 
 def scale(
-    img: Image.Image, height: int, resample: Optional[Image.Resampling] = None
+    img: Image.Image, height: int, resample: Image.Resampling | None = None
 ) -> Image.Image:
     """Scale an image to a target height."""
     scale = height / img.height

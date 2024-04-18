@@ -1,10 +1,8 @@
-from typing import Optional, Tuple, Union
-
 import nibabel as nib
 import numpy as np
 
 from niclips.checks import check_4d
-from niclips.typing import NiftiLike
+from niclips.typing import Coord, NiftiLike
 
 from ._convert import get_fdata
 from ._coord import coord2ind
@@ -12,9 +10,9 @@ from ._coord import coord2ind
 
 def slice_volume(
     img: NiftiLike,
-    coord: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    coord: Coord = (0.0, 0.0, 0.0),
     axis: int = 0,
-    idx: Optional[int] = 0,
+    idx: int | None = 0,
 ) -> np.ndarray:
     """Slice volume at a coordinate along an axis."""
     if img.ndim == 4:
@@ -27,7 +25,7 @@ def slice_volume(
     return slc
 
 
-def index_img(img: NiftiLike, idx: Optional[int] = 0) -> NiftiLike:
+def index_img(img: NiftiLike, idx: int | None = 0) -> NiftiLike:
     """Index a 4D nifti image. If `idx` is `None`, return the middle volume."""
     check_4d(img)
     if idx is None:
@@ -41,13 +39,11 @@ def index_img(img: NiftiLike, idx: Optional[int] = 0) -> NiftiLike:
     slc = data[..., idx]
 
     if isinstance(img, nib.Nifti1Image):
-        slc = nib.Nifti1Image(slc, affine=img.affine)
-    return slc
+        slc_nii = nib.Nifti1Image(slc, affine=img.affine)
+    return slc_nii
 
 
-def crop_middle_third(
-    data: np.ndarray, axis: Union[int, Tuple[int, ...]] = 0
-) -> np.ndarray:
+def crop_middle_third(data: np.ndarray, axis: int | tuple[int, ...] = 0) -> np.ndarray:
     """Crop a data array to the middle third along one or axes."""
     if isinstance(axis, int):
         sz = data.shape[axis]
@@ -59,7 +55,7 @@ def crop_middle_third(
     return cropped
 
 
-def slice_array(data: np.ndarray, idx: Union[int, slice], axis: int = 0) -> np.ndarray:
+def slice_array(data: np.ndarray, idx: int | slice, axis: int = 0) -> np.ndarray:
     """Slice a numpy array along an axis.
 
     `idx` should be an integer or slice object.

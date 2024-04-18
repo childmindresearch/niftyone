@@ -4,7 +4,7 @@ import ast
 import json
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 import fiftyone as fo
 import pandas as pd
@@ -39,14 +39,14 @@ class GroupTags:
     pandas DataFrames, CSV, JSON.
     """
 
-    def __init__(self, tags_dict: Dict[str, Any]) -> None:
+    def __init__(self, tags_dict: dict[str, Any]) -> None:
         self.tags_dict = tags_dict
 
     @classmethod
     def from_dataset(cls, dataset: fo.Dataset) -> "GroupTags":
         """Extract tags from a FiftyOne dataset."""
 
-        def new_record() -> Dict[str, Any]:
+        def new_record() -> dict[str, Any]:
             record: dict[str, Any] = {tag: False for tag in TAGS}
             record["_Extra"] = []
             return record
@@ -70,14 +70,14 @@ class GroupTags:
         return cls(df.to_dict(orient="index"))
 
     @classmethod
-    def from_csv(cls, path: Union[str, Path]) -> "GroupTags":
+    def from_csv(cls, path: str | Path) -> "GroupTags":
         """Return tags from csv."""
         # TODO: is there a better way to read the _Extra column?
         df = pd.read_csv(path, index_col=0, converters={"_Extra": ast.literal_eval})
         return cls.from_df(df)
 
     @classmethod
-    def from_json(cls, path: Union[str, Path]) -> "GroupTags":
+    def from_json(cls, path: str | Path) -> "GroupTags":
         """Return tags from json file."""
         with open(path) as f:
             return cls(json.load(f))
@@ -99,11 +99,11 @@ class GroupTags:
         """Convert tags dict to pandas dataframe."""
         return pd.DataFrame.from_dict(self.tags_dict, orient="index")
 
-    def to_csv(self, path: Union[str, Path]) -> None:
+    def to_csv(self, path: str | Path) -> None:
         """Save to csv."""
         self.to_df().to_csv(path)
 
-    def to_json(self, path: Union[str, Path]) -> None:
+    def to_json(self, path: str | Path) -> None:
         """Save to json."""
         with open(path, "w") as f:
             json.dump(self.tags_dict, f)

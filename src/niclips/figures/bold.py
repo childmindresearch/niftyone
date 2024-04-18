@@ -1,7 +1,6 @@
 """Bold fMRI figure generation module."""
 
 import math
-from typing import Optional
 
 import matplotlib as mpl
 import matplotlib.figure as mpl_figure
@@ -58,14 +57,14 @@ def cluster_timeseries(
     # construct label volume
     label = np.full(bold.shape[:3], np.nan)
     label[mask] = mask_label
-    label = nib.Nifti1Image(label, affine=bold.affine)
-    return label
+    label_nii = nib.Nifti1Image(label, affine=bold.affine)
+    return label_nii
 
 
 def carpet_plot(
     bold: nib.Nifti1Image,
-    out: Optional[StrPath] = None,
-    label: Optional[nib.Nifti1Image] = None,
+    out: StrPath | None = None,
+    label: nib.Nifti1Image | None = None,
     n_voxels: int = 2000,
     seed: int = 42,
     label_cmap: str = "brg",
@@ -87,7 +86,7 @@ def carpet_plot(
     bold_mean = nib.Nifti1Image(bold_mean_data, affine=bold.affine)
 
     # axial bold mean and label overlay
-    coord = get_default_coord(bold_mean)
+    coord = np.asarray(get_default_coord(bold_mean))
     vmin, vmax = get_default_vmin_vmax(bold_mean)
     panel = noimg.render_slice(
         bold_mean,
@@ -156,7 +155,7 @@ def carpet_plot(
 
 def bold_mean_std(
     bold: nib.Nifti1Image,
-    out: Optional[StrPath] = None,
+    out: StrPath | None = None,
     std_vmax_ratio: float = 0.1,
 ) -> Image.Image:
     """Panel showing three-view BOLD mean and three-view tSNR."""
@@ -211,8 +210,8 @@ def bold_mean_std(
     )
 
     grid = noimg.stack_images([panel_mean, panel_std], axis=0)
-    grid = noimg.topil(grid)
+    grid_img = noimg.topil(grid)
 
     if out is not None:
-        grid.save(out)
-    return grid
+        grid_img.save(out)
+    return grid_img

@@ -1,6 +1,6 @@
 """Generation of different multi-views."""
 
-from typing import List, Optional, Tuple
+from collections.abc import Sequence
 
 import nibabel as nib
 import numpy as np
@@ -10,19 +10,19 @@ import niclips.image as noimg
 from niclips.checks import check_3d, check_3d_4d, check_4d, check_iso_ras
 from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.io import VideoWriter
-from niclips.typing import Coord, StrPath
+from niclips.typing import Coord, NiftiLike, StrPath
 
 
 def multi_view_frame(
     img: nib.Nifti1Image,
-    coords: List[Coord],
-    axes: List[int],
-    out: Optional[StrPath] = None,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    overlay: Optional[nib.Nifti1Image] = None,
+    coords: Sequence[Coord],
+    axes: list[int],
+    out: StrPath | None = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
     nrows: int = 1,
-    panel_height: Optional[int] = 256,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
@@ -36,7 +36,7 @@ def multi_view_frame(
         check_iso_ras(overlay)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
-    panels = []
+    panels: list[Image.Image] = []
     for coord, axis in zip(coords, axes):
         panel = noimg.render_slice(
             img,
@@ -64,24 +64,24 @@ def multi_view_frame(
         panels.append(panel)
 
     # Pad to equal height
-    panels = noimg.pad_to_equal(panels, axis=0)
-    grid = noimg.image_grid(panels, nrows=nrows)
-    grid = noimg.topil(grid)
+    panels_list = noimg.pad_to_equal(panels, axis=0)
+    grid = noimg.image_grid(panels_list, nrows=nrows)
+    grid_img = noimg.topil(grid)
 
     if out is not None:
-        grid.save(out)
-    return grid
+        grid_img.save(out)
+    return grid_img
 
 
 def three_view_frame(
-    img: nib.Nifti1Image,
-    out: Optional[StrPath] = None,
-    coord: Optional[Tuple[float, float, float]] = None,
-    idx: Optional[int] = 0,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    overlay: Optional[nib.Nifti1Image] = None,
-    panel_height: Optional[int] = 256,
+    img: NiftiLike,
+    out: StrPath | None = None,
+    coord: tuple[float, float, float] | None = None,
+    idx: int | None = 0,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
@@ -91,6 +91,7 @@ def three_view_frame(
     check_3d_4d(img)
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
+    assert isinstance(img, nib.Nifti1Image)
 
     if coord is None:
         coord = get_default_coord(img)
@@ -116,10 +117,10 @@ def three_view_frame(
 def three_view_video(
     img: nib.Nifti1Image,
     out: StrPath,
-    coord: Optional[Tuple[float, float, float]] = None,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    panel_height: Optional[int] = 256,
+    coord: tuple[float, float, float] | None = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
 ) -> None:
@@ -149,13 +150,13 @@ def three_view_video(
 
 
 def slice_video(
-    img: nib.Nifti1Image,
+    img: NiftiLike,
     out: StrPath,
     axis: int = 2,
-    idx: Optional[int] = 0,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    panel_height: Optional[int] = 256,
+    idx: int | None = 0,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
 ) -> None:
@@ -163,6 +164,7 @@ def slice_video(
     check_3d_4d(img)
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
+    assert isinstance(img, nib.Nifti1Image)
     check_iso_ras(img)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
@@ -174,7 +176,7 @@ def slice_video(
     start, stop = indices[0], indices[-1]
 
     # Initial coord
-    coord = (0.0, 0.0, 0.0)
+    coord: Coord = (0.0, 0.0, 0.0)
     ind = noimg.coord2ind(img.affine, coord)
 
     with VideoWriter(out, fps=10) as writer:

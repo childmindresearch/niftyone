@@ -1,5 +1,7 @@
 import numpy as np
 
+from niclips.typing import Coord
+
 
 def apply_affine(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
     """Apply an affine transformation to an array of 3D coordinates.
@@ -28,9 +30,9 @@ def apply_affine(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
     return coord
 
 
-def coord2ind(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
+def coord2ind(affine: np.ndarray, coord: Coord) -> np.ndarray:
     """Transform coordinates to volume indices."""
-    ind = apply_affine(np.linalg.inv(affine), coord)
+    ind = apply_affine(np.linalg.inv(affine), np.asarray(coord))
     ind = ind.astype(np.int32)
     return ind
 

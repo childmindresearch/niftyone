@@ -1,10 +1,7 @@
-from typing import Optional
-
 import nibabel as nib
 from PIL import Image
 
-from niclips.typing import Coord
-
+from ..typing import Coord
 from ._annotate import annotate as draw_annotation
 from ._convert import reorient, scale, topil
 from ._slice import slice_volume
@@ -14,9 +11,9 @@ def render_slice(
     img: nib.Nifti1Image,
     axis: int,
     coord: Coord,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    height: Optional[int] = 256,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    height: int | None = 256,
     cmap: str = "gray",
     annotate: bool = True,
     fontsize: int = 14,
