@@ -64,6 +64,7 @@ omit = [
   "src/**/__init__.py",
   "src/**/typing.py",
   "src/niftyone/labels.py",
+  "src/niftyone/__main__.py",
   "src/niftyone/_version.py"
 ]
 
