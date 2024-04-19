@@ -60,7 +60,12 @@ log_cli = true
 log_cli_level = "DEBUG"
 
 [tool.coverage.run]
-omit = ["src/**/__init__.py", "src/**/typing.py", "src/niftyone/labels.py"]
+omit = [
+  "src/**/__init__.py",
+  "src/**/typing.py",
+  "src/niftyone/labels.py",
+  "src/niftyone/_version.py"
+]
 
 [tool.mypy]
 ignore_missing_imports = true
