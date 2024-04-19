@@ -59,6 +59,9 @@ testpaths = ["tests"]
 log_cli = true
 log_cli_level = "DEBUG"
 
+[tool.coverage.run]
+omit = ["src/**/__init__.py", "src/**/typing.py", "src/niftyone/labels.py"]
+
 [tool.mypy]
 ignore_missing_imports = true
 allow_redefinition = true
@@ -87,7 +90,10 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**/*.py" = []
+"tests/**/*.py" = [
+  "D",  # ignore missing docstrings
+  "ANN201"  # ignore missing return type
+]
 
 [tool.ruff.format]
 quote-style = "double"
