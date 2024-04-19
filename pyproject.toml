@@ -59,6 +59,9 @@ testpaths = ["tests"]
 log_cli = true
 log_cli_level = "DEBUG"
 
+[tool.coverage.report]
+exclude_also = ["assert", "__enter__", "__exit__"]
+
 [tool.coverage.run]
 omit = [
   "src/**/__init__.py",
