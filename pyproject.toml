@@ -68,7 +68,8 @@ omit = [
   "src/**/typing.py",
   "src/niftyone/labels.py",
   "src/niftyone/__main__.py",
-  "src/niftyone/_version.py"
+  "src/niftyone/_version.py",
+  "src/niftyone/pipelines/*.py"
 ]
 
 [tool.mypy]
