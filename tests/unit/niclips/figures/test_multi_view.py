@@ -3,6 +3,8 @@
 from pathlib import Path
 
 import nibabel as nib
+import numpy as np
+import pytest
 from PIL import Image
 
 from niclips.figures import multi_view as mv
@@ -53,7 +55,9 @@ class TestSliceVideo:
         mv.slice_video(img=nii_3d_img, out=out_fpath)
         assert out_fpath.exists()
 
-    def test_4d(self, nii_4d_img: nib.Nifti1Image, tmp_path: Path):
+    @pytest.mark.parametrize("idx", [(None), (0), (1), (2)])
+    def test_4d(self, tmp_path: Path, idx: int | None):
         out_fpath = tmp_path / "test_4d.mp4"
-        mv.slice_video(img=nii_4d_img, out=out_fpath, idx=None)
+        test_img = nib.Nifti1Image(np.random.rand(10, 10, 10, 3), affine=np.eye(4))
+        mv.slice_video(img=test_img, out=out_fpath, idx=idx)
         assert out_fpath.exists()

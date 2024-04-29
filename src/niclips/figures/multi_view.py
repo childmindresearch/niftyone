@@ -160,10 +160,7 @@ def slice_video(
     cmap: str = "gray",
     fontsize: int = 14,
 ) -> None:
-    """Save video scrolling through range of slices.
-
-    NOTE: For 4D image, currently have to set idx to None
-    """
+    """Save video scrolling through range of slices."""
     check_3d_4d(img)
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)

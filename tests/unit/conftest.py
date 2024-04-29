@@ -40,7 +40,7 @@ def nii_3d_img() -> nib.Nifti1Image:
 @pytest.fixture
 def nii_4d_img() -> nib.Nifti1Image:
     img_arr = np.zeros((10, 10, 10, 3))
-    img_arr[5, 5, 5, 1] = 1  # Set single voxel in middle volume
+    img_arr[5, 5, 5, 1] = 10  # Set single voxel in middle volume
 
     return nib.Nifti1Image(dataobj=img_arr, affine=np.eye(4))
 
