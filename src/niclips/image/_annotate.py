@@ -48,6 +48,9 @@ def annotate(
 
 @lru_cache
 def _get_font(size: int) -> ImageFont.FreeTypeFont:
-    with resources.path("niclips.image._resources", "SpaceMono-Regular.ttf") as p:
+    font_fpath = resources.files("niclips.image._resources").joinpath(
+        "SpaceMono-Regular.ttf"
+    )
+    with resources.as_file(font_fpath) as p:
         font = ImageFont.truetype(str(p), size=size)
     return font

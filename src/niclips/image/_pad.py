@@ -35,9 +35,8 @@ def pad_to_size(
     else:
         padding: tuple[int, int] = (padding // 2, padding - padding // 2)
 
-    padding = [padding if ii == axis else (0, 0) for ii in range(img.ndim)]
+    padding = np.asarray([padding if ii == axis else (0, 0) for ii in range(img.ndim)])
 
-    assert isinstance(padding, tuple) and all(isinstance(num, int) for num in padding)
     img = np.pad(img, padding, constant_values=fill_value)
     return img
 
