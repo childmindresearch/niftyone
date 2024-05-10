@@ -40,7 +40,7 @@ def participant_raw_pipeline(
     elif mriqc_dir is not None:
         mriqc_dir = Path(mriqc_dir)
 
-    elif workers == -1:
+    if workers == -1:
         workers = cpu_count()
     elif workers <= 0:
         raise ValueError(f"Invalid workers {workers}; expected -1 or > 0")
