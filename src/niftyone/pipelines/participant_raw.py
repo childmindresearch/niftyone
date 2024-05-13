@@ -3,7 +3,7 @@
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from functools import lru_cache, partial
+from functools import partial
 from pathlib import Path
 
 import nibabel as nib
@@ -17,15 +17,15 @@ from matplotlib import pyplot as plt
 import niclips.image as noimg
 from niclips.figures.bold import bold_mean_std, carpet_plot
 from niclips.figures.multi_view import slice_video, three_view_frame, three_view_video
-from niftyone.typing import StrPath
+from niftyone import metrics, typing
 
 
 def participant_raw_pipeline(
-    bids_dir: StrPath,
-    out_dir: StrPath,
+    bids_dir: typing.StrPath,
+    out_dir: typing.StrPath,
     sub: str | None = None,
-    index_path: StrPath | None = None,
-    qc_dir: StrPath | None = None,
+    index_path: typing.StrPath | None = None,
+    qc_dir: typing.StrPath | None = None,
     workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
@@ -187,7 +187,9 @@ def _participant_raw_t1w(
         slice_video(img, out=out_path)
 
     if qc_dir is not None and qc_dir.exists():
-        _qc_metrics_tsv(record, entities, out_dir, qc_dir, overwrite=overwrite)
+        metrics.gen_niftyone_metrics_tsv(
+            record, entities, out_dir, qc_dir, overwrite=overwrite
+        )
 
 
 def _participant_raw_bold(
@@ -223,56 +225,6 @@ def _participant_raw_bold(
         bold_mean_std(img, out=out_path)
 
     if qc_dir is not None and qc_dir.exists():
-        _qc_metrics_tsv(record, entities, out_dir, qc_dir, overwrite=overwrite)
-
-
-def _qc_metrics_tsv(
-    record: pd.Series,
-    entities: BIDSEntities,
-    out_dir: Path,
-    qc_dir: Path,
-    overwrite: bool = False,
-) -> None:
-    out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
-        prefix=out_dir
-    )
-    if out_path.exists() and not overwrite:
-        return
-
-    metrics = _load_qc_group_metrics(qc_dir, entities.suffix)
-
-    if metrics is not None:
-        # find metrics matching this image
-        query = record["ent"].dropna().to_dict()
-        for k in ["datatype", "ext", "extra_entities"]:
-            query.pop(k, None)
-        query = " and ".join(f"{k} == {repr(v)}" for k, v in query.items())
-        img_metrics = metrics.query(query)
-
-        if len(img_metrics) > 0:
-            logging.info("Generating: %s", out_path)
-            img_metrics.to_csv(out_path, sep="\t", index=False)
-
-
-@lru_cache(maxsize=2)
-def _load_qc_group_metrics(qc_dir: Path, suffix: str = "T1w") -> pd.DataFrame | None:
-    # TODO: this should probably be factored somewhere else
-
-    metrics_path = qc_dir / f"group_{suffix}.tsv"
-    if not metrics_path.exists():
-        return None
-
-    metrics = pd.read_csv(metrics_path, sep="\t")
-
-    # parse bids names to entities
-    bids_names = metrics["bids_name"]
-    records = [BIDSEntities.from_path(bids_name).to_dict() for bids_name in bids_names]
-    entities = pd.DataFrame.from_records(records)
-
-    # drop all NA columns
-    entities.dropna(axis=1, how="all", inplace=True)
-
-    # cat and set entities to index
-    metrics = pd.concat([entities, metrics], axis=1)
-    metrics.set_index(entities.columns.to_list(), inplace=True)
-    return metrics
+        metrics.gen_niftyone_metrics_tsv(
+            record, entities, out_dir, qc_dir, overwrite=overwrite
+        )
