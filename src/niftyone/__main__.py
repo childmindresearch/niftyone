@@ -2,7 +2,6 @@
 
 import argparse
 import json
-from collections.abc import Collection, Sequence
 from pathlib import Path
 
 from elbow.utils import setup_logging
@@ -13,7 +12,7 @@ from niftyone.pipelines.group import group_pipeline
 from niftyone.pipelines.participant_raw import participant_raw_pipeline
 
 
-def _make_dataset_description() -> dict[str, str | Sequence[Collection[str]]]:
+def _make_dataset_description(out_dir: Path) -> None:
     description = {
         "Name": "NiftyOne",
         "BIDSVersion": "1.9.0",
@@ -28,13 +27,19 @@ def _make_dataset_description() -> dict[str, str | Sequence[Collection[str]]]:
         "HowToAcknowledge": "Please cite our repo (https://github.com/childmindresearch/niftyone).",
         "License": "LGPL-2.1",
     }
-    return description
+
+    with (out_dir / "dataset_description.json").open("w") as f:
+        json.dump(description, f, indent=4)
 
 
-def main() -> None:
-    """NiftyOne BIDS-app entrypoint."""
-    parser = argparse.ArgumentParser("niftyone")
+def _create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="niftyone",
+        usage="%(prog)s bids_dir output_dir analysis_level [options]",
+        description="Help menu.",
+    )
 
+    # Common arguments
     parser.add_argument(
         "bids_dir",
         metavar="bids_dir",
@@ -55,6 +60,16 @@ def main() -> None:
         help="Analysis level",
     )
     parser.add_argument(
+        "--overwrite",
+        "-x",
+        help="Overwrite previous results",
+        action="store_true",
+    )
+    parser.add_argument("--verbose", "-v", help="Verbose logging.", action="store_true")
+
+    # Participant level options
+    participant_group = parser.add_argument_group("Participant level options")
+    participant_group.add_argument(
         "--participant-label",
         "--sub",
         metavar="LABEL",
@@ -62,31 +77,23 @@ def main() -> None:
         default=None,
         help="Participant to analyze (default: all)",
     )
-    parser.add_argument(
+    participant_group.add_argument(
         "--index",
         metavar="PATH",
         type=Path,
         default=None,
         help="Path to pre-computed bids2table index (default: {bids_dir}/index.b2t)",
     )
-    parser.add_argument(
-        "--mriqc-dir",
+    participant_group.add_argument(
+        "--qc-dir",
         metavar="PATH",
         type=Path,
         default=None,
         help=(
-            "Path to pre-computed MRIQC outputs "
-            "(default: {bids_dir}/derivatives/mriqc)"
+            "Path to pre-computed QC outputs " "(default: {bids_dir}/derivatives/mriqc)"
         ),
     )
-    parser.add_argument(
-        "--qc-key",
-        metavar="LABEL",
-        type=str,
-        default=None,
-        help="Extra identifier for the QC session",
-    )
-    parser.add_argument(
+    participant_group.add_argument(
         "--workers",
         "-w",
         metavar="COUNT",
@@ -95,48 +102,67 @@ def main() -> None:
         "there are cores available. (default: 1)",
         default=1,
     )
-    parser.add_argument(
-        "--overwrite",
-        "-x",
-        help="Overwrite previous results",
-        action="store_true",
-    )
-    parser.add_argument("--verbose", "-v", help="Verbose logging.", action="store_true")
 
+    # Group level arguments
+    group_group = parser.add_argument_group("Group level options")
+    group_group.add_argument(
+        "--ds-name",
+        metavar="DATASET",
+        type=str,
+        default=None,
+        help="Name of FiftyOne dataset.",
+    )
+
+    # Launch level arguments
+    launch_group = parser.add_argument_group("Launch level options")
+    launch_group.add_argument(
+        "--qc-key",
+        metavar="LABEL",
+        type=str,
+        default=None,
+        help="Extra identifier for the QC session",
+    )
+
+    return parser
+
+
+def main() -> None:
+    """NiftyOne BIDS-app entrypoint."""
+    parser = _create_parser()
     args = parser.parse_args()
 
     setup_logging("INFO" if args.verbose else "ERROR")
 
     out_dir = Path(args.out_dir)
-    out_dir.mkdir(exist_ok=True)
+    out_dir.mkdir(exist_ok=True, parents=True)
 
-    description = _make_dataset_description()
-    with (out_dir / "dataset_description.json").open("w") as f:
-        json.dump(description, f, indent=4)
+    _make_dataset_description(out_dir=out_dir)
 
-    if args.analysis_level == "participant":
-        participant_raw_pipeline(
-            bids_dir=args.bids_dir,
-            out_dir=args.out_dir,
-            sub=args.participant_label,
-            index_path=args.index,
-            mriqc_dir=args.mriqc_dir,
-            workers=args.workers,
-            overwrite=args.overwrite,
-            verbose=args.verbose,
-        )
-    elif args.analysis_level == "group":
-        group_pipeline(
-            bids_dir=args.bids_dir, out_dir=args.out_dir, overwrite=args.overwrite
-        )
-
-    elif args.analysis_level == "launch":
-        launch(bids_dir=args.bids_dir, out_dir=args.out_dir, qc_key=args.qc_key)
-
-    else:
-        raise NotImplementedError(
-            f"Analysis level {args.analysis_level} not implemented."
-        )
+    match args.analysis_level:
+        case "participant":
+            participant_raw_pipeline(
+                bids_dir=args.bids_dir,
+                out_dir=out_dir,
+                sub=args.participant_label,
+                index_path=args.index,
+                qc_dir=args.qc_dir,
+                workers=args.workers,
+                overwrite=args.overwrite,
+                verbose=args.verbose,
+            )
+        case "group":
+            group_pipeline(
+                bids_dir=args.bids_dir,
+                out_dir=out_dir,
+                ds_name=args.ds_name,
+                overwrite=args.overwrite,
+            )
+        case "launch":
+            launch(bids_dir=args.bids_dir, out_dir=out_dir, qc_key=args.qc_key)
+        case _:
+            raise NotImplementedError(
+                f"Analysis level {args.analysis_level} not implemented."
+            )
 
 
 if __name__ == "__main__":

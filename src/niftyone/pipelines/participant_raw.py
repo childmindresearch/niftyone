@@ -25,7 +25,7 @@ def participant_raw_pipeline(
     out_dir: StrPath,
     sub: str | None = None,
     index_path: StrPath | None = None,
-    mriqc_dir: StrPath | None = None,
+    qc_dir: StrPath | None = None,
     workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
@@ -34,11 +34,11 @@ def participant_raw_pipeline(
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
-    default_mriqc_dir = bids_dir / "derivatives" / "mriqc"
-    if mriqc_dir is None and default_mriqc_dir.exists():
-        mriqc_dir = default_mriqc_dir
-    elif mriqc_dir is not None:
-        mriqc_dir = Path(mriqc_dir)
+    default_qc_dir = bids_dir / "derivatives" / "mriqc"
+    if qc_dir is None and default_qc_dir.exists():
+        qc_dir = default_qc_dir
+    elif qc_dir is not None:
+        qc_dir = Path(qc_dir)
 
     if workers == -1:
         workers = cpu_count()
@@ -52,7 +52,7 @@ def participant_raw_pipeline(
         f"\n\tout: {out_dir}"
         f"\n\tsubject: {sub}"
         f"\n\tindex: {index_path}"
-        f"\n\tmriqc: {mriqc_dir}"
+        f"\n\tqc: {qc_dir}"
         f"\n\tworkers: {workers}"
         f"\n\toverwrite: {overwrite}"
     )
@@ -72,7 +72,7 @@ def participant_raw_pipeline(
         subs=subs,
         index=index,
         out_dir=out_dir,
-        mriqc_dir=mriqc_dir,
+        qc_dir=qc_dir,
         overwrite=overwrite,
         verbose=verbose,
     )
@@ -100,7 +100,7 @@ def _participant_raw_worker(
     subs: list[str],
     index: BIDSTable,
     out_dir: Path,
-    mriqc_dir: Path | None = None,
+    qc_dir: Path | None = None,
     overwrite: bool = False,
     verbose: bool = False,
 ) -> None:
@@ -117,7 +117,7 @@ def _participant_raw_worker(
             sub=sub,
             index=index,
             out_dir=out_dir,
-            mriqc_dir=mriqc_dir,
+            qc_dir=qc_dir,
             overwrite=overwrite,
         )
 
@@ -126,7 +126,7 @@ def _participant_raw_single(
     sub: str,
     index: BIDSTable,
     out_dir: Path,
-    mriqc_dir: Path | None = None,
+    qc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     tic = time.monotonic()
@@ -149,13 +149,9 @@ def _participant_raw_single(
 
     for _, record in images.nested.iterrows():
         if record["ent"]["suffix"] == "T1w":
-            _participant_raw_t1w(
-                record, out_dir, mriqc_dir=mriqc_dir, overwrite=overwrite
-            )
+            _participant_raw_t1w(record, out_dir, qc_dir=qc_dir, overwrite=overwrite)
         elif record["ent"]["suffix"] == "bold":
-            _participant_raw_bold(
-                record, out_dir, mriqc_dir=mriqc_dir, overwrite=overwrite
-            )
+            _participant_raw_bold(record, out_dir, qc_dir=qc_dir, overwrite=overwrite)
 
     logging.info(
         "Done processing subject: %s; elapsed: %.2fs", sub, time.monotonic() - tic
@@ -165,7 +161,7 @@ def _participant_raw_single(
 def _participant_raw_t1w(
     record: pd.Series,
     out_dir: Path,
-    mriqc_dir: Path | None = None,
+    qc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     entities = BIDSEntities.from_dict(record["ent"])
@@ -190,14 +186,14 @@ def _participant_raw_t1w(
         logging.info("Generating: %s", out_path)
         slice_video(img, out=out_path)
 
-    if mriqc_dir is not None and mriqc_dir.exists():
-        _mriqc_metrics_tsv(record, entities, out_dir, mriqc_dir, overwrite=overwrite)
+    if qc_dir is not None and qc_dir.exists():
+        _qc_metrics_tsv(record, entities, out_dir, qc_dir, overwrite=overwrite)
 
 
 def _participant_raw_bold(
     record: pd.Series,
     out_dir: Path,
-    mriqc_dir: Path | None,
+    qc_dir: Path | None,
     overwrite: bool = False,
 ) -> None:
     entities = BIDSEntities.from_dict(record["ent"])
@@ -226,15 +222,15 @@ def _participant_raw_bold(
         logging.info("Generating: %s", out_path)
         bold_mean_std(img, out=out_path)
 
-    if mriqc_dir is not None and mriqc_dir.exists():
-        _mriqc_metrics_tsv(record, entities, out_dir, mriqc_dir, overwrite=overwrite)
+    if qc_dir is not None and qc_dir.exists():
+        _qc_metrics_tsv(record, entities, out_dir, qc_dir, overwrite=overwrite)
 
 
-def _mriqc_metrics_tsv(
+def _qc_metrics_tsv(
     record: pd.Series,
     entities: BIDSEntities,
     out_dir: Path,
-    mriqc_dir: Path,
+    qc_dir: Path,
     overwrite: bool = False,
 ) -> None:
     out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
@@ -243,7 +239,7 @@ def _mriqc_metrics_tsv(
     if out_path.exists() and not overwrite:
         return
 
-    metrics = _load_mriqc_group_metrics(mriqc_dir, entities.suffix)
+    metrics = _load_qc_group_metrics(qc_dir, entities.suffix)
 
     if metrics is not None:
         # find metrics matching this image
@@ -259,12 +255,10 @@ def _mriqc_metrics_tsv(
 
 
 @lru_cache(maxsize=2)
-def _load_mriqc_group_metrics(
-    mriqc_dir: Path, suffix: str = "T1w"
-) -> pd.DataFrame | None:
+def _load_qc_group_metrics(qc_dir: Path, suffix: str = "T1w") -> pd.DataFrame | None:
     # TODO: this should probably be factored somewhere else
 
-    metrics_path = mriqc_dir / f"group_{suffix}.tsv"
+    metrics_path = qc_dir / f"group_{suffix}.tsv"
     if not metrics_path.exists():
         return None
 
