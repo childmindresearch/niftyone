@@ -14,12 +14,10 @@ from PIL import Image
 from tqdm import tqdm
 
 from niclips.io import VideoWriter
-from niftyone import labels
 from niftyone.tags import TAGS
 from niftyone.typing import StrPath
 
 IMG_EXTENSIONS = {".png", ".mp4"}
-LABEL_CLS_LOOKUP = {"T1w": labels.MRIQCT1w, "bold": labels.MRIQCBold}
 
 
 def group_pipeline(
@@ -75,7 +73,7 @@ def group_pipeline(
 
     logging.info("Collected samples: %d", len(samples))
     logging.info("Adding samples to the dataset")
-    dataset.add_samples(samples)
+    dataset.add_samples(samples, dynamic=True)
 
     logging.info("Dataset group slices: %s", dataset.group_slices)
     logging.info("Dataset media types: %s", dataset.group_media_types)
@@ -107,7 +105,10 @@ def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
     samples = []
     group = fo.Group()
 
+    # Grab QC label (and sub-labels) + metrics
+    qc_suffix = f"QC{group_index.iloc[0].suffix.capitalize()}"
     qc_metrics = _load_qc_metrics(group_index)
+    qc_vars = fo.DynamicEmbeddedDocument(**qc_metrics)
 
     for _, record in group_index.iterrows():
         filepath = Path(record.file_path)
@@ -115,19 +116,19 @@ def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
         if filepath.suffix in IMG_EXTENSIONS:
             # create sample
             element = f"{record.datatype}/{record.suffix}/{record.desc}"
-            sample = fo.Sample(filepath=filepath, group=group.element(element))
-
             group_key = _get_group_key(record)
-            sample["group_key"] = _get_group_label(group_key)
+
+            sample = fo.Sample(
+                filepath=filepath,
+                group=group.element(element),
+                group_key=_get_group_label(group_key),
+                **{qc_suffix: qc_vars},
+            )
 
             # add entity fields
             for k, v in record.items():
                 if k not in {"file_path", "ext"} and not pd.isna(v):
                     sample[k] = v
-
-            # add qc labels
-            label_cls = LABEL_CLS_LOOKUP[record.suffix]
-            sample[label_cls.__name__] = label_cls(**qc_metrics)
 
             samples.append(sample)
     return samples
