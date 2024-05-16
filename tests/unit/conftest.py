@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
-import pkg_resources  # type: ignore[import-untyped]
 import pytest
 from _pytest.config import Config
 from bids2table import BIDSTable, bids2table
