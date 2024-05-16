@@ -13,6 +13,7 @@ def record_t1w(b2t_index: BIDSTable) -> pd.Series:
     return b2t_index.filter_multi(sub="01", suffix="T1w").nested.iloc[0]
 
 
+@pytest.mark.b2t()
 class TestAnatRaw:
     def test_t1w_default(
         self, record_t1w: pd.Series, tmp_path: Path, caplog: LogCaptureFixture

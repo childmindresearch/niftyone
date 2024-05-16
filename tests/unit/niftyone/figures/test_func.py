@@ -13,6 +13,7 @@ def record_bold(b2t_index: BIDSTable) -> pd.Series:
     return b2t_index.filter_multi(sub="01", run=1, suffix="bold").nested.iloc[0]
 
 
+@pytest.mark.b2t()
 class TestBoldRaw:
     def test_bold_default(
         self, record_bold: pd.Series, tmp_path: Path, caplog: LogCaptureFixture

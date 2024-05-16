@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "niftyone"
 description = "Large-scale neuroimaging visualization using FiftyOne"
-authors = [{name = "Connor Lane", email = "connor.lane858@gmail.com"}]
+authors = [{ name = "Connor Lane", email = "connor.lane858@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT License"}
+license = { text = "MIT License" }
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -17,7 +17,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12"
+  "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
   "av",
@@ -31,7 +31,7 @@ dependencies = [
   "pandas >= 2.0, < 2.1",
   "Pillow",
   "scikit-learn",
-  "scipy"
+  "scipy",
 ]
 dynamic = ["version"]
 
@@ -41,7 +41,7 @@ dev = [
   "mypy>=1.9.0",
   "pre-commit>=3.5.0",
   "ruff>=0.3.7",
-  "setuptools-scm>=8.0.4"
+  "setuptools-scm>=8.0.4",
 ]
 
 [project.urls]
@@ -56,6 +56,9 @@ write_to = "src/niftyone/_version.py"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+  "b2t: mark tests requiring bids2table (deselect with '-m \"not b2t\"')",
+]
 log_cli = true
 log_cli_level = "DEBUG"
 
@@ -69,7 +72,9 @@ omit = [
   "src/niftyone/__main__.py",
   "src/niftyone/_version.py",
   "src/niftyone/pipelines/*.py",
-  "src/niftyone/launch.py"
+  "src/niftyone/metrics.py",
+  "src/niftyone/launch.py",
+  "src/niftyone/figures/*.py",
 ]
 
 [tool.mypy]
@@ -86,10 +91,10 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["ANN", "D", "E", "F", "I"]
 ignore = [
-  "ANN101",  # self should not be annotated.
-  "ANN102",  # cls should not be annotated.
-  "D105",  # undocumented-magic-method (e.g. __str__)
-  "D107"  # undocumented-public-init (e.g. __init__)
+  "ANN101", # self should not be annotated.
+  "ANN102", # cls should not be annotated.
+  "D105",   # undocumented-magic-method (e.g. __str__)
+  "D107",   # undocumented-public-init (e.g. __init__)
 ]
 fixable = ["ALL"]
 unfixable = []
@@ -101,8 +106,8 @@ convention = "google"
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/**/*.py" = [
-  "D",  # ignore missing docstrings
-  "ANN201"  # ignore missing return type
+  "D",      # ignore missing docstrings
+  "ANN201", # ignore missing return type
 ]
 
 [tool.ruff.format]

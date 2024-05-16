@@ -1,11 +1,13 @@
 from pathlib import Path
 
+import pytest
 from _pytest.logging import LogCaptureFixture
 from bids2table import BIDSEntities, BIDSTable
 
 from niftyone.metrics import gen_niftyone_metrics_tsv
 
 
+@pytest.mark.b2t()
 class TestGenNiftyOneMetricsTSV:
     def test_gen_tsv_no_metrics(
         self,
