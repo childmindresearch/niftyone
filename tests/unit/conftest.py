@@ -1,9 +1,12 @@
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
+import pkg_resources  # type: ignore[import-untyped]
 import pytest
+from bids2table import BIDSTable, bids2table
 from PIL import Image
 
 plt.set_loglevel("info")
@@ -59,3 +62,19 @@ def nii_3d_non_iso_ras() -> nib.Nifti1Image:
     )
 
     return nib.Nifti1Image(dataobj=img_arr, affine=affine)
+
+
+@pytest.fixture
+def qc_dir() -> Path:
+    return Path(pkg_resources.resource_filename(__name__, "../data/ds000102-mriqc"))
+
+
+@pytest.fixture
+def b2t_index(tmp_path: Path) -> BIDSTable | None:
+    return bids2table(
+        root=pkg_resources.resource_filename(__name__, "../data/ds000102"),
+        with_meta=False,
+        persistent=True,
+        index_path=tmp_path / "b2t",
+        workers=1,
+    )
