@@ -16,7 +16,7 @@ from niftyone import metrics
 def raw_bold(
     record: pd.Series,
     out_dir: Path,
-    qc_dir: Path | None,
+    qc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     """Generate figures for raw participant bold."""
