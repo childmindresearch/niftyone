@@ -44,7 +44,7 @@ class TestLaunch:
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -76,7 +76,7 @@ class TestLaunch:
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -107,7 +107,7 @@ class TestLaunch:
             patch("fiftyone.launch_app", mock_launch_app),
         ):
             with pytest.raises(FileNotFoundError, match=".*dataset not found.*"):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -136,7 +136,7 @@ class TestLaunch:
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                 )
@@ -162,7 +162,7 @@ class TestLaunch:
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -192,7 +192,7 @@ class TestLaunch:
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
