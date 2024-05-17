@@ -138,7 +138,7 @@ def main() -> None:
 
     match args.analysis_level:
         case "participant":
-            pipelines.participant_raw(
+            pipelines.participant(
                 bids_dir=args.bids_dir,
                 out_dir=out_dir,
                 sub=args.participant_label,
