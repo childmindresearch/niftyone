@@ -13,7 +13,7 @@ from elbow.utils import cpu_count, setup_logging
 from niftyone import figures, typing
 
 
-def participant_raw_pipeline(
+def participant_pipeline(
     bids_dir: typing.StrPath,
     out_dir: typing.StrPath,
     sub: str | None = None,
@@ -60,7 +60,7 @@ def participant_raw_pipeline(
         subs = [sub]
 
     _worker = partial(
-        _participant_raw_worker,
+        _participant_worker,
         workers=workers,
         subs=subs,
         index=index,
@@ -86,7 +86,7 @@ def participant_raw_pipeline(
         _worker(0)
 
 
-def _participant_raw_worker(
+def _participant_worker(
     worker_id: int,
     *,
     workers: int,
@@ -106,7 +106,7 @@ def _participant_raw_worker(
         subs = np.array_split(subs, workers)[worker_id]  # type: ignore [assignment]
 
     for sub in subs:
-        _participant_raw_single(
+        _participant_single(
             sub=sub,
             index=index,
             out_dir=out_dir,
@@ -115,7 +115,7 @@ def _participant_raw_worker(
         )
 
 
-def _participant_raw_single(
+def _participant_single(
     sub: str,
     index: BIDSTable,
     out_dir: Path,
