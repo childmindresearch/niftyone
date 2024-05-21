@@ -1,8 +1,8 @@
 """CLI-related functions."""
 
 from argparse import ArgumentParser, Namespace
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 
 class NiftyOneArgumentParser:
