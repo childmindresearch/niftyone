@@ -14,7 +14,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from niclips.io import VideoWriter
-from niftyone.tags import TAGS
+from niftyone.metadata.tags import TAGS
 from niftyone.typing import StrPath
 
 IMG_EXTENSIONS = {".png", ".mp4"}

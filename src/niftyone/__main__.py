@@ -1,6 +1,5 @@
 """Entrypoint of application."""
 
-import json
 from pathlib import Path
 
 from elbow.utils import setup_logging
@@ -8,26 +7,7 @@ from elbow.utils import setup_logging
 import niftyone
 from niftyone import pipelines
 from niftyone.cli import NiftyOneArgumentParser
-
-
-def _make_dataset_description(out_dir: Path) -> None:
-    description = {
-        "Name": "NiftyOne",
-        "BIDSVersion": "1.9.0",
-        "DatasetType": "derivative",
-        "GeneratedBy": [
-            {
-                "Name": "NiftyOne",
-                "Version": f"{niftyone.__version__}",
-                "CodeURL": "https://github.com/childmindresearch/niftyone",
-            }
-        ],
-        "HowToAcknowledge": "Please cite our repo (https://github.com/childmindresearch/niftyone).",
-        "License": "LGPL-2.1",
-    }
-
-    with (out_dir / "dataset_description.json").open("w") as f:
-        json.dump(description, f, indent=4)
+from niftyone.metadata import bids
 
 
 def main() -> None:
@@ -40,7 +20,7 @@ def main() -> None:
     out_dir = Path(args.out_dir)
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    _make_dataset_description(out_dir=out_dir)
+    bids.make_dataset_description(out_dir=out_dir)
 
     match args.analysis_level:
         case "participant":
