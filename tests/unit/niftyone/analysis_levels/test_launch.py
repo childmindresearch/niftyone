@@ -7,7 +7,7 @@ import fiftyone as fo
 import pytest
 from _pytest.logging import LogCaptureFixture
 
-from niftyone import launch
+from niftyone.analysis_levels import launch
 from niftyone.metadata import tags
 
 

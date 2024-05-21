@@ -72,9 +72,8 @@ omit = [
   "src/niftyone/__main__.py",
   "src/niftyone/_version.py",
   "src/niftyone/metadata/tags.py",
-  "src/niftyone/pipelines/*.py",
+  "src/niftyone/analysis_levels/*.py",
   "src/niftyone/metrics.py",
-  "src/niftyone/launch.py",
   "src/niftyone/figures/*.py"
 ]
 

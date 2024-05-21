@@ -1,4 +1,4 @@
-"""Pipeline for group-level."""
+"""Group-level."""
 
 import logging
 import time
@@ -20,13 +20,13 @@ from niftyone.typing import StrPath
 IMG_EXTENSIONS = {".png", ".mp4"}
 
 
-def group_pipeline(
+def group(
     bids_dir: StrPath,
     out_dir: StrPath,
     ds_name: str | None = None,
     overwrite: bool = False,
 ) -> None:
-    """NiftyOne group pipeline.
+    """NiftyOne group analysis level.
 
     Collects image samples into a FiftyOne dataset and exports
     to the output directory.
@@ -38,7 +38,7 @@ def group_pipeline(
         ds_name = Path(bids_dir).name
 
     logging.info(
-        "Starting niftyone group pipeline:"
+        "Starting niftyone group-level:"
         f"\n\tdataset: {bids_dir}"
         f"\n\tout: {out_dir}"
         f"\n\tds_name: {ds_name}"

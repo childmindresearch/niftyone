@@ -1,4 +1,4 @@
-"""Raw participant-label pipeline."""
+"""Participant-level."""
 
 import logging
 import time
@@ -13,7 +13,7 @@ from elbow.utils import cpu_count, setup_logging
 from niftyone import figures, typing
 
 
-def participant_pipeline(
+def participant(
     bids_dir: typing.StrPath,
     out_dir: typing.StrPath,
     sub: str | None = None,
@@ -23,7 +23,7 @@ def participant_pipeline(
     overwrite: bool = False,
     verbose: bool = False,
 ) -> None:
-    """Participant-level niftyone raw MRI pipeline."""
+    """NiftyOne participant analysis level."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
@@ -40,7 +40,7 @@ def participant_pipeline(
 
     setup_logging("INFO" if verbose else "WARNING", max_repeats=None)
     logging.info(
-        "Starting niftyone participant raw pipeline:"
+        "Starting niftyone participant-level:"
         f"\n\tdataset: {bids_dir}"
         f"\n\tout: {out_dir}"
         f"\n\tsubject: {sub}"

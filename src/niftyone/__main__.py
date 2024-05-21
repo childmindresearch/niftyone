@@ -4,8 +4,7 @@ from pathlib import Path
 
 from elbow.utils import setup_logging
 
-import niftyone
-from niftyone import pipelines
+from niftyone import analysis_levels
 from niftyone.cli import NiftyOneArgumentParser
 from niftyone.metadata import bids
 
@@ -24,7 +23,7 @@ def main() -> None:
 
     match args.analysis_level:
         case "participant":
-            pipelines.participant(
+            analysis_levels.participant(
                 bids_dir=args.bids_dir,
                 out_dir=out_dir,
                 sub=args.participant_label,
@@ -35,14 +34,16 @@ def main() -> None:
                 verbose=args.verbose,
             )
         case "group":
-            pipelines.group(
+            analysis_levels.group(
                 bids_dir=args.bids_dir,
                 out_dir=out_dir,
                 ds_name=args.ds_name,
                 overwrite=args.overwrite,
             )
         case "launch":
-            niftyone.launch(bids_dir=args.bids_dir, out_dir=out_dir, qc_key=args.qc_key)
+            analysis_levels.launch(
+                bids_dir=args.bids_dir, out_dir=out_dir, qc_key=args.qc_key
+            )
         case _:
             raise NotImplementedError(
                 f"Analysis level {args.analysis_level} not implemented."
