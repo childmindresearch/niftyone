@@ -109,6 +109,10 @@ convention = "google"
   "D",      # ignore missing docstrings
   "ANN201", # ignore missing return type
 ]
+"src/niftyone/figures/*.py" = [
+  "D101",  # ignore missing class docstrings
+  "D102"  # ignore missing method docstrings
+]
 
 [tool.ruff.format]
 quote-style = "double"
