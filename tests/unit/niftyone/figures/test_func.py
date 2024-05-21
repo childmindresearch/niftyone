@@ -5,7 +5,7 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 from bids2table import BIDSEntities, BIDSTable
 
-from niftyone.figures import func
+from niftyone.figures import bold
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ class TestBoldRaw:
     ):
         out_dir = tmp_path / "out"
 
-        func.raw_bold(record_bold, out_dir=out_dir)
+        bold.raw_bold(record_bold, out_dir=out_dir)
 
         assert "Processing" in caplog.text
         count = sum(1 for record in caplog.record_tuples if "Generating" in record[2])
@@ -55,7 +55,7 @@ class TestBoldRaw:
         )
         entities.with_update(desc="meanStd", ext=".png").to_path(prefix=out_dir).touch()
 
-        func.raw_bold(record=record_bold, out_dir=out_dir, overwrite=overwrite)
+        bold.raw_bold(record=record_bold, out_dir=out_dir, overwrite=overwrite)
 
         if not overwrite:
             assert "Generating" not in caplog.text
@@ -70,7 +70,7 @@ class TestBoldRaw:
         caplog: LogCaptureFixture,
     ):
         out_dir = tmp_path / "out"
-        func.raw_bold(record_bold, out_dir=out_dir, qc_dir=qc_dir, overwrite=False)
+        bold.raw_bold(record_bold, out_dir=out_dir, qc_dir=qc_dir, overwrite=False)
 
         assert "Processing" in caplog.text
         count = sum(1 for record in caplog.record_tuples if "Generating" in record[2])

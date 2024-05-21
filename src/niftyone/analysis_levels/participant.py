@@ -143,7 +143,7 @@ def _participant_single(
                     record, out_dir, qc_dir=qc_dir, overwrite=overwrite
                 )
             case "bold":
-                figures.func.raw_bold(
+                figures.bold.raw_bold(
                     record, out_dir, qc_dir=qc_dir, overwrite=overwrite
                 )
             case _:
