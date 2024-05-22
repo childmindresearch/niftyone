@@ -105,6 +105,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"runner.py" = ["D102"]
 "tests/**/*.py" = [
   "D",      # ignore missing docstrings
   "ANN201", # ignore missing return type
