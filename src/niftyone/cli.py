@@ -29,35 +29,35 @@ class NiftyOneArgumentParser:
             "bids_dir",
             metavar="bids_dir",
             type=Path,
-            help="Path to BIDS dataset",
+            help="path to BIDS dataset",
         )
         self.parser.add_argument(
             "out_dir",
             metavar="output_dir",
             type=Path,
-            help="Path to output directory",
+            help="path to output directory",
         )
         self.parser.add_argument(
             "analysis_level",
             metavar="analysis_level",
             type=str,
             choices=["participant", "group", "launch"],
-            help="Analysis level",
+            help="analysis level",
         )
         self.parser.add_argument(
             "--overwrite",
             "-x",
-            help="Overwrite previous results",
+            help="overwrite previous results",
             action="store_true",
         )
         self.parser.add_argument(
-            "--verbose", "-v", help="Verbose logging.", action="store_true"
+            "--verbose", "-v", help="verbose logging.", action="store_true"
         )
 
     def _add_participant_args(self) -> None:
         """Participant-level CLI arguments."""
         self.participant_level = self.parser.add_argument_group(
-            "Participant level options"
+            "participant level options"
         )
         self.participant_level.add_argument(
             "--participant-label",
@@ -65,62 +65,62 @@ class NiftyOneArgumentParser:
             metavar="LABEL",
             type=str,
             default=None,
-            help="Participant to analyze (default: all)",
+            help="participant to analyze.",
         )
         self.participant_level.add_argument(
             "--index",
             metavar="PATH",
             type=Path,
             default=None,
-            help="Bids2table index path (default: {bids_dir}/index.b2t)",
+            help="bids2table index path",
         )
         self.participant_level.add_argument(
             "--qc-dir",
             metavar="PATH",
             type=Path,
             default=None,
-            help=(
-                "Path to pre-computed QC outputs "
-                "(default: {bids_dir}/derivatives/mriqc)"
-            ),
+            help="pre-computed QC metrics if available",
         )
         self.participant_level.add_argument(
             "--config",
             metavar="PATH",
             type=Path,
             default=None,
-            help="Filters to apply to bids2table for figure generation",
+            help=(
+                "filters to apply to bids2table for figure generation - "
+                "if none provided, generate all available figures"
+            ),
         )
         self.participant_level.add_argument(
             "--workers",
             "-w",
             metavar="COUNT",
             type=int,
-            help="Number of worker processes. Setting to -1 runs as many processes as "
-            "there are cores available. (default: 1)",
+            help="number of worker processes - setting to -1 uses all available cores "
+            "(default: %(default)d)",
             default=1,
         )
 
     def _add_group_args(self) -> None:
-        """Group-level CLI arguments."""
+        """group-level CLI arguments."""
         self.group_level = self.parser.add_argument_group("Group level options")
         self.group_level.add_argument(
             "--ds-name",
             metavar="DATASET",
             type=str,
             default=None,
-            help="Name of NiftyOne dataset.",
+            help="name of NiftyOne dataset",
         )
 
     def _add_launch_args(self) -> None:
         """Application launch CLI arguments."""
-        self.launch_group = self.parser.add_argument_group("Launch level options")
+        self.launch_group = self.parser.add_argument_group("launch level options")
         self.launch_group.add_argument(
             "--qc-key",
             metavar="LABEL",
             type=str,
             default=None,
-            help="Extra identifier for the QC session",
+            help="extra identifier for the QC session",
         )
 
     def parse_args(self, args: Sequence[str] | None = None) -> Namespace:
