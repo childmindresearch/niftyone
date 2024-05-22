@@ -7,6 +7,7 @@ from functools import partial
 from pathlib import Path
 
 import numpy as np
+import pkg_resources  # type:ignore [import-untyped]
 import yaml  # type:ignore [import-untyped]
 from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
@@ -64,9 +65,11 @@ def participant(
         subs = [sub]
 
     logging.info("Creating figure generators")
-    ##### SETUP DEFAULT #####
+
     if not config:
-        config = Path("/tmp/niftyone/config.yaml")
+        config = Path(
+            pkg_resources.resource_filename("niftyone", "resources/config.yaml")
+        )
     with open(config, "r") as fpath:
         figure_config = yaml.safe_load(fpath)
     figure_generators = generator.create_generators(config=figure_config)
