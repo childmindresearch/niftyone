@@ -35,7 +35,7 @@ class SliceVideoGenerator(ViewGenerator):
 
 
 @register("three_view_video")
-class ThreeViewVideo(ViewGenerator):
+class ThreeViewVideoGenerator(ViewGenerator):
     """Three view video generator (4D over time)."""
 
     def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
@@ -45,5 +45,5 @@ class ThreeViewVideo(ViewGenerator):
             overwrite=overwrite,
             desc="threeViewVideo",
             ext=".mp4",
-            view_fn=multi_view.three_view_frame,
+            view_fn=multi_view.three_view_video,
         )

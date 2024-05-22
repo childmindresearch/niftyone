@@ -7,18 +7,21 @@ from functools import partial
 from pathlib import Path
 
 import numpy as np
+import yaml  # type:ignore [import-untyped]
 from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
 
-from niftyone import figures, typing
+from niftyone.figures import generator
+from niftyone.figures.runner import Runner
 
 
 def participant(
-    bids_dir: typing.StrPath,
-    out_dir: typing.StrPath,
+    bids_dir: Path,
+    out_dir: Path,
     sub: str | None = None,
-    index_path: typing.StrPath | None = None,
-    qc_dir: typing.StrPath | None = None,
+    index_path: Path | None = None,
+    qc_dir: Path | None = None,
+    config: Path | None = None,
     workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
@@ -46,6 +49,7 @@ def participant(
         f"\n\tsubject: {sub}"
         f"\n\tindex: {index_path}"
         f"\n\tqc: {qc_dir}"
+        f"\n\tconfig: {config}"
         f"\n\tworkers: {workers}"
         f"\n\toverwrite: {overwrite}"
     )
@@ -59,6 +63,15 @@ def participant(
     else:
         subs = [sub]
 
+    logging.info("Creating figure generators")
+    ##### SETUP DEFAULT #####
+    if not config:
+        config = Path("/tmp/niftyone/config.yaml")
+    with open(config, "r") as fpath:
+        figure_config = yaml.safe_load(fpath)
+    figure_generators = generator.create_generators(config=figure_config)
+    figure_runner = Runner(generators=figure_generators)
+
     _worker = partial(
         _participant_worker,
         workers=workers,
@@ -66,6 +79,7 @@ def participant(
         index=index,
         out_dir=out_dir,
         qc_dir=qc_dir,
+        figure_runner=figure_runner,
         overwrite=overwrite,
         verbose=verbose,
     )
@@ -93,6 +107,7 @@ def _participant_worker(
     subs: list[str],
     index: BIDSTable,
     out_dir: Path,
+    figure_runner: Runner,
     qc_dir: Path | None = None,
     overwrite: bool = False,
     verbose: bool = False,
@@ -111,6 +126,7 @@ def _participant_worker(
             index=index,
             out_dir=out_dir,
             qc_dir=qc_dir,
+            figure_runner=figure_runner,
             overwrite=overwrite,
         )
 
@@ -119,11 +135,12 @@ def _participant_single(
     sub: str,
     index: BIDSTable,
     out_dir: Path,
+    figure_runner: Runner,
     qc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     tic = time.monotonic()
-    logging.info("Generating raw figures for subject: %s", sub)
+    logging.info("Generating figures for subject: %s", sub)
 
     images = index.filter("sub", sub).filter("ext", items={".nii", ".nii.gz"})
     if len(images) == 0:
@@ -136,21 +153,9 @@ def _participant_single(
         "\n\t".join(images.finfo["file_path"].tolist()),
     )
 
-    for _, record in images.nested.iterrows():
-        match record["ent"]["suffix"]:
-            case "T1w":
-                figures.anat.raw_t1w(
-                    record, out_dir, qc_dir=qc_dir, overwrite=overwrite
-                )
-            case "bold":
-                figures.bold.raw_bold(
-                    record, out_dir, qc_dir=qc_dir, overwrite=overwrite
-                )
-            case _:
-                logging.info(
-                    f"Figure generation for {record['ent']['suffix']} not yet "
-                    "implemented."
-                )
+    # Generate figures via runner
+    figure_runner.run(table=images, out_dir=out_dir, overwrite=overwrite)
+
     logging.info(
         "Done processing subject: %s; elapsed: %.2fs", sub, time.monotonic() - tic
     )
