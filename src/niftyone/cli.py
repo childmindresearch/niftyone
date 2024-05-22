@@ -72,7 +72,7 @@ class NiftyOneArgumentParser:
             metavar="PATH",
             type=Path,
             default=None,
-            help="Pre-computed bids2table index path (default: {bids_dir}/index.b2t)",
+            help="Bids2table index path (default: {bids_dir}/index.b2t)",
         )
         self.participant_level.add_argument(
             "--qc-dir",
@@ -83,6 +83,13 @@ class NiftyOneArgumentParser:
                 "Path to pre-computed QC outputs "
                 "(default: {bids_dir}/derivatives/mriqc)"
             ),
+        )
+        self.participant_level.add_argument(
+            "--config",
+            metavar="PATH",
+            type=Path,
+            default=None,
+            help="Filters to apply to bids2table for figure generation",
         )
         self.participant_level.add_argument(
             "--workers",

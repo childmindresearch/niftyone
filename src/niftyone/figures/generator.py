@@ -4,17 +4,17 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Generic, Type, TypeVar
+from typing import Any, Callable, Generic, Type, TypeVar
 
 import nibabel as nib
 import pandas as pd
-from bids2table.entities import BIDSEntities
+from bids2table import BIDSEntities, BIDSTable
 from matplotlib.figure import Figure
 from PIL.Image import Image
 
 import niclips.image as noimg
 
-GENERATOR_REGISTRY: dict[str, Type["ViewGenerator"]] = {}
+generator_registry: dict[str, Type["ViewGenerator"]] = {}
 
 T = TypeVar("T", bound="ViewGenerator")
 
@@ -23,10 +23,31 @@ def register(name: str) -> Callable[[Type[T]], Type[T]]:
     """Function to register generator to registry."""
 
     def decorator(cls: Type[T]) -> Type[T]:
-        GENERATOR_REGISTRY[name] = cls
+        generator_registry[name] = cls
         return cls
 
     return decorator
+
+
+def create_generators(
+    config: dict[str, Any],
+) -> list["ViewGenerator"]:
+    """Function to create generators dynamically from config."""
+    generators = []
+
+    for settings in config.values():
+        query = settings.get("query", "")
+        views = settings.get("views", [])
+
+        for view in views:
+            if view in generator_registry:
+                generator_cls = generator_registry[view]
+                generator_instance = generator_cls(query=query)
+                generators.append(generator_instance)
+            else:
+                logging.warning(f"Generator for '{view}' not found in registry")
+
+    return generators
 
 
 @dataclass
@@ -35,9 +56,11 @@ class ViewGenerator(ABC, Generic[T]):
 
     query: str
 
-    def __call__(self, table: pd.DataFrame, out_dir: Path, overwrite: bool) -> None:
-        filtered_table = table.query(self.query)
-        for _, record in filtered_table.iterrows():
+    def __call__(self, table: BIDSTable, out_dir: Path, overwrite: bool) -> None:
+        # Filters by entity (via string query)
+        table_idxes = table.ent.query(self.query).index
+        for idx in table_idxes:
+            record = table.nested.loc[idx]
             self.generate(record=record, out_dir=out_dir, overwrite=overwrite)
 
     def generate_common(
