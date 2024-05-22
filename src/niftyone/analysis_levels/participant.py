@@ -31,10 +31,7 @@ def participant(
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
-    default_qc_dir = bids_dir / "derivatives" / "mriqc"
-    if qc_dir is None and default_qc_dir.exists():
-        qc_dir = default_qc_dir
-    elif qc_dir is not None:
+    if qc_dir:
         qc_dir = Path(qc_dir)
 
     if workers == -1:
