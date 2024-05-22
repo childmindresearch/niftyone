@@ -12,8 +12,8 @@ import yaml  # type:ignore [import-untyped]
 from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
 
+from niftyone import Runner
 from niftyone.figures import generator
-from niftyone.figures.runner import Runner
 
 
 def participant(
@@ -68,9 +68,10 @@ def participant(
             pkg_resources.resource_filename("niftyone", "resources/config.yaml")
         )
     with open(config, "r") as fpath:
-        figure_config = yaml.safe_load(fpath)
-    figure_generators = generator.create_generators(config=figure_config)
-    figure_runner = Runner(generators=figure_generators)
+        config = yaml.safe_load(fpath)
+        assert isinstance(config, dict)
+    figure_generators = generator.create_generators(config=config)
+    runner = Runner(figure_generators=figure_generators)
 
     _worker = partial(
         _participant_worker,
@@ -79,7 +80,7 @@ def participant(
         index=index,
         out_dir=out_dir,
         qc_dir=qc_dir,
-        figure_runner=figure_runner,
+        runner=runner,
         overwrite=overwrite,
         verbose=verbose,
     )
@@ -107,7 +108,7 @@ def _participant_worker(
     subs: list[str],
     index: BIDSTable,
     out_dir: Path,
-    figure_runner: Runner,
+    runner: Runner,
     qc_dir: Path | None = None,
     overwrite: bool = False,
     verbose: bool = False,
@@ -126,7 +127,7 @@ def _participant_worker(
             index=index,
             out_dir=out_dir,
             qc_dir=qc_dir,
-            figure_runner=figure_runner,
+            runner=runner,
             overwrite=overwrite,
         )
 
@@ -135,26 +136,17 @@ def _participant_single(
     sub: str,
     index: BIDSTable,
     out_dir: Path,
-    figure_runner: Runner,
+    runner: Runner,
     qc_dir: Path | None = None,
     overwrite: bool = False,
 ) -> None:
     tic = time.monotonic()
-    logging.info("Generating figures for subject: %s", sub)
+
+    logging.info(f"Processing subject {sub}")
 
     images = index.filter("sub", sub).filter("ext", items={".nii", ".nii.gz"})
-    if len(images) == 0:
-        logging.info("Found no images")
-        return
 
-    logging.info(
-        "Found %d images:\n\t%s",
-        len(images),
-        "\n\t".join(images.finfo["file_path"].tolist()),
-    )
-
-    # Generate figures via runner
-    figure_runner.run(table=images, out_dir=out_dir, overwrite=overwrite)
+    runner.gen_figures(table=images, out_dir=out_dir, overwrite=overwrite)
 
     logging.info(
         "Done processing subject: %s; elapsed: %.2fs", sub, time.monotonic() - tic

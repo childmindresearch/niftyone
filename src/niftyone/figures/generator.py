@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Generic, Type, TypeVar
+from typing import Any, Callable
 
 import nibabel as nib
 import pandas as pd
@@ -14,15 +14,13 @@ from PIL.Image import Image
 
 import niclips.image as noimg
 
-generator_registry: dict[str, Type["ViewGenerator"]] = {}
-
-T = TypeVar("T", bound="ViewGenerator")
+generator_registry: dict[str, type["ViewGenerator"]] = {}
 
 
-def register(name: str) -> Callable[[Type[T]], Type[T]]:
+def register(name: str) -> Callable[[type["ViewGenerator"]], type["ViewGenerator"]]:
     """Function to register generator to registry."""
 
-    def decorator(cls: Type[T]) -> Type[T]:
+    def decorator(cls: type["ViewGenerator"]) -> type["ViewGenerator"]:
         generator_registry[name] = cls
         return cls
 
@@ -51,7 +49,7 @@ def create_generators(
 
 
 @dataclass
-class ViewGenerator(ABC, Generic[T]):
+class ViewGenerator(ABC):
     """Base view generator class."""
 
     query: str
