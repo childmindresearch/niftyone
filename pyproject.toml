@@ -63,7 +63,7 @@ log_cli = true
 log_cli_level = "DEBUG"
 
 [tool.coverage.report]
-exclude_also = ["assert", "__enter__", "__exit__"]
+exclude_also = ["assert", "__enter__", "__exit__", "pass"]
 
 [tool.coverage.run]
 omit = [
@@ -110,8 +110,8 @@ convention = "google"
   "ANN201", # ignore missing return type
 ]
 "src/niftyone/figures/*.py" = [
-  "D101",  # ignore missing class docstrings
-  "D102"  # ignore missing method docstrings
+  "D101", # ignore missing class docstrings
+  "D102", # ignore missing method docstrings
 ]
 
 [tool.ruff.format]
