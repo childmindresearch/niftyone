@@ -4,11 +4,12 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
-from _pytest.logging import LogCaptureFixture
 from bids2table import BIDSTable
 
+from niftyone.exceptions import GeneratorError
 from niftyone.figures.generator import (
     ViewGenerator,
+    create_generator,
     create_generators,
     generator_registry,
     register,
@@ -34,7 +35,7 @@ def test_generator() -> ViewGenerator:
         def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
             pass
 
-    return TestGenerator("suffix == 'T1w'")
+    return TestGenerator("suffix == 'T1w'", {})
 
 
 class TestViewGenerator:
@@ -81,6 +82,15 @@ def setup_registry():
 
 
 class TestCreateGenerator:
+    @pytest.mark.parametrize(
+        "view", [("test_view"), ("test_view(param1='value1', param2=2, param3=.1)")]
+    )
+    def test_create_generators_view_kwargs(self, setup_registry: Generator, view: str):
+        generator = create_generator(view=view, query="suffix == 'T1w'")
+        assert isinstance(generator, ViewGenerator)
+        assert generator.query == "suffix == 'T1w'"
+        assert isinstance(generator.view_kwargs, dict)
+
     def test_create_generators(self, setup_registry: Generator):
         config = {
             "test1": {"query": "suffix == 'T1w'", "views": ["test_view"]},
@@ -92,24 +102,21 @@ class TestCreateGenerator:
         assert generators[0].query == config["test1"]["query"]
         assert generators[1].query == config["test2"]["query"]
 
-    def test_generator_view_not_found(self, caplog: LogCaptureFixture):
+    def test_generator_view_not_found(self):
         config = {"test": {"query": "", "views": ["view1"]}}
-        create_generators(config)
-        assert "not found in registry" in caplog.text
+        with pytest.raises(GeneratorError, match=".*not found in registry"):
+            create_generators(config)
 
     def test_generator_no_views(self):
         config = {"test": {"query": "", "views": []}}
         generators = create_generators(config)
         assert generators == []
 
-    def test_generator_mixed_views(
-        self, setup_registry: Generator, caplog: LogCaptureFixture
-    ):
+    def test_generator_mixed_views(self, setup_registry: Generator):
         config = {
             "test1": {"query": "suffix == 'T1w'", "views": ["test_view"]},
             "test2": {"query": "suffix == 'bold'", "views": ["fake_view"]},
         }
-        generators = create_generators(config)
-        assert len(generators) == 1
-        assert generators[0].query == config["test1"]["query"]
-        assert "'fake_view' not found" in caplog.text
+
+        with pytest.raises(GeneratorError, match=".*not found in registry"):
+            create_generators(config)
