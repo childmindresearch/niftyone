@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 from pandas import DataFrame
 
-from niftyone.tags import TAGS, GroupTags
+from niftyone.metadata.tags import TAGS, GroupTags
 
 
 @pytest.fixture

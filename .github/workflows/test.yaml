@@ -29,7 +29,8 @@ jobs:
             --cov-report=xml:coverage.xml \
             --cov=src tests \
             --log-level=DEBUG \
-            --verbose
+            -m 'not b2t' \
+            -v
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

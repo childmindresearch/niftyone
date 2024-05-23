@@ -5,7 +5,7 @@ from pathlib import Path
 
 import fiftyone as fo
 
-from niftyone.tags import GroupTags
+from niftyone.metadata.tags import GroupTags
 from niftyone.typing import StrPath
 
 

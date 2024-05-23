@@ -56,6 +56,9 @@ write_to = "src/niftyone/_version.py"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+  "b2t: mark tests requiring bids2table (deselect with '-m \"not b2t\"')"
+]
 log_cli = true
 log_cli_level = "DEBUG"
 
@@ -68,7 +71,10 @@ omit = [
   "src/**/typing.py",
   "src/niftyone/__main__.py",
   "src/niftyone/_version.py",
-  "src/niftyone/pipelines/*.py"
+  "src/niftyone/metadata/tags.py",
+  "src/niftyone/analysis_levels/*.py",
+  "src/niftyone/metrics.py",
+  "src/niftyone/figures/*.py"
 ]
 
 [tool.mypy]

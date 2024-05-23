@@ -7,7 +7,8 @@ import fiftyone as fo
 import pytest
 from _pytest.logging import LogCaptureFixture
 
-from niftyone import launch, tags
+from niftyone.analysis_levels import launch
+from niftyone.metadata import tags
 
 
 @pytest.fixture
@@ -40,11 +41,11 @@ class TestLaunch:
             with (
                 patch("fiftyone.dataset_exists", mock_ds_exists),
                 patch("fiftyone.load_dataset", mock_load_ds),
-                patch("niftyone.tags.GroupTags", mock_group_tags),
+                patch("niftyone.metadata.tags.GroupTags", mock_group_tags),
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -72,11 +73,11 @@ class TestLaunch:
             with (
                 patch("fiftyone.dataset_exists", mock_ds_exists),
                 patch("fiftyone.Dataset.from_dir", mock_from_ds_dir),
-                patch("niftyone.tags.GroupTags", mock_group_tags),
+                patch("niftyone.metadata.tags.GroupTags", mock_group_tags),
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -102,12 +103,12 @@ class TestLaunch:
         with (
             patch("fiftyone.dataset_exists", mock_ds_exists),
             patch("fiftyone.Dataset.from_dir", mock_from_ds_dir),
-            patch("niftyone.tags.GroupTags", mock_group_tags),
+            patch("niftyone.metadata.tags.GroupTags", mock_group_tags),
             patch("pathlib.Path.exists", mock_path_exists),
             patch("fiftyone.launch_app", mock_launch_app),
         ):
             with pytest.raises(FileNotFoundError, match=".*dataset not found.*"):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -132,11 +133,11 @@ class TestLaunch:
             with (
                 patch("fiftyone.dataset_exists", mock_ds_exists),
                 patch("fiftyone.load_dataset", mock_load_ds),
-                patch("niftyone.tags.GroupTags", mock_group_tags),
+                patch("niftyone.metadata.tags.GroupTags", mock_group_tags),
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                 )
@@ -158,11 +159,11 @@ class TestLaunch:
             with (
                 patch("fiftyone.dataset_exists", mock_ds_exists),
                 patch("fiftyone.load_dataset", mock_load_ds),
-                patch("niftyone.tags.GroupTags", mock_group_tags),
+                patch("niftyone.metadata.tags.GroupTags", mock_group_tags),
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
@@ -188,11 +189,11 @@ class TestLaunch:
             with (
                 patch("fiftyone.dataset_exists", mock_ds_exists),
                 patch("fiftyone.load_dataset", mock_load_ds),
-                patch("niftyone.tags.GroupTags.from_json", mock_group_tags),
+                patch("niftyone.metadata.tags.GroupTags.from_json", mock_group_tags),
                 patch("pathlib.Path.exists", mock_path_exists),
                 patch("fiftyone.launch_app", mock_launch_app),
             ):
-                launch.launch(
+                launch(
                     bids_dir=test_config["bids_dir"],
                     out_dir=test_config["out_dir"],
                     ds_name=test_config["ds_name"],
