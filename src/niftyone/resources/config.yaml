@@ -1,6 +1,6 @@
 anat:
   query: datatype == 'anat'
-  views: [three_view, slice_video]
+  views: [three_view, slice_video(axis=2)]
 
 func:
   query: datatype == 'func'

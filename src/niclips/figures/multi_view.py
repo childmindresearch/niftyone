@@ -15,6 +15,7 @@ from niclips.typing import Coord, NiftiLike, StrPath
 
 def multi_view_frame(
     img: nib.Nifti1Image,
+    *,
     coords: Sequence[Coord],
     axes: list[int],
     out: StrPath | None = None,
@@ -76,6 +77,7 @@ def multi_view_frame(
 def three_view_frame(
     img: NiftiLike,
     out: StrPath | None = None,
+    *,
     coord: tuple[float, float, float] | None = None,
     idx: int | None = 0,
     vmin: float | None = None,
@@ -117,6 +119,7 @@ def three_view_frame(
 def three_view_video(
     img: nib.Nifti1Image,
     out: StrPath,
+    *,
     coord: tuple[float, float, float] | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
@@ -152,6 +155,7 @@ def three_view_video(
 def slice_video(
     img: NiftiLike,
     out: StrPath,
+    *,
     axis: int = 2,
     idx: int | None = 0,
     vmin: float | None = None,

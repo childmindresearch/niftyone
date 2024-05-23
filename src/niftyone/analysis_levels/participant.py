@@ -5,6 +5,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pkg_resources  # type:ignore [import-untyped]
@@ -14,6 +15,19 @@ from elbow.utils import cpu_count, setup_logging
 
 from niftyone import Runner
 from niftyone.figures import generator
+
+
+def load_config(config: Path | None) -> dict[str, Any]:
+    """Helper to load configuration file."""
+    if not config:
+        config = Path(
+            pkg_resources.resource_filename("niftyone", "resources/config.yaml")
+        )
+
+    with open(config, "r") as fpath:
+        contents = yaml.safe_load(fpath)
+
+    return contents
 
 
 def participant(
@@ -62,14 +76,7 @@ def participant(
         subs = [sub]
 
     logging.info("Creating figure generators")
-
-    if not config:
-        config = Path(
-            pkg_resources.resource_filename("niftyone", "resources/config.yaml")
-        )
-    with open(config, "r") as fpath:
-        config = yaml.safe_load(fpath)
-        assert isinstance(config, dict)
+    config: dict[str, Any] = load_config(config=config)
     figure_generators = generator.create_generators(config=config)
     runner = Runner(figure_generators=figure_generators)
 

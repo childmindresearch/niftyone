@@ -1,7 +1,6 @@
 """Runner for running generator."""
 
 import logging
-from collections.abc import Sequence
 from pathlib import Path
 
 from bids2table import BIDSTable
@@ -12,7 +11,7 @@ from niftyone.figures.generator import ViewGenerator
 class Runner:
     """Runner class for dynamic processing of participants."""
 
-    def __init__(self, figure_generators: Sequence[ViewGenerator]) -> None:
+    def __init__(self, figure_generators: list[ViewGenerator]) -> None:
         self.figure_generators = figure_generators
 
     def gen_figures(
