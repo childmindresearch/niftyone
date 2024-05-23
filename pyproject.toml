@@ -11,7 +11,7 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT License" }
+license = {text = "MIT License"}
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -20,7 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
   "av",
@@ -34,7 +34,7 @@ dependencies = [
   "pandas",
   "Pillow",
   "scikit-learn",
-  "scipy",
+  "scipy"
 ]
 dynamic = ["version"]
 
@@ -44,7 +44,7 @@ dev = [
   "mypy>=1.9.0",
   "pre-commit>=3.5.0",
   "ruff>=0.3.7",
-  "setuptools-scm>=8.0.4",
+  "setuptools-scm>=8.0.4"
 ]
 
 [project.urls]
@@ -60,7 +60,7 @@ write_to = "src/niftyone/_version.py"
 pythonpath = ["src"]
 testpaths = ["tests"]
 markers = [
-  "b2t: mark tests requiring bids2table (deselect with '-m \"not b2t\"')",
+  "b2t: mark tests requiring bids2table (deselect with '-m \"not b2t\"')"
 ]
 log_cli = true
 log_cli_level = "DEBUG"
@@ -77,7 +77,7 @@ omit = [
   "src/niftyone/metadata/tags.py",
   "src/niftyone/analysis_levels/*.py",
   "src/niftyone/metrics.py",
-  "src/niftyone/figures/*.py",
+  "src/niftyone/figures/*.py"
 ]
 
 [tool.mypy]
@@ -112,8 +112,8 @@ convention = "google"
 "__init__.py" = ["F401"]
 "runner.py" = ["D102"]
 "tests/**/*.py" = [
-  "D",      # ignore missing docstrings
-  "ANN201", # ignore missing return type
+  "D",  # ignore missing docstrings
+  "ANN201"  # ignore missing return type
 ]
 "src/niftyone/figures/*.py" = [
   "D101",  # ignore missing class docstrings

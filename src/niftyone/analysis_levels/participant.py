@@ -20,7 +20,13 @@ from niftyone.figures import generator
 def load_config(config: Path | None) -> dict[str, Any]:
     """Helper to load configuration file."""
     if not config:
+<<<<<<< HEAD
         config = Path(resources.files("niftyone").joinpath("resources/config.yaml"))  # type: ignore
+=======
+        config = Path(
+            pkg_resources.resource_filename("niftyone", "resources/config.yaml")
+        )
+>>>>>>> d706e48 (Split create_generator and add kwargs)
 
     with open(config, "r") as fpath:
         contents = yaml.safe_load(fpath)

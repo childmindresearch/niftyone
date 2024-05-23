@@ -15,7 +15,10 @@ from niclips.typing import Coord, NiftiLike, StrPath
 
 def multi_view_frame(
     img: nib.Nifti1Image,
+<<<<<<< HEAD
     out: StrPath | None = None,
+=======
+>>>>>>> d706e48 (Split create_generator and add kwargs)
     *,
     coords: Sequence[Coord],
     axes: list[int],

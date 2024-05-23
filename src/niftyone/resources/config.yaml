@@ -1,8 +1,12 @@
 anat:
   query: datatype == 'anat'
+<<<<<<< HEAD
   views:
   - three_view(figure='anatThreeView')
   - slice_video(axis=2)
+=======
+  views: [three_view, slice_video(axis=2)]
+>>>>>>> d706e48 (Split create_generator and add kwargs)
 
 func:
   query: datatype == 'func'

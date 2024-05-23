@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 from bids2table import BIDSTable
 
+from niftyone.exceptions import GeneratorError
 from niftyone.figures.generator import (
     ViewGenerator,
     create_generator,
@@ -89,7 +90,11 @@ class TestCreateGenerator:
 
     def test_generator_view_not_found(self):
         config = {"test": {"query": "", "views": ["view1"]}}
+<<<<<<< HEAD
         with pytest.raises(KeyError, match=".*not found in registry"):
+=======
+        with pytest.raises(GeneratorError, match=".*not found in registry"):
+>>>>>>> d706e48 (Split create_generator and add kwargs)
             create_generators(config)
 
     def test_generator_no_views(self):
@@ -103,5 +108,9 @@ class TestCreateGenerator:
             "test2": {"query": "suffix == 'bold'", "views": ["fake_view"]},
         }
 
+<<<<<<< HEAD
         with pytest.raises(KeyError, match=".*not found in registry"):
+=======
+        with pytest.raises(GeneratorError, match=".*not found in registry"):
+>>>>>>> d706e48 (Split create_generator and add kwargs)
             create_generators(config)
