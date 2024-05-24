@@ -15,7 +15,6 @@ from matplotlib.figure import Figure
 from PIL.Image import Image
 
 import niclips.image as noimg
-from niftyone.exceptions import GeneratorError
 
 T = TypeVar("T", bound="ViewGenerator")
 
@@ -58,9 +57,9 @@ def create_generator(view: str, query: str, **kwargs) -> "ViewGenerator":
         generator_cls = generator_registry[view]
         generator_instance = generator_cls(query, view_kwargs, **kwargs)
         return generator_instance
-    except KeyError as err:
+    except KeyError:
         msg = f"Generator for '{view}' for not found in registry."
-        raise GeneratorError(msg) from err
+        raise KeyError(msg)
 
 
 def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:

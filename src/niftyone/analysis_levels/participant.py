@@ -78,17 +78,20 @@ def participant(
     logging.info("Creating figure generators")
     config: dict[str, Any] = load_config(config=config)
     figure_generators = generator.create_generators(config=config)
-    runner = Runner(figure_generators=figure_generators)
+
+    runner = Runner(
+        out_dir=out_dir,
+        qc_dir=qc_dir,
+        overwrite=overwrite,
+        figure_generators=figure_generators,
+    )
 
     _worker = partial(
         _participant_worker,
         workers=workers,
         subs=subs,
         index=index,
-        out_dir=out_dir,
-        qc_dir=qc_dir,
         runner=runner,
-        overwrite=overwrite,
         verbose=verbose,
     )
 
@@ -114,10 +117,7 @@ def _participant_worker(
     workers: int,
     subs: list[str],
     index: BIDSTable,
-    out_dir: Path,
     runner: Runner,
-    qc_dir: Path | None = None,
-    overwrite: bool = False,
     verbose: bool = False,
 ) -> None:
     # reset logger for each worker
@@ -129,31 +129,20 @@ def _participant_worker(
         subs = np.array_split(subs, workers)[worker_id]  # type: ignore [assignment]
 
     for sub in subs:
-        _participant_single(
-            sub=sub,
-            index=index,
-            out_dir=out_dir,
-            qc_dir=qc_dir,
-            runner=runner,
-            overwrite=overwrite,
-        )
+        _participant_single(sub=sub, index=index, runner=runner)
 
 
 def _participant_single(
     sub: str,
     index: BIDSTable,
-    out_dir: Path,
     runner: Runner,
-    qc_dir: Path | None = None,
-    overwrite: bool = False,
 ) -> None:
     tic = time.monotonic()
 
     logging.info(f"Processing subject {sub}")
 
-    images = index.filter("sub", sub).filter("ext", items={".nii", ".nii.gz"})
-
-    runner.gen_figures(table=images, out_dir=out_dir, overwrite=overwrite)
+    runner.table = index.filter("sub", sub)
+    runner.gen_figures()
 
     logging.info(
         "Done processing subject: %s; elapsed: %.2fs", sub, time.monotonic() - tic
