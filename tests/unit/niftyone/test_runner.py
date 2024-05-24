@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -24,32 +23,45 @@ class TestRunner:
     @pytest.mark.parametrize("overwrite", [(True), (False)])
     def test_gen_figures(
         self,
-        mock_generators: Sequence[MagicMock],
+        mock_generators: list[MagicMock],
         mock_table: BIDSTable,
         tmp_path: Path,
         overwrite: bool,
     ) -> None:
-        mock_table.__len__.return_value = 1
-        runner = Runner(mock_generators)
-        runner.gen_figures(table=mock_table, out_dir=tmp_path, overwrite=overwrite)
+        mock_table.filter.return_value = ["f1.nii.gz", "f2.nii.gz"]
+        runner = Runner(
+            figure_generators=mock_generators,
+            out_dir=tmp_path,
+            qc_dir=None,
+            overwrite=overwrite,
+        )
+        runner.table = mock_table
+        runner.gen_figures()
 
         for mock_generator in mock_generators:
             mock_generator.assert_called()
 
     @pytest.mark.parametrize(
-        "table_length, expected_msg", [(0, "Found no images"), (2, "Found 2 images")]
+        "table_return, expected_msg",
+        [([], "Found no images"), (["f1.nii.gz", "f2.nii"], "Found 2 images")],
     )
     def test_gen_figures_logging(
         self,
-        mock_generators: Sequence[MagicMock],
+        mock_generators: list[MagicMock],
         mock_table: BIDSTable,
         tmp_path: Path,
-        table_length: int,
+        table_return: list[str],
         expected_msg: str,
         caplog: LogCaptureFixture,
     ):
-        mock_table.__len__.return_value = table_length
-        runner = Runner(mock_generators)
-        runner.gen_figures(table=mock_table, out_dir=tmp_path, overwrite=True)
+        mock_table.filter.return_value = table_return
+        runner = Runner(
+            figure_generators=mock_generators,
+            out_dir=tmp_path,
+            qc_dir=None,
+            overwrite=True,
+        )
+        runner.table = mock_table
+        runner.gen_figures()
 
         assert expected_msg in caplog.text
