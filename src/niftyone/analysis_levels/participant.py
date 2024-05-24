@@ -14,20 +14,33 @@ from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
 
 from niftyone import Runner
-from niftyone.figures import generator
+from niftyone.figures.generator import ViewGenerator
+from niftyone.figures.registry import create_generator
 
 
-def load_config(config: Path | None) -> dict[str, Any]:
+def load_config(config_path: Path | None) -> dict[str, Any]:
     """Helper to load configuration file."""
-    if not config:
-        config = Path(
+    if not config_path:
+        config_path = Path(
             pkg_resources.resource_filename("niftyone", "resources/config.yaml")
         )
 
-    with open(config, "r") as fpath:
-        contents = yaml.safe_load(fpath)
+    with open(config_path, "r") as fpath:
+        cfg = yaml.safe_load(fpath)
 
-    return contents
+    return cfg
+
+
+def build_generators(cfg: dict[str, Any]) -> list[ViewGenerator]:
+    """Build list of figure generators from config."""
+    generators = []
+    for group in cfg.values():
+        query = group.get("query", "")
+        views = group.get("views", [])
+
+        for view in views:
+            generators.append(create_generator(view=view, query=query))
+    return generators
 
 
 def participant(
@@ -36,7 +49,7 @@ def participant(
     sub: str | None = None,
     index_path: Path | None = None,
     qc_dir: Path | None = None,
-    config: Path | None = None,
+    config_path: Path | None = None,
     workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
@@ -61,7 +74,7 @@ def participant(
         f"\n\tsubject: {sub}"
         f"\n\tindex: {index_path}"
         f"\n\tqc: {qc_dir}"
-        f"\n\tconfig: {config}"
+        f"\n\tconfig_path: {config_path}"
         f"\n\tworkers: {workers}"
         f"\n\toverwrite: {overwrite}"
     )
@@ -76,8 +89,8 @@ def participant(
         subs = [sub]
 
     logging.info("Creating figure generators")
-    config: dict[str, Any] = load_config(config=config)
-    figure_generators = generator.create_generators(config=config)
+    cfg = load_config(config_path)
+    figure_generators = build_generators(cfg)
 
     runner = Runner(
         out_dir=out_dir,

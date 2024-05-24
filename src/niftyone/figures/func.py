@@ -5,10 +5,9 @@ from pathlib import Path
 import pandas as pd
 
 from niclips.figures import bold
-from niftyone.figures.generator import ViewGenerator, register
+from niftyone.figures.generator import ViewGenerator
 
 
-@register("carpet_plot")
 class CarpetPlotGenerator(ViewGenerator):
     def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
         self.generate_common(
@@ -21,7 +20,6 @@ class CarpetPlotGenerator(ViewGenerator):
         )
 
 
-@register("mean_std")
 class MeanStdGenerator(ViewGenerator):
     def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
         self.generate_common(

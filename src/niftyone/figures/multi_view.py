@@ -5,10 +5,9 @@ from pathlib import Path
 import pandas as pd
 
 from niclips.figures import multi_view
-from niftyone.figures.generator import ViewGenerator, register
+from niftyone.figures.generator import ViewGenerator
 
 
-@register("three_view")
 class ThreeViewGenerator(ViewGenerator):
     def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
         self.generate_common(
@@ -21,7 +20,6 @@ class ThreeViewGenerator(ViewGenerator):
         )
 
 
-@register("slice_video")
 class SliceVideoGenerator(ViewGenerator):
     def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
         self.generate_common(
@@ -34,7 +32,6 @@ class SliceVideoGenerator(ViewGenerator):
         )
 
 
-@register("three_view_video")
 class ThreeViewVideoGenerator(ViewGenerator):
     """Three view video generator (4D over time)."""
 
