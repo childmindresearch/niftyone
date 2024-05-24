@@ -63,7 +63,7 @@ log_cli = true
 log_cli_level = "DEBUG"
 
 [tool.coverage.report]
-exclude_also = ["assert", "__enter__", "__exit__"]
+exclude_also = ["assert", "__enter__", "__exit__", "pass"]
 
 [tool.coverage.run]
 omit = [
@@ -91,6 +91,8 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["ANN", "D", "E", "F", "I"]
 ignore = [
+  "ANN002",  # args should not be annotated.
+  "ANN003",  # kwargs should not be annotated.
   "ANN101",  # self should not be annotated.
   "ANN102",  # cls should not be annotated.
   "D105",  # undocumented-magic-method (e.g. __str__)
@@ -105,9 +107,14 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"runner.py" = ["D102"]
 "tests/**/*.py" = [
   "D",  # ignore missing docstrings
   "ANN201"  # ignore missing return type
+]
+"src/niftyone/figures/*.py" = [
+  "D101",  # ignore missing class docstrings
+  "D102"  # ignore missing method docstrings
 ]
 
 [tool.ruff.format]
