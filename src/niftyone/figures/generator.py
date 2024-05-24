@@ -3,12 +3,7 @@
 import ast
 import logging
 import re
-<<<<<<< HEAD
 from abc import ABC
-=======
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
->>>>>>> d706e48 (Split create_generator and add kwargs)
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar
 
@@ -19,9 +14,6 @@ from matplotlib.figure import Figure
 from PIL.Image import Image
 
 import niclips.image as noimg
-from niftyone.exceptions import GeneratorError
-
-T = TypeVar("T", bound="ViewGenerator")
 
 T = TypeVar("T", bound="ViewGenerator")
 
@@ -38,11 +30,7 @@ def register(name: str) -> Callable[[type[T]], type[T]]:
     return decorator
 
 
-<<<<<<< HEAD
 def create_generator(view: str, query: str) -> "ViewGenerator":
-=======
-def create_generator(view: str, query: str, **kwargs) -> "ViewGenerator":
->>>>>>> d706e48 (Split create_generator and add kwargs)
     """Function to create generator."""
 
     def _parse_view(view: str) -> tuple[str, dict[str, Any]]:
@@ -66,19 +54,11 @@ def create_generator(view: str, query: str, **kwargs) -> "ViewGenerator":
     view, view_kwargs = _parse_view(view)
     try:
         generator_cls = generator_registry[view]
-<<<<<<< HEAD
         generator_instance = generator_cls(query, view_kwargs)
         return generator_instance
     except KeyError:
         msg = f"Generator for '{view}' for not found in registry."
         raise KeyError(msg)
-=======
-        generator_instance = generator_cls(query, view_kwargs, **kwargs)
-        return generator_instance
-    except KeyError as err:
-        msg = f"Generator for '{view}' for not found in registry."
-        raise GeneratorError(msg) from err
->>>>>>> d706e48 (Split create_generator and add kwargs)
 
 
 def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
@@ -95,7 +75,6 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
     return generators
 
 
-<<<<<<< HEAD
 class ViewGenerator(ABC, Generic[T]):
     """Base view generator class."""
 
@@ -106,15 +85,6 @@ class ViewGenerator(ABC, Generic[T]):
         self.query: str = query
         self.view_kwargs: dict[str, Any] = view_kwargs
 
-=======
-@dataclass()
-class ViewGenerator(ABC, Generic[T]):
-    """Base view generator class."""
-
-    query: str
-    view_kwargs: dict[str, Any]
-
->>>>>>> d706e48 (Split create_generator and add kwargs)
     def __call__(
         self,
         table: BIDSTable,
@@ -152,13 +122,4 @@ class ViewGenerator(ABC, Generic[T]):
         out_path.parent.mkdir(exist_ok=True, parents=True)
         if not out_path.exists() or overwrite:
             logging.info("Generating %s", out_path)
-<<<<<<< HEAD
             self.view_fn(img, out_path, **self.view_kwargs)
-=======
-            view_fn(img, out_path, **self.view_kwargs)
-
-    @abstractmethod
-    def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
-        """Main call for generating view."""
-        pass
->>>>>>> d706e48 (Split create_generator and add kwargs)
