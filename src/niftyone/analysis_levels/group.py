@@ -17,7 +17,8 @@ from niclips.io import VideoWriter
 from niftyone.metadata.tags import TAGS
 from niftyone.typing import StrPath
 
-IMG_EXTENSIONS = {".png", ".mp4"}
+FO_EXTENSIONS = {".png", ".mp4"}
+"""Valid FiftyOne extensions"""
 
 
 def group(
@@ -26,9 +27,9 @@ def group(
     ds_name: str | None = None,
     overwrite: bool = False,
 ) -> None:
-    """NiftyOne group analysis level.
+    """Group analysis level.
 
-    Collects image samples into a FiftyOne dataset and exports
+    Collect image samples into a FiftyOne dataset and exports
     to the output directory.
     """
     tic = time.monotonic()
@@ -113,7 +114,7 @@ def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
     for _, record in group_index.iterrows():
         filepath = Path(record.file_path)
 
-        if filepath.suffix in IMG_EXTENSIONS:
+        if filepath.suffix in FO_EXTENSIONS:
             # create sample
             element = f"{record.datatype}/{record.suffix}/{record.desc}"
             group_key = _get_group_key(record)

@@ -15,7 +15,7 @@ def launch(
     ds_name: str | None = None,
     qc_key: str | None = None,
 ) -> None:
-    """Launch the FiftyOne app to visualize a dataset (after it has been generated)."""
+    """Launch the FiftyOne app (after it has been generated)."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
     if ds_name is None:
