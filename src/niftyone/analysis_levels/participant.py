@@ -23,7 +23,7 @@ def participant(
     overwrite: bool = False,
     verbose: bool = False,
 ) -> None:
-    """NiftyOne participant analysis level."""
+    """Participant analysis level."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
