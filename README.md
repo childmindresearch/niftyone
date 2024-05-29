@@ -9,26 +9,28 @@
 
 ![NiftyOne Mosaic](.github/static/niftyone_mosaic_view.png)
 
-NiftyOne is a platform for bulk visualization of large-scale neuroimaging datasets. It is built with [FiftyOne](https://docs.voxel51.com/).
+NiftyOne is a platform for bulk visualization of large-scale neuroimaging datasets, built upon [FiftyOne](https://docs.voxel51.com/).
 
 ## Installation
 
-For stability, NiftyOne should be installed in it's own environment. For example, to install using python 3.10:
+For stability, NiftyOne is recommended to be installed in it's own environment.
 
 ```bash
-conda create -y -n niftyone python=3.10
-conda activate niftyone
+python -m venv niftyone-venv
+source niftyone-venv/bin/activate
 
 pip install -U pip
-pip install git+https://github.com/childmindresearch/niftyone.git
+pip install git+https://github.com/childmindresearch/niftyone
 ```
 
-## Usage
+## Quick start
 
-### 1. Generate figures for each participant
+Below are some commands to help you quickly get started.
+
+### 1. Generate participant figures
 
 ```bash
-niftyone bids_dir output_dir participant --workers 8
+niftyone bids_dir output_dir participant
 ```
 
 ### 2. Collect participant figures into a FiftyOne dataset
