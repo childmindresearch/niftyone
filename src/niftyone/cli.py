@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class NiftyOneArgumentParser:
-    """NiftyOne CLI parser."""
+    """Representation of the NiftyOne CLI parser."""
 
     def __init__(self) -> None:
         self.parser = ArgumentParser(
