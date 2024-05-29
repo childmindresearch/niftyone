@@ -43,6 +43,7 @@ dev = [
   "ruff>=0.3.7",
   "setuptools-scm>=8.0.4",
 ]
+docs = ["pdoc>=14.4.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/childmindresearch/niftyone"
