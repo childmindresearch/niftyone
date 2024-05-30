@@ -27,19 +27,19 @@ pip install git+https://github.com/childmindresearch/niftyone
 
 Below are some commands to help you quickly get started.
 
-### 1. Generate participant figures
+### Generate participant figures
 
 ```bash
 niftyone bids_dir output_dir participant
 ```
 
-### 2. Collect participant figures into a FiftyOne dataset
+### Collect participant figures into a FiftyOne dataset
 
 ```bash
 niftyone bids_dir output_dir group
 ```
 
-### 3. Launch FiftyOne app
+### Launch FiftyOne app
 
 ```bash
 niftyone bids_dir output_dir launch
