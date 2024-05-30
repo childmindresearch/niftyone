@@ -28,19 +28,24 @@ TAGS = [
     "Postproc artifact",
     "Other artifact",
 ]
+"""Pre-defined imaging QC tags."""
 
 _TAG_SET = set(TAGS)
 
 
 class GroupTags:
-    """QC tags for individual data acquisitions.
+    """Representation of QC tags for individual data acquisitions.
 
-    Interfaces between FiftyOne datasets and
-    pandas DataFrames, CSV, JSON.
+    Interfaces between FiftyOne datasets and pandas dataframes, csv, and json.
     """
 
     def __init__(self, tags_dict: dict[str, Any]) -> None:
         self.tags_dict = tags_dict
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GroupTags):
+            return NotImplemented
+        return self.tags_dict == other.tags_dict
 
     @classmethod
     def from_dataset(cls, dataset: fo.Dataset) -> "GroupTags":
@@ -66,7 +71,7 @@ class GroupTags:
 
     @classmethod
     def from_df(cls, df: pd.DataFrame) -> "GroupTags":
-        """Return tags from datafame."""
+        """Return tags from pandas dataframe."""
         return cls(df.to_dict(orient="index"))
 
     @classmethod
@@ -78,12 +83,12 @@ class GroupTags:
 
     @classmethod
     def from_json(cls, path: str | Path) -> "GroupTags":
-        """Return tags from json file."""
+        """Return tags from json."""
         with open(path) as f:
             return cls(json.load(f))
 
     def apply(self, dataset: fo.Dataset) -> None:
-        """Apply tags to a given FiftyOne dataset, overwriting existing tags."""
+        """Apply tags to given FiftyOne dataset, overwriting existing tags."""
         for sample in dataset:
             label: fo.Classification = sample["group_key"]
             label.tags = []
@@ -107,7 +112,3 @@ class GroupTags:
         """Save to json."""
         with open(path, "w") as f:
             json.dump(self.tags_dict, f)
-
-    def equals(self, other: "GroupTags") -> bool:
-        """Assert two groups of tabs are equal."""
-        return self.tags_dict == other.tags_dict

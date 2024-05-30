@@ -79,7 +79,7 @@ class TestDataframes:
         new_group_tags = GroupTags.from_df(group_tags_df)
 
         assert isinstance(new_group_tags, GroupTags)
-        assert new_group_tags.equals(test_group_tags)
+        assert new_group_tags == test_group_tags
 
 
 class TestCSVs:
@@ -96,7 +96,7 @@ class TestCSVs:
         new_group_tags = GroupTags.from_csv(csv_path)
 
         assert isinstance(new_group_tags, GroupTags)
-        assert new_group_tags.equals(test_group_tags)
+        assert new_group_tags == test_group_tags
 
 
 class TestJSONs:
@@ -113,19 +113,19 @@ class TestJSONs:
         new_group_tags = GroupTags.from_json(json_path)
 
         assert isinstance(new_group_tags, GroupTags)
-        assert new_group_tags.equals(test_group_tags)
+        assert new_group_tags == test_group_tags
 
 
 class TestEquals:
     def test_true(self, test_group_tags: GroupTags):
         other_group_tags = deepcopy(test_group_tags)
 
-        assert test_group_tags.equals(other_group_tags) is True
+        assert test_group_tags == other_group_tags
 
     def test_false(self, test_group_tags: GroupTags, test_dataset_extras: MagicMock):
         other_group_tags = GroupTags.from_dataset(test_dataset_extras)
 
-        assert test_group_tags.equals(other_group_tags) is False
+        assert test_group_tags != other_group_tags
 
 
 class TestApply:
@@ -141,7 +141,7 @@ class TestApply:
         test_group_tags.apply(dataset_mock)
         new_group_tags = GroupTags.from_dataset(dataset_mock)
 
-        assert new_group_tags.equals(test_group_tags)
+        assert new_group_tags == test_group_tags
 
     def test_apply_extra_tags(self, test_dataset_extras: MagicMock):
         test_group_tags = GroupTags.from_dataset(test_dataset_extras)
@@ -154,4 +154,4 @@ class TestApply:
         test_group_tags.apply(dataset_mock)
         new_group_tags = GroupTags.from_dataset(dataset_mock)
 
-        assert new_group_tags.equals(test_group_tags)
+        assert new_group_tags == test_group_tags
