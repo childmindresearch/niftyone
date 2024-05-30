@@ -9,7 +9,8 @@
 
 ![NiftyOne Mosaic](.github/static/niftyone_mosaic_view.png)
 
-NiftyOne is a platform for bulk visualization of large-scale neuroimaging datasets, built upon [FiftyOne](https://docs.voxel51.com/).
+NiftyOne is a platform for bulk visualization of large-scale neuroimaging datasets, built
+upon <a href="https://docs.voxel51.com" target="_blank" rel="noopener">FiftyOne</a>.
 
 ## Installation
 
