@@ -1,4 +1,4 @@
-## Frequently asked questions (FAQ)
+# Frequently asked questions (FAQ)
 
 ### 1. Where can NiftyOne be installed?
 
