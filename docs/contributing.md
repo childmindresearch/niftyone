@@ -1,3 +1,7 @@
+# Contributing
+
+See our contributing guidelines <a href="/CONTRIBUTING.md" target="_blank" rel="noopener">here</a>.
+
 ## Setup development environment
 
 This project requires Python 3.10 or higher and all python dependencies can be

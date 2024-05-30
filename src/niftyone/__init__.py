@@ -1,8 +1,7 @@
 """
 .. include:: ../../README.md
 .. include:: ../../docs/cli.md
-.. include:: ../../CONTRIBUTING.md
-.. include:: ../../docs/contributing/setup.md
+.. include:: ../../docs/contributing.md
 .. include:: ../../docs/faq.md
 """
 
