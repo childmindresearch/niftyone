@@ -15,7 +15,7 @@ def gen_niftyone_metrics_tsv(
     qc_dir: Path,
     overwrite: bool = False,
 ) -> None:
-    """Filter for metrics associated with image."""
+    """Filter and create metrics file for corresponding entities."""
     out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
         prefix=out_dir
     )
