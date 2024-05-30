@@ -1,6 +1,6 @@
 """
 .. include:: ../../README.md
-.. include:: ../../docs/usage.md
+.. include:: ../../docs/cli.md
 .. include:: ../../CONTRIBUTING.md
 .. include:: ../../docs/contributing/setup.md
 .. include:: ../../docs/faq.md
