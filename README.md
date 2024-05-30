@@ -15,6 +15,8 @@ NiftyOne is a platform for bulk visualization of large-scale neuroimaging datase
 
 For stability, NiftyOne is recommended to be installed in it's own environment.
 
+*(Click [here](docs/contributing/setup) for detailed installation instructions.)*
+
 ```bash
 python -m venv niftyone-venv
 source niftyone-venv/bin/activate
