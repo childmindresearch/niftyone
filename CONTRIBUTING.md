@@ -18,7 +18,7 @@ When submitting a pull request, we ask you to check the following:
    changes.
 
 2. The contributed code will be **licensed under the same [license](LICENSE) as
-   the rest of the repository**, If you did not write the code yourself, you must e
-   ensure the existing license is compatible and include the license information
-   in the contributed files, or obtain permission from the original author to
-   relicense the contributed code.
+   the rest of the repository**, If you did not write the code yourself, you
+   must ensure the existing license is compatible and include the license
+   information in the contributed files, or obtain permission from the original
+   author to relicense the contributed code.
