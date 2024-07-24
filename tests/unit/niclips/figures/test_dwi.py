@@ -64,10 +64,10 @@ def dwi_fpath(tmp_path: Path) -> Path:
 class TestQSpaceShells:
     @pytest.mark.parametrize("thresh", [(5), (10), (30)])
     def test_default(self, dwi_fpath: Path, thresh: int):
-        nodwi.visualize_shells(dwi=dwi_fpath, thresh=thresh)
+        nodwi.visualize_qspace(dwi=dwi_fpath, thresh=thresh)
 
     def test_save(self, dwi_fpath: Path, tmp_path: Path):
         out_fpath = tmp_path / "test_qspace.mp4"
-        nodwi.visualize_shells(dwi=dwi_fpath, out=out_fpath)
+        nodwi.visualize_qspace(dwi=dwi_fpath, out=out_fpath)
 
         assert out_fpath.exists()

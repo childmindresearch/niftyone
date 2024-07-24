@@ -30,7 +30,7 @@ def _get_bval_indices(bvals: np.ndarray, bval: int) -> np.ndarray:
     return np.argwhere(bvals == bval)
 
 
-def visualize_shells(
+def visualize_qspace(
     dwi: Path,
     out: StrPath | None = None,
     *,
@@ -46,7 +46,7 @@ def visualize_shells(
     bvec_data = np.loadtxt(bvec)
 
     # Equivalent gradient magnitudes
-    bval_data = np.loadtxt(bval, dtype=int)
+    bval_data = np.loadtxt(bval).astype(int)
     bval_data = _equate_bvals(bval_data, thresh=thresh)
 
     # Generate animation

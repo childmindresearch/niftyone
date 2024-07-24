@@ -17,5 +17,5 @@ class QSpaceShellsGenerator(ViewGenerator):
             overwrite=overwrite,
             desc="qspace",
             ext=".mp4",
-            view_fn=dwi.visualize_shells,
+            view_fn=dwi.visualize_qspace,
         )
