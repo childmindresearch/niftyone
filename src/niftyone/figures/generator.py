@@ -1,6 +1,7 @@
 """Generator classes for different views."""
 
 import ast
+import inspect
 import logging
 import re
 from abc import ABC
@@ -114,12 +115,22 @@ class ViewGenerator(ABC, Generic[T]):
 
         img_path = Path(record["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
-        img = nib.nifti1.load(img_path)
-        img = noimg.to_iso_ras(img)
+
+        signature = inspect.signature(view_fn)
+        view_fn_input_type = signature.parameters[
+            list(signature.parameters.keys())[0]
+        ].annotation
+
+        if issubclass(view_fn_input_type, Path):
+            img = img_path
+        else:
+            img = nib.nifti1.load(img_path)
+            img = noimg.to_iso_ras(img)
 
         existing_entities = BIDSEntities.from_dict(record["ent"])
         out_path = existing_entities.with_update(self.entities).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
+
         if not out_path.exists() or overwrite:
             logging.info("Generating %s", out_path)
             self.view_fn(img, out_path, **self.view_kwargs)
