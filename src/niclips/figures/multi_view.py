@@ -33,7 +33,7 @@ def multi_view_frame(
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
     check_iso_ras(img)
-    if overlay is not None:
+    if overlay:
         check_3d(overlay)
         check_iso_ras(overlay)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
@@ -52,7 +52,7 @@ def multi_view_frame(
             fontsize=fontsize,
         )
 
-        if overlay is not None:
+        if overlay:
             panel_overlay = noimg.render_slice(
                 overlay,
                 axis=axis,
@@ -70,7 +70,7 @@ def multi_view_frame(
     grid = noimg.image_grid(panels_list, nrows=nrows)
     grid_img = noimg.topil(grid)
 
-    if out is not None:
+    if out:
         grid_img.save(out)
     return grid_img
 

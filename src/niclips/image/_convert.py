@@ -50,7 +50,7 @@ def overlay(
     img1 = img1.convert("RGBA")
     img2 = img2.convert("RGBA")
 
-    if alpha is not None:
+    if alpha:
         img2.putalpha(int(alpha * 255))
     img = Image.alpha_composite(img1, img2)
     return img

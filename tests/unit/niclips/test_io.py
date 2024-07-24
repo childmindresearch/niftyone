@@ -33,14 +33,14 @@ class TestVideoWriterPut:
     def test_put_array(self, img_array: np.ndarray, video_writer: noio.VideoWriter):
         video_writer.put(img_array)
 
-        assert video_writer._container is not None
-        assert video_writer._stream is not None
+        assert video_writer._container
+        assert video_writer._stream
 
     def test_put_pil_img(self, img_pil: Image.Image, video_writer: noio.VideoWriter):
         video_writer.put(img_pil)
 
-        assert video_writer._container is not None
-        assert video_writer._stream is not None
+        assert video_writer._container
+        assert video_writer._stream
 
 
 class TestVideoWriterInitFunc:
@@ -48,8 +48,8 @@ class TestVideoWriterInitFunc:
         width, height = 100, 100
         video_writer.init_stream(width=width, height=height)
 
-        assert video_writer._container is not None
-        assert video_writer._stream is not None
+        assert video_writer._container
+        assert video_writer._stream
         assert video_writer._stream.width == width
         assert video_writer._stream.height == height
 
@@ -64,5 +64,5 @@ def used_video_writer(video_writer: noio.VideoWriter) -> noio.VideoWriter:
 class TestVideoWriterClose:
     def test_flush_and_close(self, used_video_writer: noio.VideoWriter):
         used_video_writer.close()
-        assert used_video_writer._container is not None
+        assert used_video_writer._container
         used_video_writer._container.close.assert_called()

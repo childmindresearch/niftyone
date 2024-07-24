@@ -38,7 +38,7 @@ class VideoWriter:
         frame = av.VideoFrame.from_image(img)
         assert isinstance(self._stream, VideoStream)
         for packet in self._stream.encode(frame):
-            assert self._container is not None
+            assert self._container
             self._container.mux_one(packet)
 
     def init_stream(self, width: int, height: int) -> None:
@@ -52,7 +52,7 @@ class VideoWriter:
 
     def close(self) -> None:
         """Close the stream."""
-        if self._container is not None:
+        if self._container:
             # Flush stream
             assert isinstance(self._stream, VideoStream)
             for packet in self._stream.encode():
