@@ -58,8 +58,7 @@ class TestViewGenerator:
                 record=b2t_mock.nested.loc[0],
                 out_dir=tmp_path,
                 overwrite=True,
-                desc="test",
-                ext=".png",
+                entities={"desc": "test", "ext": ".png"},
                 view_fn=lambda img, out_path: None,
             )
 

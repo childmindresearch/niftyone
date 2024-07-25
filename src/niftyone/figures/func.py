@@ -15,8 +15,7 @@ class CarpetPlotGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="carpet",
-            ext=".png",
+            entities={"desc": "carpet", "ext": ".png"},
             view_fn=bold.carpet_plot,
         )
 
@@ -28,7 +27,6 @@ class MeanStdGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="meanStd",
-            ext=".png",
+            entities={"desc": "meanStd", "ext": ".png"},
             view_fn=bold.bold_mean_std,
         )

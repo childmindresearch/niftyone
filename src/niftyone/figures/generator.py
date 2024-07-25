@@ -100,8 +100,7 @@ class ViewGenerator(ABC, Generic[T]):
         record: pd.Series,
         out_dir: Path,
         overwrite: bool,
-        desc: str,
-        ext: str,
+        entities: dict[str, str],
         view_fn: Callable[[nib.nifti1.Nifti1Image, Path], Image | Figure | None],
     ) -> None:
         """Partial function for calling generate method."""
@@ -110,8 +109,8 @@ class ViewGenerator(ABC, Generic[T]):
         img = nib.nifti1.load(img_path)
         img = noimg.to_iso_ras(img)
 
-        entities = BIDSEntities.from_dict(record["ent"])
-        out_path = entities.with_update(desc=desc, ext=ext).to_path(prefix=out_dir)
+        existing_entities = BIDSEntities.from_dict(record["ent"])
+        out_path = existing_entities.with_update(entities).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
         if not out_path.exists() or overwrite:
             logging.info("Generating %s", out_path)

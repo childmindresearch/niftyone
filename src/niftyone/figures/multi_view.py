@@ -15,8 +15,7 @@ class ThreeViewGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="threeView",
-            ext=".png",
+            entities={"desc": "threeView", "ext": ".png"},
             view_fn=multi_view.three_view_frame,
         )
 
@@ -28,8 +27,7 @@ class SliceVideoGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="sliceVideo",
-            ext=".mp4",
+            entities={"desc": "sliceVideo", "ext": ".mp4"},
             view_fn=multi_view.slice_video,
         )
 
@@ -43,7 +41,6 @@ class ThreeViewVideoGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="threeViewVideo",
-            ext=".mp4",
+            entities={"desc": "threeViewVideo", "ext": ".mp4"},
             view_fn=multi_view.three_view_video,
         )
