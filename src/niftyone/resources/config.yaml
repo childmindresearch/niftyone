@@ -10,3 +10,10 @@ func:
   - three_view_video
   - carpet_plot
   - mean_std
+
+dwi:
+  query: datatype == 'dwi'
+  views: 
+  - qspace_shells(thresh=10)
+  - three_view_video
+  - three_view_shell_video

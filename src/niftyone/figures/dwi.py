@@ -19,3 +19,16 @@ class QSpaceShellsGenerator(ViewGenerator):
             ext=".mp4",
             view_fn=dwi.visualize_qspace,
         )
+
+
+@register("three_view_shell_video")
+class DwiPerShellGenerator(ViewGenerator):
+    def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
+        self.generate_common(
+            record=record,
+            out_dir=out_dir,
+            overwrite=overwrite,
+            desc="bval",
+            ext=".mp4",
+            view_fn=dwi.three_view_per_shell,
+        )
