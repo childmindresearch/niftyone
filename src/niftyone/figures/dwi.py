@@ -15,8 +15,7 @@ class QSpaceShellsGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="qspace",
-            ext=".mp4",
+            entities={"desc": "qspace", "ext": ".mp4"},
             view_fn=dwi.visualize_qspace,
         )
 
@@ -28,7 +27,6 @@ class DwiPerShellGenerator(ViewGenerator):
             record=record,
             out_dir=out_dir,
             overwrite=overwrite,
-            desc="bval",
-            ext=".mp4",
+            entities={"desc": "bval", "ext": ".mp4"},
             view_fn=dwi.three_view_per_shell,
         )
