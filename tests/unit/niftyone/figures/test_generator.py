@@ -1,6 +1,6 @@
 from collections.abc import Generator
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
@@ -31,8 +31,8 @@ def b2t_mock():
 @pytest.fixture
 def test_generator() -> ViewGenerator:
     class TestGenerator(ViewGenerator):
-        def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
-            pass
+        entities = {"desc": "test", "ext": ".png"}
+        view_fn = None
 
     return TestGenerator("suffix == 'T1w'", {})
 
@@ -45,24 +45,11 @@ class TestViewGenerator:
         test_generator(table=b2t_mock, out_dir=tmp_path, overwrite=True)
         test_generator.generate.assert_called()
 
-    def test_generator_call_generate_common(
-        self, b2t_mock: BIDSTable, test_generator: ViewGenerator, tmp_path: Path
-    ) -> None:
-        with (
-            patch("nibabel.nifti1.load", return_value=MagicMock()),
-            patch("niclips.image.to_iso_ras", return_value=MagicMock()),
-            patch("bids2table.BIDSEntities.from_dict", return_value=MagicMock()),
-        ):
-            test_generator.generate = MagicMock()
-            test_generator.generate_common(
-                record=b2t_mock.nested.loc[0],
-                out_dir=tmp_path,
-                overwrite=True,
-                entities={"desc": "test", "ext": ".png"},
-                view_fn=lambda img, out_path: None,
+    def test_generator_no_view_fn(self, test_generator: ViewGenerator) -> None:
+        with pytest.raises(ValueError, match="View is not provided.*"):
+            test_generator.generate(
+                record=MagicMock(), out_dir=MagicMock(spec=Path), overwrite=True
             )
-
-            test_generator.generate.assert_not_called()
 
 
 @pytest.fixture

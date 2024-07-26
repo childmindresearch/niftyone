@@ -15,10 +15,10 @@ from niclips.typing import Coord, NiftiLike, StrPath
 
 def multi_view_frame(
     img: nib.Nifti1Image,
+    out: StrPath | None = None,
     *,
     coords: Sequence[Coord],
     axes: list[int],
-    out: StrPath | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
     overlay: nib.Nifti1Image | None = None,

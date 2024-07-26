@@ -3,8 +3,7 @@
 import ast
 import logging
 import re
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from abc import ABC
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar
 
@@ -31,7 +30,7 @@ def register(name: str) -> Callable[[type[T]], type[T]]:
     return decorator
 
 
-def create_generator(view: str, query: str, **kwargs) -> "ViewGenerator":
+def create_generator(view: str, query: str) -> "ViewGenerator":
     """Function to create generator."""
 
     def _parse_view(view: str) -> tuple[str, dict[str, Any]]:
@@ -55,7 +54,7 @@ def create_generator(view: str, query: str, **kwargs) -> "ViewGenerator":
     view, view_kwargs = _parse_view(view)
     try:
         generator_cls = generator_registry[view]
-        generator_instance = generator_cls(query, view_kwargs, **kwargs)
+        generator_instance = generator_cls(query, view_kwargs)
         return generator_instance
     except KeyError:
         msg = f"Generator for '{view}' for not found in registry."
@@ -76,12 +75,15 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
     return generators
 
 
-@dataclass()
 class ViewGenerator(ABC, Generic[T]):
     """Base view generator class."""
 
-    query: str
-    view_kwargs: dict[str, Any]
+    entities: dict[str, str] | None = None
+    view_fn: Callable[[nib.Nifti1Image, Path], Image | Figure | None] | None = None
+
+    def __init__(self, query: str, view_kwargs: dict[str, Any]) -> None:
+        self.query: str = query
+        self.view_kwargs: dict[str, Any] = view_kwargs
 
     def __call__(
         self,
@@ -95,28 +97,19 @@ class ViewGenerator(ABC, Generic[T]):
             record = table.nested.loc[idx]
             self.generate(record=record, out_dir=out_dir, overwrite=overwrite)
 
-    def generate_common(
-        self,
-        record: pd.Series,
-        out_dir: Path,
-        overwrite: bool,
-        entities: dict[str, str],
-        view_fn: Callable[[nib.nifti1.Nifti1Image, Path], Image | Figure | None],
-    ) -> None:
-        """Partial function for calling generate method."""
+    def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
+        """Main call for generating view."""
+        if not self.view_fn:
+            raise ValueError("View is not provided, unable to create generator.")
+
         img_path = Path(record["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
         img = nib.nifti1.load(img_path)
         img = noimg.to_iso_ras(img)
 
         existing_entities = BIDSEntities.from_dict(record["ent"])
-        out_path = existing_entities.with_update(entities).to_path(prefix=out_dir)
+        out_path = existing_entities.with_update(self.entities).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
         if not out_path.exists() or overwrite:
             logging.info("Generating %s", out_path)
-            view_fn(img, out_path, **self.view_kwargs)
-
-    @abstractmethod
-    def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
-        """Main call for generating view."""
-        pass
+            self.view_fn(img, out_path, **self.view_kwargs)
