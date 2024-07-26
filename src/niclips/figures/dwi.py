@@ -80,7 +80,7 @@ def visualize_qspace(
     ani = FuncAnimation(fig, _rotate, frames=np.arange(0, 360, 1), interval=30)
 
     if out:
-        ani.save(out, writer="ffmpeg", fps=30)
+        ani.save(out, writer="ffmpeg", fps=30, dpi=150)
     return ani
 
 
