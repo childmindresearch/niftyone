@@ -9,6 +9,9 @@ from typing import Any
 import fiftyone as fo
 import pandas as pd
 
+# Disable fiftyone tracking
+fo.config.do_not_track = True
+
 TAGS = [
     "Fail",
     "Borderline",

@@ -10,6 +10,9 @@ from _pytest.logging import LogCaptureFixture
 from niftyone.analysis_levels import launch
 from niftyone.metadata import tags
 
+# Disable fiftyone tracking
+fo.config.do_not_track = True
+
 
 @pytest.fixture
 def test_config(tmp_path: Path) -> dict[str, str | Path]:
