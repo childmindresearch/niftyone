@@ -116,7 +116,7 @@ class ViewGenerator(ABC, Generic[T]):
         img_path = Path(record["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
 
-        signature = inspect.signature(view_fn)
+        signature = inspect.signature(self.view_fn)
         view_fn_input_type = signature.parameters[
             list(signature.parameters.keys())[0]
         ].annotation
