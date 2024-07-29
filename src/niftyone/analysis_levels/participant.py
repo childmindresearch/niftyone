@@ -4,11 +4,11 @@ import logging
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pkg_resources  # type:ignore [import-untyped]
 import yaml  # type:ignore [import-untyped]
 from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
@@ -20,9 +20,7 @@ from niftyone.figures import generator
 def load_config(config: Path | None) -> dict[str, Any]:
     """Helper to load configuration file."""
     if not config:
-        config = Path(
-            pkg_resources.resource_filename("niftyone", "resources/config.yaml")
-        )
+        config = Path(resources.files("niftyone").joinpath("resources/config.yaml"))  # type: ignore
 
     with open(config, "r") as fpath:
         contents = yaml.safe_load(fpath)
