@@ -1,9 +1,11 @@
 """Generation of different multi-views."""
 
 from collections.abc import Sequence
+from pathlib import Path
 
 import nibabel as nib
 import numpy as np
+from bids2table import BIDSEntities
 from PIL import Image
 
 import niclips.image as noimg
@@ -73,6 +75,43 @@ def multi_view_frame(
     if out:
         grid_img.save(out)
     return grid_img
+
+
+def three_view_overlay_frame(
+    img: Path,
+    out: StrPath | None = None,
+    *,
+    entities: dict[str, str] = {"desc": "brain", "suffix": "mask"},
+) -> Image.Image:
+    """Construct overlay with image.
+
+    Default is to overlay with mask with similar entities
+    (e.g. entities = {"desc": "brain", "suffix": "mask"}).
+
+    For example:
+    'sub-01/anat/sub-01_ses-01_run-1_T1w.nii.gz' will be overlaid with
+    'sub-01/anat/sub-01_ses-01_run-1_desc-brain_mask.nii.gz'
+    """
+    # Grab mask based on provided entities
+    img_entities = BIDSEntities.from_path(img)
+    img_base_path = Path(str(img).replace(str(img_entities.to_path()), ""))
+    overlay_entities = img_entities.with_update(entities)
+    overlay = img_base_path.joinpath(overlay_entities.to_path())
+    assert overlay.exists()
+
+    # Load image
+    img_data = nib.nifti1.load(img)
+    img_data = noimg.to_iso_ras(img_data)
+    overlay_data = nib.nifti1.load(overlay)
+    overlay_data = noimg.to_iso_ras(overlay_data)
+
+    grid = three_view_frame(
+        img=img_data,
+        out=out,
+        overlay=overlay_data,
+    )
+
+    return grid
 
 
 def three_view_frame(
