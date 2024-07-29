@@ -24,6 +24,12 @@ jobs:
           pip install -U pip
           pip install -e ".[test]"
       - name: Run tests
+        if: matrix.os != 'ubuntu-latest'
+        id: run-tests
+        run: >
+          pytest -m 'not b2t' -v
+      - name: Run tests
+        if: matrix.os == 'ubuntu-latest'
         id: run-tests
         run: >
           pytest \
