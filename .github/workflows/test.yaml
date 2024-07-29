@@ -23,9 +23,9 @@ jobs:
         run: |
           pip install -U pip
           pip install -e ".[test]"
-      - name: Run tests
+      - name: Run tests win macos
         if: matrix.os != 'ubuntu-latest'
-        id: run-tests
+        id: run-tests-win-mac
         run: >
           pytest -m 'not b2t' -v
       - name: Run tests
