@@ -16,6 +16,12 @@ class SliceVideoGenerator(ViewGenerator):
     view_fn = staticmethod(multi_view.slice_video)
 
 
+@register("three_view_overlay")
+class ThreeViewOverlayGenerator(ViewGenerator):
+    entities = {"desc": "threeViewOverlay", "ext": ".png"}
+    view_fn = staticmethod(multi_view.three_view_overlay_frame)
+
+
 @register("three_view_video")
 class ThreeViewVideoGenerator(ViewGenerator):
     entities = {"ext": ".mp4", "extra_entities": {"figure": "threeViewVideo"}}

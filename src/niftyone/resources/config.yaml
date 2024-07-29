@@ -2,6 +2,7 @@ anat:
   query: datatype == 'anat'
   views:
   - three_view(figure='anatThreeView')
+  - three_view_overlay
   - slice_video(axis=2)
 
 func:
@@ -13,7 +14,7 @@ func:
 
 dwi:
   query: datatype == 'dwi'
-  views: 
+  views:
   - qspace_shells(thresh=10)
   - three_view_video
   - three_view_shell_video

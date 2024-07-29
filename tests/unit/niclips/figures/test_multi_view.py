@@ -5,6 +5,7 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 import pytest
+from bids2table import BIDSEntities
 from PIL import Image
 
 from niclips.figures import multi_view as mv
@@ -40,6 +41,68 @@ class TestThreeViewFrame:
     def test_4d(self, nii_4d_img: nib.Nifti1Image):
         grid = mv.three_view_frame(img=nii_4d_img)
         assert isinstance(grid, Image.Image)
+
+
+class TestThreeViewOverlayFrame:
+    @pytest.mark.parametrize(
+        "entities",
+        [
+            ({"desc": "brain", "suffix": "mask"}),
+            ({"datatype": "func", "run": 1, "suffix": "bold"}),
+        ],
+    )
+    def test_3d(
+        self, nii_3d_img: nib.Nifti1Image, tmp_path: Path, entities: dict[str, str]
+    ):
+        nii_fpath = tmp_path.joinpath("sub-test/anat/sub-test_img.nii.gz")
+        nii_fpath.parent.mkdir(parents=True, exist_ok=True)
+        nib.save(nii_3d_img, nii_fpath)
+        overlay_fpath = (
+            BIDSEntities.from_path(nii_fpath)
+            .with_update(entities)
+            .to_path(prefix=tmp_path)
+        )
+        overlay_fpath.parent.mkdir(parents=True, exist_ok=True)
+        nib.save(nii_3d_img, overlay_fpath)
+        out_fpath = tmp_path / "test_overlay.png"
+
+        grid = mv.three_view_overlay_frame(
+            img=nii_fpath, out=out_fpath, entities=entities
+        )
+        assert isinstance(grid, Image.Image)
+        assert out_fpath.exists()
+
+    @pytest.mark.parametrize(
+        "entities",
+        [
+            ({"desc": "brain", "suffix": "mask"}),
+            ({"datatype": "func", "run": 1, "suffix": "bold"}),
+        ],
+    )
+    def test_4d(
+        self,
+        nii_4d_img: nib.Nifti1Image,
+        nii_3d_img: nib.Nifti1Image,
+        tmp_path: Path,
+        entities: dict[str, str],
+    ):
+        nii_fpath = tmp_path.joinpath("sub-test/anat/sub-test_img.nii.gz")
+        nii_fpath.parent.mkdir(parents=True, exist_ok=True)
+        nib.save(nii_4d_img, nii_fpath)
+        overlay_fpath = (
+            BIDSEntities.from_path(nii_fpath)
+            .with_update(entities)
+            .to_path(prefix=tmp_path)
+        )
+        overlay_fpath.parent.mkdir(parents=True, exist_ok=True)
+        nib.save(nii_3d_img, overlay_fpath)
+        out_fpath = tmp_path / "test_overlay.png"
+
+        grid = mv.three_view_overlay_frame(
+            img=nii_fpath, out=out_fpath, entities=entities
+        )
+        assert isinstance(grid, Image.Image)
+        assert out_fpath.exists()
 
 
 class TestThreeViewVideo:
