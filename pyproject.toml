@@ -5,7 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "niftyone"
 description = "Large-scale neuroimaging visualization using FiftyOne"
-authors = [{name = "Connor Lane", email = "connor.lane858@gmail.com"}]
+authors = [
+  {name = "Connor Lane", email = "connor.lane858@gmail.com"},
+  {name = "Jason Kai", email = "jason.kai@childmind.org"}
+]
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT License"}
