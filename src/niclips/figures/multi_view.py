@@ -82,6 +82,7 @@ def three_view_overlay_frame(
     out: StrPath | None = None,
     *,
     entities: dict[str, str] = {"desc": "brain", "suffix": "mask"},
+    figure: str | None = None,
 ) -> Image.Image:
     """Construct overlay with image.
 

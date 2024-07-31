@@ -38,6 +38,7 @@ def visualize_qspace(
     out: StrPath | None = None,
     *,
     thresh: int = 10,
+    figure: str | None = None,
 ) -> FuncAnimation:
     """Visualize diffusion gradients in q-space."""
     # Grab paths and check existence

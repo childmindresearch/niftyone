@@ -1,5 +1,5 @@
 anat:
-  query: datatype == 'anat'
+  query: (datatype == 'anat' & suffix == 'T1w')
   views:
   - three_view(figure='anatThreeView')
   - three_view_overlay
