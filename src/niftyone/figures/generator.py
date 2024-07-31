@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 from PIL.Image import Image
 
 import niclips.image as noimg
+from niclips.typing import get_union_subclass
 
 T = TypeVar("T", bound="ViewGenerator")
 
@@ -121,7 +122,7 @@ class ViewGenerator(ABC, Generic[T]):
             list(signature.parameters.keys())[0]
         ].annotation
 
-        if issubclass(view_fn_input_type, Path):
+        if get_union_subclass(view_fn_input_type, Path):
             img = img_path
         else:
             img = nib.nifti1.load(img_path)
