@@ -78,7 +78,7 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
 class ViewGenerator(ABC, Generic[T]):
     """Base view generator class."""
 
-    entities: dict[str, str] | None = None
+    entities: dict[str, Any] | None = None
     view_fn: Callable[[nib.Nifti1Image, Path], Image | Figure | None] | None = None
 
     def __init__(self, query: str, view_kwargs: dict[str, Any]) -> None:
@@ -97,10 +97,20 @@ class ViewGenerator(ABC, Generic[T]):
             record = table.nested.loc[idx]
             self.generate(record=record, out_dir=out_dir, overwrite=overwrite)
 
+    def _figure_name(self) -> None:
+        """Helper function to grab figure entity in view kwarg and update entities."""
+        if "figure" in self.view_kwargs:
+            assert self.entities
+            self.entities["extra_entities"]["figure"] = self.view_kwargs["figure"]
+            del self.view_kwargs["figure"]
+
     def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
         """Main call for generating view."""
         if not self.view_fn:
             raise ValueError("View is not provided, unable to create generator.")
+
+        # Update figure name if necessary
+        self._figure_name()
 
         img_path = Path(record["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)

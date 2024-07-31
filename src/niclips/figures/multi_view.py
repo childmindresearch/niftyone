@@ -28,6 +28,7 @@ def multi_view_frame(
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> Image.Image:
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
@@ -88,6 +89,7 @@ def three_view_frame(
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> Image.Image:
     """Construct a three view image panel. Returns a PIL Image."""
     check_3d_4d(img)
@@ -126,6 +128,7 @@ def three_view_video(
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> None:
     """Save a three view panel video."""
     check_4d(img)
@@ -163,6 +166,7 @@ def slice_video(
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> None:
     """Save video scrolling through range of slices."""
     check_3d_4d(img)

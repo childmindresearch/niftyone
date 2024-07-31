@@ -6,11 +6,11 @@ from niftyone.figures.generator import ViewGenerator, register
 
 @register("carpet_plot")
 class CarpetPlotGenerator(ViewGenerator):
-    entities = {"desc": "carpet", "ext": ".png"}
+    entities = {"ext": ".png", "extra_entities": {"figure": "carpet"}}
     view_fn = staticmethod(bold.carpet_plot)
 
 
 @register("mean_std")
 class MeanStdGenerator(ViewGenerator):
-    entities = {"desc": "meanStd", "ext": ".png"}
+    entities = {"ext": ".png", "extra_entities": {"figure": "meanStd"}}
     view_fn = staticmethod(bold.bold_mean_std)
