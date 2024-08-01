@@ -89,7 +89,7 @@ def reorient(img: np.ndarray) -> np.ndarray:
 
 def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     """Convert a nifti image to RAS orientation with isotropic resolution."""
-    img = reorder_img(img)
+    img = reorder_img(img, resample="nearest")
     affine = img.affine
     pixdim = np.diag(affine)[:3]
     if not np.all(pixdim == pixdim[0]):
