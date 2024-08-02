@@ -75,9 +75,14 @@ def normalize(
 def scale(
     img: Image.Image, height: int, resample: Image.Resampling | None = None
 ) -> Image.Image:
-    """Scale an image to a target height."""
+    """Scale an image to a target height.
+
+    Ensure width is even numbered.
+    """
+    height += height % 2
     scale = height / img.height
-    size = int(scale * img.width), height
+    width = int(scale * img.width) + (int(scale * img.width) % 2)
+    size = width, height
     img = img.resize(size, resample=resample)
     return img
 
