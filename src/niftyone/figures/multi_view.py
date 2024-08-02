@@ -10,6 +10,12 @@ class ThreeViewGenerator(ViewGenerator):
     view_fn = staticmethod(multi_view.three_view_frame)
 
 
+@register("slice_video_overlay")
+class SliceVideoOverlayGenerator(ViewGenerator):
+    entities = {"ext": ".mp4", "extra_entities": {"figure": "sliceVideoOverlay"}}
+    view_fn = staticmethod(multi_view.slice_video_overlay)
+
+
 @register("slice_video")
 class SliceVideoGenerator(ViewGenerator):
     entities = {"ext": ".mp4", "extra_entities": {"figure": "sliceVideo"}}
@@ -26,3 +32,9 @@ class ThreeViewOverlayGenerator(ViewGenerator):
 class ThreeViewVideoGenerator(ViewGenerator):
     entities = {"ext": ".mp4", "extra_entities": {"figure": "threeViewVideo"}}
     view_fn = staticmethod(multi_view.three_view_video)
+
+
+@register("three_view_overlay_video")
+class ThreeViewVideoOverlayGenerator(ViewGenerator):
+    entities = {"ext": ".mp4", "extra_entities": {"figure": "threeViewVideoOverlay"}}
+    view_fn = staticmethod(multi_view.three_view_overlay_video)

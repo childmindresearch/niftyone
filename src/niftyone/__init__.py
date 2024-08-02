@@ -7,6 +7,7 @@ from .figures.dwi import DwiPerShellGenerator, QSpaceShellsGenerator
 from .figures.func import CarpetPlotGenerator, MeanStdGenerator
 from .figures.multi_view import (
     SliceVideoGenerator,
+    SliceVideoOverlayGenerator,
     ThreeViewGenerator,
     ThreeViewOverlayGenerator,
     ThreeViewVideoGenerator,
