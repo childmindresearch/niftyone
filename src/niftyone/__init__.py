@@ -15,5 +15,6 @@ from .figures.multi_view import (
     ThreeViewGenerator,
     ThreeViewOverlayGenerator,
     ThreeViewVideoGenerator,
+    ThreeViewVideoOverlayGenerator,
 )
 from .runner import Runner

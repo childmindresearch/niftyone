@@ -114,3 +114,12 @@ class TestDwiPerShell:
 
         with pytest.raises(ValueError, match=".*wrong shape.*"):
             nodwi.three_view_per_shell(dwi=dwi_fpath, thresh=10)
+
+
+class TestDwiSignalPerVolume:
+    def test_default(self, nii_4d_img: nib.Nifti1Image, tmp_path: Path):
+        out_fpath = tmp_path / "test_desc-signalPerVolume_dwi.mp4"
+
+        nodwi.signal_per_volume(dwi=nii_4d_img, out=out_fpath)
+
+        assert out_fpath.exists()
