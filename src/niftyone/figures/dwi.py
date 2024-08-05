@@ -14,3 +14,9 @@ class QSpaceShellsGenerator(ViewGenerator):
 class DwiPerShellGenerator(ViewGenerator):
     entities = {"ext": ".mp4", "extra_entities": {"figure": "bval"}}
     view_fn = staticmethod(dwi.three_view_per_shell)
+
+
+@register("signal_per_volume")
+class SignalPerVolumeGenerator(ViewGenerator):
+    entities = {"ext": ".mp4", "extra_entities": {"figure": "signalPerVolume"}}
+    view_fn = staticmethod(dwi.signal_per_volume)

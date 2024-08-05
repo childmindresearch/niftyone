@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from matplotlib.gridspec import GridSpec
 
 import niclips.image as noimg
 from niclips.checks import check_4d
+from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.figures.multi_view import three_view_video
 from niclips.typing import StrPath
 
@@ -119,3 +121,68 @@ def three_view_per_shell(
             three_view_video(img=figs[-1], out=str(out).replace(replace_str, f"b{val}"))
 
     return figs
+
+
+def signal_per_volume(
+    dwi: nib.Nifti1Image,
+    out: StrPath | None = None,
+    *,
+    fontsize: int = 14,
+    figure: str | None = None,
+) -> None:
+    """Generate plot of signal per volume (side-by-side)."""
+    signal = np.mean(dwi.dataobj, axis=(0, 1, 2))
+    coord = np.asarray(get_default_coord(dwi))
+    vmin, vmax = get_default_vmin_vmax(dwi)
+
+    # Create plot
+    fig = plt.figure(layout="tight", dpi=150, figsize=(6.4, 4.8))
+
+    aspect1 = dwi.shape[1] / dwi.shape[0]
+    aspect2 = np.max(signal) / signal.shape[-1]
+    gs = GridSpec(1, 2, figure=fig, width_ratios=[aspect1, aspect2])
+
+    # Plot frame over time
+    ax1 = fig.add_subplot(gs[0, 0])
+    frame = noimg.render_slice(
+        noimg.index_img(dwi, 0),
+        axis=2,
+        coord=coord,
+        vmin=vmin,
+        vmax=vmax,
+        fontsize=fontsize,
+    )
+    frame = noimg.annotate(frame, text="T=0", loc="upper right", size=fontsize)
+    im = ax1.imshow(frame, cmap="gray")
+    ax1.axis("off")
+
+    # Plot signal over time
+    ax2 = fig.add_subplot(gs[0, 1:])
+    ax2.plot(range(0, signal.shape[-1], 1), signal)
+    (dot,) = ax2.plot([], [], "ro")
+    ax2.set_xlim(0, signal.shape[-1] + 1)
+    ax2.set_ylim(0, np.max(signal) + 1)
+    # aspect = w / h / 2
+    # ax2.set_aspect(aspect)
+    ax2.set_xlabel("Volume")
+    ax2.set_ylabel("Signal")
+
+    def _update(t: int) -> None:
+        dot.set_data([t], [signal[t]])
+        frame = noimg.render_slice(
+            noimg.index_img(dwi, t),
+            axis=2,
+            coord=coord,
+            vmin=vmin,
+            vmax=vmax,
+            fontsize=fontsize,
+        )
+        frame = noimg.annotate(frame, text=f"T={t}", loc="upper right", size=fontsize)
+        im.set_data(frame)
+
+    fig.suptitle("Average signal over time")
+
+    ani = FuncAnimation(fig, _update, frames=signal.shape[-1], interval=30)
+
+    if out:
+        ani.save(out, writer="ffmpeg", fps=30, dpi=150)
