@@ -245,7 +245,7 @@ def slice_video_overlay(
     entities: dict[str, str] = {"desc": "brain", "suffix": "mask"},
     **kwargs,
 ) -> None:
-    """Construct three view video with overlay.
+    """Construct slice video with overlay.
 
     Default is to overlay with mask with similar entities
     (e.g. entities = {"desc": "brain", "suffix": "mask"}).
