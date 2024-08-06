@@ -17,6 +17,9 @@ from niclips.io import VideoWriter
 from niftyone.metadata.tags import TAGS
 from niftyone.typing import StrPath
 
+# Disable fiftyone tracking
+fo.config.do_not_track = True
+
 IMG_EXTENSIONS = {".png", ".mp4"}
 
 

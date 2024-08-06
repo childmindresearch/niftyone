@@ -8,6 +8,9 @@ import fiftyone as fo
 from niftyone.metadata.tags import GroupTags
 from niftyone.typing import StrPath
 
+# Disable fiftyone tracking
+fo.config.do_not_track = True
+
 
 def launch(
     bids_dir: StrPath,
