@@ -54,20 +54,25 @@ def group(
         logging.warning("No files found in output dir %s", out_dir)
         return
 
-    # extract out figure entity used for naming figures, dropping all other extras
-    index["ent__figure"] = index["ent__extra_entities"].apply(lambda x: x.get("figure"))
-    # print(index)
+    # Flatten figure and metric extra entities
+    index = pd.concat(
+        [
+            index.drop(columns=["ent__extra_entities"]),
+            pd.json_normalize(index["ent__extra_entities"])
+            .filter(["figure", "metrics"])
+            .add_prefix("ent__"),
+        ],
+        axis=1,
+    )
 
     # extract out just the entities (preserve desc) and the file paths
     entities = index.ent.copy()
-    entities_desc = entities["desc"]
     entities.dropna(axis=1, how="all", inplace=True)
-    entities["desc"] = entities_desc
-    entities.drop("extra_entities", axis=1, inplace=True)
-    paths = index.finfo[["file_path"]]
+    entities["desc"] = index.ent["desc"]
+    paths = index.finfo["file_path"]
     index = pd.concat([entities, paths], axis=1)
 
-    by = [k for k in entities.columns if k not in {"figure", "ext"}]
+    by = [k for k in entities.columns if k not in {"figure", "metrics", "ext"}]
     grouped = index.groupby(by, dropna=False)
 
     logging.info("Collecting dataset samples for %d groups", len(grouped))
@@ -145,7 +150,7 @@ def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
 
 def _load_qc_metrics(group_index: pd.DataFrame) -> dict[str, Any]:
     # Find the metrics record
-    metrics = group_index.query("desc == 'QCMetrics' and ext == '.tsv'")
+    metrics = group_index.query("metrics == 'QCMetrics' and ext == '.tsv'")
     assert len(metrics) in {0, 1}, "Expected at most QCMetrics tsv"
 
     if len(metrics) == 0:

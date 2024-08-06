@@ -57,9 +57,9 @@ def gen_niftyone_metrics_tsv(
     overwrite: bool = False,
 ) -> None:
     """Filter for metrics associated with image."""
-    out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
-        prefix=out_dir
-    )
+    out_path = entities.with_update(
+        ext=".tsv", extra_entities={"metrics": "QCMetrics"}
+    ).to_path(prefix=out_dir)
     if out_path.exists() and not overwrite:
         return
 

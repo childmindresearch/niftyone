@@ -109,4 +109,4 @@ class TestRunner:
         runner.table = mock_table
         runner.update_metrics()
 
-        assert (out_dir / "sub-01_desc-QCMetrics_T1w.tsv").exists()
+        assert (out_dir / "sub-01_metrics-QCMetrics_T1w.tsv").exists()
