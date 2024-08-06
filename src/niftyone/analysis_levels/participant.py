@@ -4,21 +4,37 @@ import logging
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
+from importlib import resources
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import yaml  # type:ignore [import-untyped]
 from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
 
-from niftyone import figures, typing
+from niftyone import Runner
+from niftyone.figures import generator
+
+
+def load_config(config: Path | None) -> dict[str, Any]:
+    """Helper to load configuration file."""
+    if not config:
+        config = Path(resources.files("niftyone").joinpath("resources/config.yaml"))  # type: ignore
+
+    with open(config, "r") as fpath:
+        contents = yaml.safe_load(fpath)
+
+    return contents
 
 
 def participant(
-    bids_dir: typing.StrPath,
-    out_dir: typing.StrPath,
+    bids_dir: Path,
+    out_dir: Path,
     sub: str | None = None,
-    index_path: typing.StrPath | None = None,
-    qc_dir: typing.StrPath | None = None,
+    index_path: Path | None = None,
+    qc_dir: Path | None = None,
+    config: Path | None = None,
     workers: int = 1,
     overwrite: bool = False,
     verbose: bool = False,
@@ -27,10 +43,7 @@ def participant(
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
-    default_qc_dir = bids_dir / "derivatives" / "mriqc"
-    if qc_dir is None and default_qc_dir.exists():
-        qc_dir = default_qc_dir
-    elif qc_dir is not None:
+    if qc_dir:
         qc_dir = Path(qc_dir)
 
     if workers == -1:
@@ -46,6 +59,7 @@ def participant(
         f"\n\tsubject: {sub}"
         f"\n\tindex: {index_path}"
         f"\n\tqc: {qc_dir}"
+        f"\n\tconfig: {config}"
         f"\n\tworkers: {workers}"
         f"\n\toverwrite: {overwrite}"
     )
@@ -59,14 +73,23 @@ def participant(
     else:
         subs = [sub]
 
+    logging.info("Creating figure generators")
+    config: dict[str, Any] = load_config(config=config)
+    figure_generators = generator.create_generators(config=config)
+
+    runner = Runner(
+        out_dir=out_dir,
+        qc_dir=qc_dir,
+        overwrite=overwrite,
+        figure_generators=figure_generators,
+    )
+
     _worker = partial(
         _participant_worker,
         workers=workers,
         subs=subs,
         index=index,
-        out_dir=out_dir,
-        qc_dir=qc_dir,
-        overwrite=overwrite,
+        runner=runner,
         verbose=verbose,
     )
 
@@ -92,9 +115,7 @@ def _participant_worker(
     workers: int,
     subs: list[str],
     index: BIDSTable,
-    out_dir: Path,
-    qc_dir: Path | None = None,
-    overwrite: bool = False,
+    runner: Runner,
     verbose: bool = False,
 ) -> None:
     # reset logger for each worker
@@ -106,51 +127,21 @@ def _participant_worker(
         subs = np.array_split(subs, workers)[worker_id]  # type: ignore [assignment]
 
     for sub in subs:
-        _participant_single(
-            sub=sub,
-            index=index,
-            out_dir=out_dir,
-            qc_dir=qc_dir,
-            overwrite=overwrite,
-        )
+        _participant_single(sub=sub, index=index, runner=runner)
 
 
 def _participant_single(
     sub: str,
     index: BIDSTable,
-    out_dir: Path,
-    qc_dir: Path | None = None,
-    overwrite: bool = False,
+    runner: Runner,
 ) -> None:
     tic = time.monotonic()
-    logging.info("Generating raw figures for subject: %s", sub)
 
-    images = index.filter("sub", sub).filter("ext", items={".nii", ".nii.gz"})
-    if len(images) == 0:
-        logging.info("Found no images")
-        return
+    logging.info(f"Processing subject {sub}")
 
-    logging.info(
-        "Found %d images:\n\t%s",
-        len(images),
-        "\n\t".join(images.finfo["file_path"].tolist()),
-    )
+    runner.table = index.filter("sub", sub)
+    runner.gen_figures()
 
-    for _, record in images.nested.iterrows():
-        match record["ent"]["suffix"]:
-            case "T1w":
-                figures.anat.raw_t1w(
-                    record, out_dir, qc_dir=qc_dir, overwrite=overwrite
-                )
-            case "bold":
-                figures.func.raw_bold(
-                    record, out_dir, qc_dir=qc_dir, overwrite=overwrite
-                )
-            case _:
-                logging.info(
-                    f"Figure generation for {record['ent']['suffix']} not yet "
-                    "implemented."
-                )
     logging.info(
         "Done processing subject: %s; elapsed: %.2fs", sub, time.monotonic() - tic
     )

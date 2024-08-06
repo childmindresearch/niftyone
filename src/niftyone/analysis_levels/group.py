@@ -54,14 +54,20 @@ def group(
         logging.warning("No files found in output dir %s", out_dir)
         return
 
-    # extract out just the entities and the file paths
+    # extract out figure entity used for naming figures, dropping all other extras
+    index["ent__figure"] = index["ent__extra_entities"].apply(lambda x: x.get("figure"))
+    # print(index)
+
+    # extract out just the entities (preserve desc) and the file paths
     entities = index.ent.copy()
+    entities_desc = entities["desc"]
     entities.dropna(axis=1, how="all", inplace=True)
+    entities["desc"] = entities_desc
     entities.drop("extra_entities", axis=1, inplace=True)
     paths = index.finfo[["file_path"]]
     index = pd.concat([entities, paths], axis=1)
 
-    by = [k for k in entities.columns if k not in {"desc", "ext"}]
+    by = [k for k in entities.columns if k not in {"figure", "ext"}]
     grouped = index.groupby(by, dropna=False)
 
     logging.info("Collecting dataset samples for %d groups", len(grouped))
@@ -118,7 +124,7 @@ def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
 
         if filepath.suffix in IMG_EXTENSIONS:
             # create sample
-            element = f"{record.datatype}/{record.suffix}/{record.desc}"
+            element = f"{record.datatype}/{record.suffix}/{record.figure}"
             group_key = _get_group_key(record)
 
             sample = fo.Sample(
@@ -154,7 +160,7 @@ def _load_qc_metrics(group_index: pd.DataFrame) -> dict[str, Any]:
 
 def _get_group_key(record: pd.Series) -> fo.Classification:
     group_ent = BIDSEntities.from_dict(
-        {k: v for k, v in record.items() if k not in {"desc", "ext", "file_path"}}
+        {k: v for k, v in record.items() if k not in {"figure", "ext", "file_path"}}
     )
     key = Path(group_ent.to_path(valid_only=True)).name
     return key

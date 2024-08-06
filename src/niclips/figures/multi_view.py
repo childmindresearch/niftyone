@@ -15,9 +15,10 @@ from niclips.typing import Coord, NiftiLike, StrPath
 
 def multi_view_frame(
     img: nib.Nifti1Image,
+    out: StrPath | None = None,
+    *,
     coords: Sequence[Coord],
     axes: list[int],
-    out: StrPath | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
     overlay: nib.Nifti1Image | None = None,
@@ -27,6 +28,7 @@ def multi_view_frame(
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> Image.Image:
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
@@ -76,6 +78,7 @@ def multi_view_frame(
 def three_view_frame(
     img: NiftiLike,
     out: StrPath | None = None,
+    *,
     coord: tuple[float, float, float] | None = None,
     idx: int | None = 0,
     vmin: float | None = None,
@@ -86,6 +89,7 @@ def three_view_frame(
     overlay_cmap: str = "turbo",
     alpha: float = 0.5,
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> Image.Image:
     """Construct a three view image panel. Returns a PIL Image."""
     check_3d_4d(img)
@@ -117,12 +121,14 @@ def three_view_frame(
 def three_view_video(
     img: nib.Nifti1Image,
     out: StrPath,
+    *,
     coord: tuple[float, float, float] | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> None:
     """Save a three view panel video."""
     check_4d(img)
@@ -152,6 +158,7 @@ def three_view_video(
 def slice_video(
     img: NiftiLike,
     out: StrPath,
+    *,
     axis: int = 2,
     idx: int | None = 0,
     vmin: float | None = None,
@@ -159,6 +166,7 @@ def slice_video(
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
+    figure: str | None = None,
 ) -> None:
     """Save video scrolling through range of slices."""
     check_3d_4d(img)

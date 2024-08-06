@@ -1,0 +1,12 @@
+anat:
+  query: datatype == 'anat'
+  views:
+  - three_view(figure='anatThreeView')
+  - slice_video(axis=2)
+
+func:
+  query: datatype == 'func'
+  views:
+  - three_view_video
+  - carpet_plot
+  - mean_std
