@@ -37,4 +37,5 @@ tests/results
 *venv*
 
 # Jupyter
-.ipynb_checkpoints
+notebooks/
+.ipynb_checkpoints/

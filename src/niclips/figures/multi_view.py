@@ -1,9 +1,11 @@
 """Generation of different multi-views."""
 
 from collections.abc import Sequence
+from pathlib import Path
 
 import nibabel as nib
 import numpy as np
+from bids2table import BIDSEntities
 from PIL import Image
 
 import niclips.image as noimg
@@ -33,7 +35,7 @@ def multi_view_frame(
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
     check_iso_ras(img)
-    if overlay is not None:
+    if overlay:
         check_3d(overlay)
         check_iso_ras(overlay)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
@@ -52,7 +54,7 @@ def multi_view_frame(
             fontsize=fontsize,
         )
 
-        if overlay is not None:
+        if overlay:
             panel_overlay = noimg.render_slice(
                 overlay,
                 axis=axis,
@@ -70,9 +72,48 @@ def multi_view_frame(
     grid = noimg.image_grid(panels_list, nrows=nrows)
     grid_img = noimg.topil(grid)
 
-    if out is not None:
+    if out:
         grid_img.save(out)
     return grid_img
+
+
+def three_view_overlay_frame(
+    img: Path,
+    out: StrPath | None = None,
+    *,
+    entities: dict[str, str] = {"desc": "brain", "suffix": "mask"},
+    **kwargs,
+) -> Image.Image:
+    """Construct overlay with image.
+
+    Default is to overlay with mask with similar entities
+    (e.g. entities = {"desc": "brain", "suffix": "mask"}).
+
+    For example:
+    'sub-01/anat/sub-01_ses-01_run-1_T1w.nii.gz' will be overlaid with
+    'sub-01/anat/sub-01_ses-01_run-1_desc-brain_mask.nii.gz'
+    """
+    # Grab mask based on provided entities
+    img_entities = BIDSEntities.from_path(img)
+    img_base_path = Path(str(img).replace(str(img_entities.to_path()), ""))
+    overlay_entities = img_entities.with_update(entities)
+    overlay = img_base_path.joinpath(overlay_entities.to_path())
+    assert overlay.exists()
+
+    # Load image
+    img_data = nib.nifti1.load(img)
+    img_data = noimg.to_iso_ras(img_data)
+    overlay_data = nib.nifti1.load(overlay)
+    overlay_data = noimg.to_iso_ras(overlay_data)
+
+    grid = three_view_frame(
+        img=img_data,
+        out=out,
+        overlay=overlay_data,
+        **kwargs,
+    )
+
+    return grid
 
 
 def three_view_frame(
@@ -97,6 +138,9 @@ def three_view_frame(
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
 
+    if overlay and overlay.ndim == 4:
+        overlay = noimg.index_img(overlay, idx=idx)
+
     if coord is None:
         coord = get_default_coord(img)
 
@@ -118,6 +162,43 @@ def three_view_frame(
     return grid
 
 
+def three_view_overlay_video(
+    img: Path,
+    out: StrPath,
+    *,
+    entities: dict[str, str] = {"desc": "brain", "suffix": "mask"},
+    **kwargs,
+) -> None:
+    """Construct three view video with overlay.
+
+    Default is to overlay with mask with similar entities
+    (e.g. entities = {"desc": "brain", "suffix": "mask"}).
+
+    For example:
+    'sub-01/anat/sub-01_ses-01_run-1_T1w.nii.gz' will be overlaid with
+    'sub-01/anat/sub-01_ses-01_run-1_desc-brain_mask.nii.gz'
+    """
+    # Grab mask based on provided entities
+    img_entities = BIDSEntities.from_path(img)
+    img_base_path = Path(str(img).replace(str(img_entities.to_path()), ""))
+    overlay_entities = img_entities.with_update(entities)
+    overlay = img_base_path.joinpath(overlay_entities.to_path())
+    assert overlay.exists()
+
+    # Load image
+    img_data = nib.nifti1.load(img)
+    img_data = noimg.to_iso_ras(img_data)
+    overlay_data = nib.nifti1.load(overlay)
+    overlay_data = noimg.to_iso_ras(overlay_data)
+
+    three_view_video(
+        img=img_data,
+        out=out,
+        overlay=overlay_data,
+        **kwargs,
+    )
+
+
 def three_view_video(
     img: nib.Nifti1Image,
     out: StrPath,
@@ -125,6 +206,7 @@ def three_view_video(
     coord: tuple[float, float, float] | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
@@ -145,6 +227,7 @@ def three_view_video(
                 idx=idx,
                 vmin=vmin,
                 vmax=vmax,
+                overlay=overlay,
                 panel_height=panel_height,
                 cmap=cmap,
                 fontsize=fontsize,
@@ -155,6 +238,43 @@ def three_view_video(
             writer.put(frame)
 
 
+def slice_video_overlay(
+    img: Path,
+    out: StrPath,
+    *,
+    entities: dict[str, str] = {"desc": "brain", "suffix": "mask"},
+    **kwargs,
+) -> None:
+    """Construct slice video with overlay.
+
+    Default is to overlay with mask with similar entities
+    (e.g. entities = {"desc": "brain", "suffix": "mask"}).
+
+    For example:
+    'sub-01/anat/sub-01_ses-01_run-1_T1w.nii.gz' will be overlaid with
+    'sub-01/anat/sub-01_ses-01_run-1_desc-brain_mask.nii.gz'
+    """
+    # Grab mask based on provided entities
+    img_entities = BIDSEntities.from_path(img)
+    img_base_path = Path(str(img).replace(str(img_entities.to_path()), ""))
+    overlay_entities = img_entities.with_update(entities)
+    overlay = img_base_path.joinpath(overlay_entities.to_path())
+    assert overlay.exists()
+
+    # Load image
+    img_data = nib.nifti1.load(img)
+    img_data = noimg.to_iso_ras(img_data)
+    overlay_data = nib.nifti1.load(overlay)
+    overlay_data = noimg.to_iso_ras(overlay_data)
+
+    slice_video(
+        img=img_data,
+        out=out,
+        overlay=overlay_data,
+        **kwargs,
+    )
+
+
 def slice_video(
     img: NiftiLike,
     out: StrPath,
@@ -163,9 +283,12 @@ def slice_video(
     idx: int | None = 0,
     vmin: float | None = None,
     vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
     panel_height: int | None = 256,
     cmap: str = "gray",
+    overlay_cmap: str = "brg",
     fontsize: int = 14,
+    alpha: float = 0.3,
     figure: str | None = None,
 ) -> None:
     """Save video scrolling through range of slices."""
@@ -174,6 +297,11 @@ def slice_video(
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
     check_iso_ras(img)
+
+    if overlay and overlay.ndim == 4:
+        overlay = noimg.index_img(overlay, idx=idx)
+        check_iso_ras(overlay)
+
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     # Find range of slices that intersect with a rough mask
@@ -202,4 +330,15 @@ def slice_video(
                 cmap=cmap,
                 fontsize=fontsize,
             )
+
+            if overlay:
+                frame_overlay = noimg.render_slice(
+                    overlay,
+                    axis=axis,
+                    coord=coord,
+                    cmap=overlay_cmap,
+                    fontsize=fontsize,
+                )
+                frame = noimg.overlay(frame, frame_overlay, alpha=alpha)
+
             writer.put(frame)

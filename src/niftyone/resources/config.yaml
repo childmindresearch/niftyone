@@ -1,7 +1,8 @@
 anat:
-  query: datatype == 'anat'
+  query: (datatype == 'anat' & suffix == 'T1w')
   views:
   - three_view(figure='anatThreeView')
+  - three_view_overlay
   - slice_video(axis=2)
 
 func:
@@ -10,3 +11,10 @@ func:
   - three_view_video
   - carpet_plot
   - mean_std
+
+dwi:
+  query: datatype == 'dwi'
+  views:
+  - qspace_shells(thresh=10)
+  - three_view_video
+  - three_view_shell_video

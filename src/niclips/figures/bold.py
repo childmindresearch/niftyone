@@ -150,7 +150,7 @@ def carpet_plot(
     ax2.tick_params(colors="w", labelsize=8, direction="in", pad=-8)
 
     fig.set_facecolor("black")
-    if out is not None:
+    if out:
         fig.savefig(out, bbox_inches="tight", dpi=150)
     return fig
 
@@ -216,6 +216,6 @@ def bold_mean_std(
     grid = noimg.stack_images([panel_mean, panel_std], axis=0)
     grid_img = noimg.topil(grid)
 
-    if out is not None:
+    if out:
         grid_img.save(out)
     return grid_img
