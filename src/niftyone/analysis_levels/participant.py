@@ -141,6 +141,7 @@ def _participant_single(
 
     runner.table = index.filter("sub", sub)
     runner.gen_figures()
+    runner.update_metrics()
 
     logging.info(
         "Done processing subject: %s; elapsed: %.2fs", sub, time.monotonic() - tic

@@ -41,7 +41,7 @@ class TestViewGenerator:
     def test_generator_call_generate(
         self, b2t_mock: BIDSTable, test_generator: ViewGenerator, tmp_path: Path
     ) -> None:
-        test_generator.generate = MagicMock()
+        test_generator.generate = MagicMock()  # type: ignore [method-assign]
         test_generator(table=b2t_mock, out_dir=tmp_path, overwrite=True)
         test_generator.generate.assert_called()
 

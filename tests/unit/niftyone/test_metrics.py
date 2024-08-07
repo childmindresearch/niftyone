@@ -19,9 +19,9 @@ class TestGenNiftyOneMetricsTSV:
         record = b2t_index.filter_multi(sub="01", suffix="T1w").nested.iloc[0]
         entities = BIDSEntities.from_dict(record["ent"])
 
-        out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
-            prefix=out_dir
-        )
+        out_path = entities.with_update(
+            ext=".tsv", extra_entities={"metrics": "QCMetrics"}
+        ).to_path(prefix=out_dir)
         assert not out_path.exists()
 
         gen_niftyone_metrics_tsv(
@@ -39,9 +39,9 @@ class TestGenNiftyOneMetricsTSV:
         record = b2t_index.filter_multi(sub="01", suffix="T1w").nested.iloc[0]
         entities = BIDSEntities.from_dict(record["ent"])
 
-        out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
-            prefix=out_dir
-        )
+        out_path = entities.with_update(
+            ext=".tsv", extra_entities={"metrics": "QCMetrics"}
+        ).to_path(prefix=out_dir)
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
         gen_niftyone_metrics_tsv(
@@ -56,9 +56,9 @@ class TestGenNiftyOneMetricsTSV:
         record = b2t_index.filter_multi(sub="01", suffix="T1w").nested.iloc[0]
         entities = BIDSEntities.from_dict(record["ent"])
 
-        out_path = entities.with_update(desc="QCMetrics", ext=".tsv").to_path(
-            prefix=out_dir
-        )
+        out_path = entities.with_update(
+            ext=".tsv", extra_entities={"metrics": "QCMetrics"}
+        ).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
         out_path.touch()
         assert out_path.exists()
