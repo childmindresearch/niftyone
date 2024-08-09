@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
@@ -14,6 +15,7 @@ from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.figures.multi_view import three_view_video
 from niclips.typing import StrPath
 
+mpl.use("Agg")
 
 def _equate_bvals(bvals: np.ndarray, thresh: int) -> np.ndarray:
     """Map bvals within a given threshold to each other."""
