@@ -11,10 +11,7 @@ from .figures.dwi import (
 from .figures.func import CarpetPlotGenerator, MeanStdGenerator
 from .figures.multi_view import (
     SliceVideoGenerator,
-    SliceVideoOverlayGenerator,
     ThreeViewGenerator,
-    ThreeViewOverlayGenerator,
     ThreeViewVideoGenerator,
-    ThreeViewVideoOverlayGenerator,
 )
 from .runner import Runner

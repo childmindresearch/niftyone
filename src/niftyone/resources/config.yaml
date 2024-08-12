@@ -1,20 +1,25 @@
-anat:
-  query: (datatype == 'anat' & suffix == 'T1w')
-  views:
-  - three_view(figure='anatThreeView')
-  - three_view_overlay
-  - slice_video(axis=2)
+# These queries are saved as YAML variables to be passed onto queries under the 'figures' key.
+# Alternatively, they can also be directly passed to the query key of each figure.
+# Note, this top-level 'queries' key is not directly interacted with in NiftyOne.
+queries:
+  t1w: &t1w datatype == 'anat' & suffix == 'T1w' & ext == '.nii.gz'
+  func: &func datatype == 'func' & ext == '.nii.gz'
 
-func:
-  query: datatype == 'func'
-  views:
-  - three_view_video
-  - carpet_plot
-  - mean_std
+# Below are the figures to be generated based on the provided queries, views
+# and view_kwargs. Multiple queries can be provided, with the first query
+# interpreted as the main image and all subsequent queries as the overlay.
+figures:
+  anat:
+    queries:
+    - *t1w
+    views:
+    - three_view(figure='anatThreeView')
+    - slice_video(axis=2)
 
-dwi:
-  query: datatype == 'dwi'
-  views:
-  - qspace_shells(thresh=10)
-  - three_view_video
-  - three_view_shell_video
+  func:
+    queries:
+    - *func
+    views:
+    - three_view_video
+    - carpet_plot
+    - mean_std

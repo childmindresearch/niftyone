@@ -48,7 +48,10 @@ class TestViewGenerator:
     def test_generator_no_view_fn(self, test_generator: ViewGenerator) -> None:
         with pytest.raises(ValueError, match="View is not provided.*"):
             test_generator.generate(
-                record=MagicMock(), out_dir=MagicMock(spec=Path), overwrite=True
+                record=MagicMock(),
+                out_dir=MagicMock(spec=Path),
+                overwrite=True,
+                overlay_records=None,
             )
 
 
@@ -58,7 +61,13 @@ def setup_registry():
     generator_registry.clear()
 
     class TestGenerator(ViewGenerator):
-        def generate(self, record: pd.Series, out_dir: Path, overwrite: bool) -> None:
+        def generate(
+            self,
+            record: pd.Series,
+            out_dir: Path,
+            overwrite: bool,
+            overlay_records: pd.DataFrame,
+        ) -> None:
             pass
 
     register("test_view")(TestGenerator)
@@ -71,36 +80,40 @@ class TestCreateGenerator:
         "view", [("test_view"), ("test_view(param1='value1', param2=2, param3=.1)")]
     )
     def test_create_generators_view_kwargs(self, setup_registry: Generator, view: str):
-        generator = create_generator(view=view, query="suffix == 'T1w'")
+        generator = create_generator(view=view, queries=["suffix == 'T1w'"])
         assert isinstance(generator, ViewGenerator)
-        assert generator.query == "suffix == 'T1w'"
+        assert generator.queries == ["suffix == 'T1w'"]
         assert isinstance(generator.view_kwargs, dict)
 
     def test_create_generators(self, setup_registry: Generator):
         config = {
-            "test1": {"query": "suffix == 'T1w'", "views": ["test_view"]},
-            "test2": {"query": "suffix == 'bold'", "views": ["test_view"]},
+            "figures": {
+                "test1": {"queries": "suffix == 'T1w'", "views": ["test_view"]},
+                "test2": {"queries": "suffix == 'bold'", "views": ["test_view"]},
+            }
         }
         generators = create_generators(config)
         assert len(generators) == 2
         assert all(isinstance(generator, ViewGenerator) for generator in generators)
-        assert generators[0].query == config["test1"]["query"]
-        assert generators[1].query == config["test2"]["query"]
+        assert generators[0].queries == config["figures"]["test1"]["queries"]
+        assert generators[1].queries == config["figures"]["test2"]["queries"]
 
     def test_generator_view_not_found(self):
-        config = {"test": {"query": "", "views": ["view1"]}}
+        config = {"figures": {"test": {"queries": "", "views": ["view1"]}}}
         with pytest.raises(KeyError, match=".*not found in registry"):
             create_generators(config)
 
     def test_generator_no_views(self):
-        config = {"test": {"query": "", "views": []}}
+        config = {"figures": {"test": {"queries": "", "views": []}}}
         generators = create_generators(config)
         assert generators == []
 
     def test_generator_mixed_views(self, setup_registry: Generator):
         config = {
-            "test1": {"query": "suffix == 'T1w'", "views": ["test_view"]},
-            "test2": {"query": "suffix == 'bold'", "views": ["fake_view"]},
+            "figures": {
+                "test1": {"queries": "suffix == 'T1w'", "views": ["test_view"]},
+                "test2": {"queries": "suffix == 'bold'", "views": ["fake_view"]},
+            }
         }
 
         with pytest.raises(KeyError, match=".*not found in registry"):
