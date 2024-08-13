@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
@@ -15,7 +14,6 @@ from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.figures.multi_view import three_view_video
 from niclips.typing import StrPath
 
-mpl.use("Agg")
 
 def _equate_bvals(bvals: np.ndarray, thresh: int) -> np.ndarray:
     """Map bvals within a given threshold to each other."""
@@ -38,7 +36,7 @@ def _get_bval_indices(bvals: np.ndarray, bval: int) -> np.ndarray:
 
 
 def visualize_qspace(
-    dwi: Path,
+    dwi: nib.Nifti1Image,
     out: StrPath | None = None,
     *,
     thresh: int = 10,
@@ -46,8 +44,8 @@ def visualize_qspace(
 ) -> FuncAnimation:
     """Visualize diffusion gradients in q-space."""
     # Grab paths and check existence
-    bvec = dwi.with_suffix("").with_suffix(".bvec")
-    bval = dwi.with_suffix("").with_suffix(".bval")
+    bvec = Path(dwi.get_filename().replace(".nii.gz", ".bvec"))
+    bval = Path(dwi.get_filename().replace(".nii.gz", ".bval"))
     assert all([bvec.exists(), bval.exists()])
 
     # Gradient vector
@@ -90,7 +88,7 @@ def visualize_qspace(
 
 
 def three_view_per_shell(
-    dwi: Path,
+    dwi: nib.Nifti1Image,
     out: StrPath | None = None,
     *,
     thresh: int = 10,
@@ -98,25 +96,21 @@ def three_view_per_shell(
 ) -> list[nib.Nifti1Image]:
     """Generate three-view videos per shell."""
     # Grab bvals
-    bval = dwi.with_suffix("").with_suffix(".bval")
+    bval = Path(dwi.get_filename().replace(".nii.gz", ".bval"))
     assert bval.exists()
     bval_data = np.loadtxt(bval).astype(int)
     bval_data = _equate_bvals(bval_data, thresh=thresh)
 
-    # Load image
-    dwi_data = nib.nifti1.load(dwi)
-    dwi_data = noimg.to_iso_ras(dwi_data)
-
     figs = []
     for val in np.unique(bval_data):
         bval_idxes = _get_bval_indices(bval_data, val)
-        dwi_arr = dwi_data.dataobj[:, :, :, bval_idxes]
+        dwi_arr = dwi.dataobj[:, :, :, bval_idxes]
         # Squeeze if necessary (e.g. more than 1 volume in a shell)
         if len(dwi_arr.shape) == 5:
             if dwi_arr.shape[-1] > 1:
                 raise ValueError(f"Diffusion image of the wrong shape {dwi_arr.shape}")
             dwi_arr = np.squeeze(dwi_arr, axis=-1)
-        figs.append(nib.Nifti1Image(dwi_arr, affine=dwi_data.affine))
+        figs.append(nib.Nifti1Image(dwi_arr, affine=dwi.affine))
         check_4d(figs[-1])
 
         if out:

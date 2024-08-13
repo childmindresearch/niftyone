@@ -8,6 +8,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
+import matplotlib as mpl
 import numpy as np
 import yaml  # type:ignore [import-untyped]
 from bids2table import BIDSTable, bids2table
@@ -140,6 +141,7 @@ def _participant_single(
     logging.info(f"Processing subject {sub}")
 
     runner.table = index.filter("sub", sub)
+    mpl.use("agg")
     runner.gen_figures()
     runner.update_metrics()
 

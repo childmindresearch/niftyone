@@ -9,7 +9,7 @@ from niclips.figures import dwi as nodwi
 
 
 @pytest.fixture
-def dwi_fpath(tmp_path: Path) -> Path:
+def dwi_nii(tmp_path: Path) -> nib.Nifti1Image:
     bvals = np.array([5, 1600, 1600, 1600, 1595, 1600, 1605, 1595, 1600, 1595, 1595])
     bval_fpath = tmp_path / "test.bval"
     np.savetxt(bval_fpath, bvals)
@@ -62,41 +62,40 @@ def dwi_fpath(tmp_path: Path) -> Path:
 
     img_arr = np.random.rand(10, 10, 10, len(bvals))
     img = nib.Nifti1Image(dataobj=img_arr, affine=np.eye(4))
-    img_fpath = tmp_path / "test.nii.gz"
-    nib.save(img=img, filename=img_fpath)
+    img.set_filename(str(tmp_path / "test.nii.gz"))
 
-    return img_fpath
+    return img
 
 
 class TestQSpaceShells:
     @pytest.mark.parametrize("thresh", [(5), (10), (30)])
-    def test_default(self, dwi_fpath: Path, thresh: int):
-        ani = nodwi.visualize_qspace(dwi=dwi_fpath, thresh=thresh)
+    def test_default(self, dwi_nii: nib.Nifti1Image, thresh: int):
+        ani = nodwi.visualize_qspace(dwi=dwi_nii, thresh=thresh)
 
         assert isinstance(ani, FuncAnimation)
 
-    def test_save(self, dwi_fpath: Path, tmp_path: Path):
+    def test_save(self, dwi_nii: nib.Nifti1Image, tmp_path: Path):
         out_fpath = tmp_path / "test_qspace.mp4"
-        nodwi.visualize_qspace(dwi=dwi_fpath, out=out_fpath)
+        nodwi.visualize_qspace(dwi=dwi_nii, out=out_fpath)
 
         assert out_fpath.exists()
 
 
 class TestDwiPerShell:
-    def test_default(self, dwi_fpath: Path):
+    def test_default(self, dwi_nii: nib.Nifti1Image):
         thresh = 10
-        dwis = nodwi.three_view_per_shell(dwi=dwi_fpath, thresh=thresh)
-        bval = np.loadtxt(str(dwi_fpath).replace(".nii.gz", ".bval"))
+        dwis = nodwi.three_view_per_shell(dwi=dwi_nii, thresh=thresh)
+        bval = np.loadtxt(dwi_nii.get_filename().replace(".nii.gz", ".bval"))
 
         assert len(dwis) == len(np.unique(nodwi._equate_bvals(bval, thresh=thresh)))
         assert all([isinstance(dwi, nib.Nifti1Image) for dwi in dwis])
 
-    def test_save(self, dwi_fpath: Path, tmp_path: Path):
+    def test_save(self, dwi_nii: nib.Nifti1Image, tmp_path: Path):
         thresh = 10
         out_fpath = tmp_path / "test_desc-bval_dwi.mp4"
-        bvals = np.loadtxt(str(dwi_fpath).replace(".nii.gz", ".bval"))
+        bvals = np.loadtxt(dwi_nii.get_filename().replace(".nii.gz", ".bval"))
 
-        nodwi.three_view_per_shell(dwi=dwi_fpath, out=out_fpath, thresh=10)
+        nodwi.three_view_per_shell(dwi=dwi_nii, out=out_fpath, thresh=10)
 
         assert all(
             [
@@ -105,15 +104,14 @@ class TestDwiPerShell:
             ]
         )
 
-    def test_invalid_shape(self, dwi_fpath: Path):
-        img = nib.load(dwi_fpath)
-        nib.save(
-            nib.Nifti1Image(np.random.rand(10, 10, 10, 5, 2), affine=img.affine),
-            filename=dwi_fpath,
+    def test_invalid_shape(self, dwi_nii: nib.Nifti1Image):
+        test_nii = nib.Nifti1Image(
+            dataobj=np.random.rand(10, 10, 10, 5, 2), affine=dwi_nii.affine
         )
+        test_nii.set_filename(dwi_nii.get_filename())
 
         with pytest.raises(ValueError, match=".*wrong shape.*"):
-            nodwi.three_view_per_shell(dwi=dwi_fpath, thresh=10)
+            nodwi.three_view_per_shell(dwi=test_nii, thresh=10)
 
 
 class TestDwiSignalPerVolume:

@@ -2,7 +2,6 @@
 
 import math
 
-import matplotlib as mpl
 import matplotlib.figure as mpl_figure
 import nibabel as nib
 import numpy as np
@@ -20,7 +19,6 @@ from .multi_view import three_view_frame
 
 EPS = 1e-6
 plt.style.use("bmh")
-mpl.use("Agg")
 
 
 def cluster_timeseries(

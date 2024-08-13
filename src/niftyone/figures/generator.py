@@ -1,13 +1,13 @@
 """Generator classes for different views."""
 
 import ast
-import inspect
 import logging
 import re
 from abc import ABC
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar
 
+import matplotlib.pyplot as plt
 import nibabel as nib
 import pandas as pd
 from bids2table import BIDSEntities, BIDSTable
@@ -15,7 +15,6 @@ from matplotlib.figure import Figure
 from PIL.Image import Image
 
 import niclips.image as noimg
-from niclips.typing import get_union_subclass
 
 T = TypeVar("T", bound="ViewGenerator")
 
@@ -94,7 +93,6 @@ class ViewGenerator(ABC, Generic[T]):
         overwrite: bool,
     ) -> None:
         # Filters by entity (via string query)
-
         # First query is for main image, subsequent are for overlays
         main_idxes = table.ent.query(self.queries[0]).index
         if overlays := len(self.queries) > 1:
@@ -136,16 +134,8 @@ class ViewGenerator(ABC, Generic[T]):
         img_path = Path(record["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
 
-        signature = inspect.signature(self.view_fn)
-        view_fn_input_type = signature.parameters[
-            list(signature.parameters.keys())[0]
-        ].annotation
-
-        if get_union_subclass(view_fn_input_type, Path):
-            img = img_path
-        else:
-            img = nib.nifti1.load(img_path)
-            img = noimg.to_iso_ras(img)
+        img = nib.nifti1.load(img_path)
+        img = noimg.to_iso_ras(img)
 
         # Handle overlays - currently only handles 1, update to handle multiple
         overlays = None
@@ -167,3 +157,5 @@ class ViewGenerator(ABC, Generic[T]):
         if not out_path.exists() or overwrite:
             logging.info("Generating %s", out_path)
             self.view_fn(img, out_path, **self.view_kwargs)
+
+        plt.close("all")
