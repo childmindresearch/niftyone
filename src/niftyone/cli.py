@@ -16,6 +16,9 @@ class NiftyOneArgumentParser:
             NiftyOne is a comphrensive tool designed to aid
             large-scale QC of BIDS datasets through visualization
             and quantitative metrics.
+
+
+            For details regarding each analysis level, see corresponding options.
             """,
         )
         self._add_common_args()
@@ -42,7 +45,7 @@ class NiftyOneArgumentParser:
             metavar="analysis_level",
             type=str,
             choices=["participant", "group", "launch"],
-            help="analysis level",
+            help="analysis level - one of [%(choices)s]",
         )
         self.parser.add_argument(
             "--overwrite",
@@ -57,7 +60,8 @@ class NiftyOneArgumentParser:
     def _add_participant_args(self) -> None:
         """Participant-level CLI arguments."""
         self.participant_level = self.parser.add_argument_group(
-            "participant level options"
+            title="participant level options",
+            description="Generates figures for individual participants.",
         )
         self.participant_level.add_argument(
             "--participant-label",
@@ -103,7 +107,10 @@ class NiftyOneArgumentParser:
 
     def _add_group_args(self) -> None:
         """group-level CLI arguments."""
-        self.group_level = self.parser.add_argument_group("Group level options")
+        self.group_level = self.parser.add_argument_group(
+            title="Group level options",
+            description="Collects paths for samples (figures, metrics) for loading.",
+        )
         self.group_level.add_argument(
             "--ds-name",
             metavar="DATASET",
@@ -114,7 +121,10 @@ class NiftyOneArgumentParser:
 
     def _add_launch_args(self) -> None:
         """Application launch CLI arguments."""
-        self.launch_group = self.parser.add_argument_group("launch level options")
+        self.launch_group = self.parser.add_argument_group(
+            title="launch level options",
+            description="Launch NiftyOne application",
+        )
         self.launch_group.add_argument(
             "--qc-key",
             metavar="LABEL",
