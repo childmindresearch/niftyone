@@ -1,5 +1,6 @@
 """Diffusion MRI figure generation module."""
 
+import re
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -13,6 +14,8 @@ from niclips.checks import check_4d
 from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.figures.multi_view import three_view_video
 from niclips.typing import StrPath
+
+nii_pattern = r"(\.nii(\.gz)?)$"
 
 
 def _equate_bvals(bvals: np.ndarray, thresh: int) -> np.ndarray:
@@ -44,8 +47,8 @@ def visualize_qspace(
 ) -> FuncAnimation:
     """Visualize diffusion gradients in q-space."""
     # Grab paths and check existence
-    bvec = Path(dwi.get_filename().replace(".nii.gz", ".bvec"))
-    bval = Path(dwi.get_filename().replace(".nii.gz", ".bval"))
+    bvec = Path(re.sub(nii_pattern, ".bvec", dwi.get_filename()))
+    bval = Path(re.sub(nii_pattern, "bval", dwi.get_filename()))
     assert all([bvec.exists(), bval.exists()])
 
     # Gradient vector
@@ -96,7 +99,7 @@ def three_view_per_shell(
 ) -> list[nib.Nifti1Image]:
     """Generate three-view videos per shell."""
     # Grab bvals
-    bval = Path(dwi.get_filename().replace(".nii.gz", ".bval"))
+    bval = Path(re.sub(nii_pattern, "bval", dwi.get_filename()))
     assert bval.exists()
     bval_data = np.loadtxt(bval).astype(int)
     bval_data = _equate_bvals(bval_data, thresh=thresh)
