@@ -39,11 +39,15 @@ def main() -> None:
                 bids_dir=args.bids_dir,
                 out_dir=out_dir,
                 ds_name=args.ds_name,
+                qc_key=args.qc_key,
                 overwrite=args.overwrite,
             )
         case "launch":
             analysis_levels.launch(
-                bids_dir=args.bids_dir, out_dir=out_dir, qc_key=args.qc_key
+                bids_dir=args.bids_dir,
+                out_dir=out_dir,
+                ds_name=args.ds_name,
+                qc_key=args.qc_key,
             )
         case _:
             raise NotImplementedError(

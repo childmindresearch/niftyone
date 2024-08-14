@@ -27,6 +27,7 @@ def group(
     bids_dir: StrPath,
     out_dir: StrPath,
     ds_name: str | None = None,
+    qc_key: str | None = None,
     overwrite: bool = False,
 ) -> None:
     """NiftyOne group analysis level.
@@ -39,12 +40,15 @@ def group(
     out_dir = Path(out_dir)
     if ds_name is None:
         ds_name = Path(bids_dir).name
+    if qc_key:
+        ds_name = f"{ds_name}-{qc_key}"
 
     logging.info(
         "Starting niftyone group-level:"
         f"\n\tdataset: {bids_dir}"
         f"\n\tout: {out_dir}"
         f"\n\tds_name: {ds_name}"
+        f"\n\tqc_key: {qc_key}"
         f"\n\toverwrite: {overwrite}"
     )
 
