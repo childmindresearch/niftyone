@@ -110,6 +110,6 @@ def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
                 img, target_affine=target_affine, interpolation="nearest"
             )
     # Set filepath to original incase it is needed
-    if img_path:
+    if img_path:  # pragma: no cover
         img.set_filename(img_path)
     return img
