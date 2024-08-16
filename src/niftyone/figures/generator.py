@@ -4,6 +4,7 @@ import ast
 import logging
 import re
 from abc import ABC
+from functools import reduce
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar
 
@@ -31,7 +32,9 @@ def register(name: str) -> Callable[[type[T]], type[T]]:
     return decorator
 
 
-def create_generator(view: str, queries: list[str]) -> "ViewGenerator":
+def create_generator(
+    view: str, join_entities: list[str], queries: list[str]
+) -> "ViewGenerator":
     """Function to create generator."""
 
     def _parse_view(view: str) -> tuple[str, dict[str, Any]]:
@@ -55,7 +58,7 @@ def create_generator(view: str, queries: list[str]) -> "ViewGenerator":
     view, view_kwargs = _parse_view(view)
     try:
         generator_cls = generator_registry[view]
-        generator_instance = generator_cls(queries, view_kwargs)
+        generator_instance = generator_cls(queries, join_entities, view_kwargs)
         return generator_instance
     except KeyError:
         msg = f"Generator for '{view}' for not found in registry."
@@ -68,10 +71,15 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
 
     for group in config.get("figures", None).values():
         queries = group.get("queries", "")
+        join_entities = group.get("join_entities", ["sub", "ses"])
         views = group.get("views", [])
 
         for view in views:
-            generators.append(create_generator(view=view, queries=queries))
+            generators.append(
+                create_generator(
+                    view=view, join_entities=join_entities, queries=queries
+                )
+            )
 
     return generators
 
@@ -82,9 +90,15 @@ class ViewGenerator(ABC, Generic[T]):
     entities: dict[str, Any] | None = None
     view_fn: Callable[[nib.Nifti1Image, Path], Image | Figure | None] | None = None
 
-    def __init__(self, queries: list[str], view_kwargs: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        queries: list[str],
+        join_entities: list[str] | None,
+        view_kwargs: dict[str, Any],
+    ) -> None:
         self.queries = queries
         self.view_kwargs = view_kwargs
+        self.join_entities = join_entities or []
 
     def __call__(
         self,
@@ -94,21 +108,26 @@ class ViewGenerator(ABC, Generic[T]):
     ) -> None:
         # Filters by entity (via string query)
         # First query is for main image, subsequent are for overlays
-        main_idxes = table.ent.query(self.queries[0]).index
-        if overlays := len(self.queries) > 1:
-            overlay_idxes = table.ent.query(
-                " || ".join(f"({query})" for query in self.queries[1:])
-            ).index
-
-        for idx in main_idxes:
-            record = table.nested.loc[idx]
-            overlay_records = table.nested.loc[overlay_idxes] if overlays else None
-            self.generate(
-                record=record,
-                out_dir=out_dir,
-                overwrite=overwrite,
-                overlay_records=overlay_records,
+        query_dfs = [table.ent.query(q) for q in self.queries]
+        indexed_dfs = [
+            (
+                df.assign(table_index=df.index)
+                .reset_index(drop=True)
+                .loc[:, ["table_index"] + self.join_entities]
+                .rename(columns={"table_index": f"index_{ii}"})
             )
+            for ii, df in enumerate(query_dfs)
+        ]
+        joined = reduce(
+            lambda left, right: pd.merge(
+                left, right, on=self.join_entities, how="outer"
+            ),
+            indexed_dfs,
+        )
+        indices = [joined[f"index_{ii}"].values for ii in range(len(self.queries))]
+
+        records = [table.nested.loc[ind] for inds in zip(*indices) for ind in inds]
+        self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
 
     def _figure_name(self) -> None:
         """Helper function to grab figure entity in view kwarg and update entities."""
@@ -119,10 +138,9 @@ class ViewGenerator(ABC, Generic[T]):
 
     def generate(
         self,
-        record: pd.Series,
+        records: list[pd.Series],
         out_dir: Path,
         overwrite: bool,
-        overlay_records: pd.DataFrame | None,
     ) -> None:
         """Main call for generating view."""
         if not self.view_fn:
@@ -131,26 +149,26 @@ class ViewGenerator(ABC, Generic[T]):
         # Update figure name if necessary
         self._figure_name()
 
-        img_path = Path(record["finfo"]["file_path"])
+        img_path = Path(records[0]["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
 
         img = nib.nifti1.load(img_path)
         img = noimg.to_iso_ras(img)
 
         # Handle overlays - currently only handles 1, update to handle multiple
-        overlays = None
-        if overlay_records is not None:
-            overlays = []
-            for _, overlay_record in overlay_records.iterrows():
+        overlays = []
+        # Temporary logic to handle multiple overlays
+        if len(records) > 2:
+            raise NotImplementedError("Multi-image overlay not yet implemented")
+
+        if len(records) > 1:
+            for overlay_record in records[1:]:
                 overlay_path = Path(overlay_record["finfo"]["file_path"])
                 overlay = nib.nifti1.load(overlay_path)
                 overlays.append(noimg.to_iso_ras(overlay))
-                # Temporary logic to handle overlays
-                if len(overlays) > 1:
-                    raise NotImplementedError("Multi-image overlay not yet implemented")
                 self.view_kwargs["overlay"] = overlays.pop()
 
-        existing_entities = BIDSEntities.from_dict(record["ent"])
+        existing_entities = BIDSEntities.from_dict(records[0]["ent"])
         out_path = existing_entities.with_update(self.entities).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
 

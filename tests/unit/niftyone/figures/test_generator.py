@@ -18,11 +18,14 @@ from niftyone.figures.generator import (
 @pytest.fixture
 def b2t_mock():
     table_mock = MagicMock(spec=BIDSTable)
-    table_mock.ent.query.return_value.index = [0]
-    table_mock.nested.loc.__get__item.side_effect = [
-        pd.Series(
-            {"ent": {"sub": "01", "suffix": "T1w"}, "finfo": {"file_path": "path1.nii"}}
-        ),
+    table_mock.ent.query.side_effect = [
+        pd.DataFrame(
+            {
+                "finfo": [{"file_path": "path1.nii"}],
+                "ent": [{"sub": "01", "suffix": "T1w"}],
+            },
+            index=[0],
+        )
     ]
 
     return table_mock
@@ -34,7 +37,7 @@ def test_generator() -> ViewGenerator:
         entities = {"desc": "test", "ext": ".png"}
         view_fn = None
 
-    return TestGenerator("suffix == 'T1w'", {})
+    return TestGenerator(["suffix == 'T1w'"], None, {})
 
 
 class TestViewGenerator:
@@ -48,10 +51,9 @@ class TestViewGenerator:
     def test_generator_no_view_fn(self, test_generator: ViewGenerator) -> None:
         with pytest.raises(ValueError, match="View is not provided.*"):
             test_generator.generate(
-                record=MagicMock(),
+                records=MagicMock(),
                 out_dir=MagicMock(spec=Path),
                 overwrite=True,
-                overlay_records=None,
             )
 
 
@@ -63,10 +65,9 @@ def setup_registry():
     class TestGenerator(ViewGenerator):
         def generate(
             self,
-            record: pd.Series,
+            records: pd.Series,
             out_dir: Path,
             overwrite: bool,
-            overlay_records: pd.DataFrame,
         ) -> None:
             pass
 
@@ -80,7 +81,9 @@ class TestCreateGenerator:
         "view", [("test_view"), ("test_view(param1='value1', param2=2, param3=.1)")]
     )
     def test_create_generators_view_kwargs(self, setup_registry: Generator, view: str):
-        generator = create_generator(view=view, queries=["suffix == 'T1w'"])
+        generator = create_generator(
+            view=view, join_entities=["sub"], queries=["suffix == 'T1w'"]
+        )
         assert isinstance(generator, ViewGenerator)
         assert generator.queries == ["suffix == 'T1w'"]
         assert isinstance(generator.view_kwargs, dict)
