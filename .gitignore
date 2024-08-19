@@ -39,3 +39,6 @@ tests/results
 # Jupyter
 notebooks/
 .ipynb_checkpoints/
+
+# mdbook
+book/
