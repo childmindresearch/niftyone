@@ -1,0 +1,14 @@
+[book]
+title = "NiftyOne"
+authors = ["Jason Kai", "Connor Lane"]
+description = "This book provides documentation for NiftyOne."
+language = "en"
+multilingual = false
+src = "src"
+
+[output.html]
+no-section-label = true
+
+[output.html.fold]
+enable = true
+level = 0
