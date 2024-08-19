@@ -1,0 +1,40 @@
+name: Build and publish docs
+
+permissions:
+  contents: write
+
+on:
+  workflow_run:
+    workflows: [Python Tests]
+    types:
+    - completed
+    branches:
+    - main
+
+jobs:
+  build-and-publish-docs:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install -U pip
+        pip install -e .\[doc\]
+    - name: Build docs
+      run: |
+        python doc/make.py
+    - name: Setup mdBook
+      uses: peaceiris/actions-mdbook@v2
+      with:
+        mdbook-version: 'latest'
+    - run:
+        mdbook build doc
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./doc/book
