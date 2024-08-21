@@ -37,7 +37,7 @@ class VideoWriter:
 
         frame = av.VideoFrame.from_image(img)
         assert isinstance(self._stream, VideoStream)
-        for packet in self._stream.encode(frame):  # pragma: no cover
+        for packet in self._stream.encode(frame):
             assert self._container
             self._container.mux_one(packet)
 

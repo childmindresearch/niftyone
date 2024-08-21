@@ -98,22 +98,21 @@ class ViewGenerator(ABC, Generic[T]):
         query_dfs = [table.ent.query(q) for q in self.queries]
         indexed_dfs = [
             (
-                df.assign(table_index=df.index)
-                .reset_index(drop=True)
-                .loc[:, ["table_index"] + self.join_entities]
-                .rename(columns={"table_index": f"index_{ii}"})
+                df.reset_index(names=f"index_{ii}", drop=False).loc[
+                    :, [f"index_{ii}"] + self.join_entities
+                ]
             )
             for ii, df in enumerate(query_dfs)
         ]
         joined = reduce(
             lambda left, right: pd.merge(
-                left, right, on=self.join_entities, how="outer"
+                left, right, on=self.join_entities, how="inner"
             ),
             indexed_dfs,
         )
         indices = [joined[f"index_{ii}"].values for ii in range(len(self.queries))]
 
-        records = [table.nested.loc[ind] for inds in zip(*indices) for ind in inds]
+        records = tuple(table.nested.loc[ind] for inds in zip(*indices) for ind in inds)
         self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
 
     def _figure_name(self) -> None:
@@ -125,7 +124,7 @@ class ViewGenerator(ABC, Generic[T]):
 
     def generate(
         self,
-        records: list[pd.Series],
+        records: tuple[pd.Series],
         out_dir: Path,
         overwrite: bool,
     ) -> None:
@@ -143,12 +142,11 @@ class ViewGenerator(ABC, Generic[T]):
         img = noimg.to_iso_ras(img)
 
         # Handle overlays - currently only handles 1, update to handle multiple
-        overlays = []
-        # Temporary logic to handle multiple overlays
-        if len(records) > 2:
-            raise NotImplementedError("Multi-image overlay not yet implemented")
-
+        overlays: list[nib.Nifti1Image] = []
         if len(records) > 1:
+            # Temporary logic to handle multiple overlays
+            if len(records) > 2:
+                raise NotImplementedError("Multi-image overlay not yet implemented")
             for overlay_record in records[1:]:
                 overlay_path = Path(overlay_record["finfo"]["file_path"])
                 overlay = nib.nifti1.load(overlay_path)

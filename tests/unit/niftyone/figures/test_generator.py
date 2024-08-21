@@ -20,13 +20,7 @@ from niftyone.figures.generator import (
 def b2t_mock():
     table_mock = MagicMock(spec=BIDSTable)
     table_mock.ent.query.side_effect = [
-        pd.DataFrame(
-            {
-                "finfo": [{"file_path": "path1.nii"}],
-                "ent": [{"sub": "01", "suffix": "T1w"}],
-            },
-            index=[0],
-        )
+        pd.DataFrame({"sub": "01", "ses": "01", "suffix": "T1w"}, index=[0])
     ]
 
     return table_mock
