@@ -33,7 +33,7 @@ def multi_view_frame(
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
     check_iso_ras(img)
-    if overlay:
+    if overlay is not None:
         check_3d(overlay)
         check_iso_ras(overlay)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
@@ -52,7 +52,7 @@ def multi_view_frame(
             fontsize=fontsize,
         )
 
-        if overlay:
+        if overlay is not None:
             panel_overlay = noimg.render_slice(
                 overlay,
                 axis=axis,
@@ -97,7 +97,7 @@ def three_view_frame(
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
 
-    if overlay and overlay.ndim == 4:
+    if overlay is not None and overlay.ndim == 4:
         overlay = noimg.index_img(overlay, idx=idx)
 
     if coord is None:
@@ -183,7 +183,7 @@ def slice_video(
     assert isinstance(img, nib.Nifti1Image)
     check_iso_ras(img)
 
-    if overlay and overlay.ndim == 4:
+    if overlay is not None and overlay.ndim == 4:
         overlay = noimg.index_img(overlay, idx=idx)
         check_iso_ras(overlay)
 
@@ -216,7 +216,7 @@ def slice_video(
                 fontsize=fontsize,
             )
 
-            if overlay:
+            if overlay is not None:
                 frame_overlay = noimg.render_slice(
                     overlay,
                     axis=axis,
