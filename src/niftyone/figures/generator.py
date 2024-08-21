@@ -1,8 +1,6 @@
 """Generator classes for different views."""
 
-import ast
 import logging
-import re
 from abc import ABC
 from functools import reduce
 from pathlib import Path
@@ -33,29 +31,15 @@ def register(name: str) -> Callable[[type[T]], type[T]]:
 
 
 def create_generator(
-    view: str, join_entities: list[str], queries: list[str]
+    view: str,
+    view_kwargs: dict[str, Any] | None,
+    join_entities: list[str],
+    queries: list[str],
 ) -> "ViewGenerator":
     """Function to create generator."""
+    if view_kwargs is None:
+        view_kwargs = {}
 
-    def _parse_view(view: str) -> tuple[str, dict[str, Any]]:
-        """Parse view for figure-specific kwargs."""
-        # Match [view][(key1=value1,key2=value2,key3=entities_dict,...)]
-        match = re.match(r"(\w+)\(([^()]+)\)", view)
-
-        if match:
-            view = match.group(1)
-            view_kwargs = match.group(2)
-
-            expr = ast.parse(f"fn({view_kwargs})", mode="eval")
-            view_kwargs = {
-                keyword.arg: ast.literal_eval(keyword.value)
-                for keyword in expr.body.keywords  # type: ignore [attr-defined]
-            }
-            return view, view_kwargs
-        else:
-            return view, {}
-
-    view, view_kwargs = _parse_view(view)
     try:
         generator_cls = generator_registry[view]
         generator_instance = generator_cls(queries, join_entities, view_kwargs)
@@ -72,12 +56,15 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
     for group in config.get("figures", None).values():
         queries = group.get("queries", "")
         join_entities = group.get("join_entities", ["sub", "ses"])
-        views = group.get("views", [])
+        views = group.get("views", {})
 
-        for view in views:
+        for view, view_kwargs in views.items():
             generators.append(
                 create_generator(
-                    view=view, join_entities=join_entities, queries=queries
+                    view=view,
+                    view_kwargs=view_kwargs,
+                    join_entities=join_entities,
+                    queries=queries,
                 )
             )
 

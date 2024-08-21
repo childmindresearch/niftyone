@@ -13,13 +13,15 @@ figures:
     queries:
     - *t1w
     views:
-    - three_view(figure='anatThreeView')
-    - slice_video(axis=2)
+      three_view:
+        figure: anatThreeView
+      slice_video:
+        axis: 2
 
   func:
     queries:
     - *func
     views:
-    - three_view_video
-    - carpet_plot
-    - mean_std
+      three_view:
+      carpet_plot:
+      mean_std:
