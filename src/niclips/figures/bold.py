@@ -69,6 +69,7 @@ def carpet_plot(
     label_cmap: str = "brg",
     alpha: float = 0.3,
     figure: str | None = None,
+    **kwargs,
 ) -> mpl_figure.Figure:
     """BOLD "carpet" plot showing timeseries for a subset of voxels."""
     rng = np.random.default_rng(seed)
@@ -159,6 +160,7 @@ def bold_mean_std(
     *,
     std_vmax_ratio: float = 0.1,
     figure: str | None = None,
+    **kwargs,
 ) -> Image.Image:
     """Panel showing three-view BOLD mean and three-view tSNR."""
     check_4d(bold)
