@@ -1,30 +1,24 @@
-ARG PY_VERSION=3.11
-FROM python:${PY_VERSION}-slim-bookworm as python
-RUN apt-get update -qq \
-    && apt-get install -y -q --no-install-recommends \
-    build-essential \
-    ffmpeg \
-    libcurl4 \
-    git \
-    openssl \
-    && python -m pip install --upgrade pip \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
+ARG FO_VERSION=0.25.0
+ARG PY_VERSION=python3.11
+FROM voxel51/fiftyone:${FO_VERSION}-${PY_VERSION} AS builder
 
 # NOTE: Set version to be able to checkout tag in future
 # (for now, installing latest from `main`)
-FROM python as builder
-ARG NIFTYONE_VER=0.0.0
+FROM builder AS niftyone
+ARG NO_VERSION=0.0.0
 COPY . /opt/niftyone/
-RUN cd /opt/niftyone \
-    && pip wheel --no-deps --prefer-binary .
+RUN apt-get update -qq \
+    && apt-get install -y git \
+    && cd /opt/niftyone \
+    && pip wheel --no-deps --prefer-binary . --wheel wheels/
 
-FROM builder as runtime
+FROM builder AS runtime
+COPY --from=niftyone /opt/niftyone/wheels/*.whl /opt/wheels/
 WORKDIR /home
+ARG ROOT_DIR=/home/.fiftyone
 ENV OS=LINUX
-RUN WHEEL=`ls /opt/niftyone | grep whl` \
-    && pip install /opt/niftyone/${WHEEL} \
-    && rm -r /opt/niftyone \
-    && apt-get --purge -y -qq autoremove
+RUN WHEEL=`ls /opt/wheels | grep whl` \
+    && pip install /opt/wheels/${WHEEL} \
+    && rm -r /opt/wheels
 EXPOSE 5151
 ENTRYPOINT ["niftyone"]
