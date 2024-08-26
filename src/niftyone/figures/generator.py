@@ -110,10 +110,13 @@ class ViewGenerator(ABC, Generic[T]):
             ),
             indexed_dfs,
         )
-        indices = [joined[f"index_{ii}"].values for ii in range(len(self.queries))]
+        indices = [
+            joined[col].values for col in joined.columns if col.startswith("index_")
+        ]
 
-        records = tuple(table.nested.loc[ind] for inds in zip(*indices) for ind in inds)
-        self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
+        for inds in zip(*indices):
+            records = table.nested.loc[list[inds]]  # type: ignore [valid-type]
+            self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
 
     def _figure_name(self) -> None:
         """Helper function to grab figure entity in view kwarg and update entities."""
@@ -124,7 +127,7 @@ class ViewGenerator(ABC, Generic[T]):
 
     def generate(
         self,
-        records: tuple[pd.Series],
+        records: pd.DataFrame,
         out_dir: Path,
         overwrite: bool,
     ) -> None:
@@ -135,7 +138,7 @@ class ViewGenerator(ABC, Generic[T]):
         # Update figure name if necessary
         self._figure_name()
 
-        img_path = Path(records[0]["finfo"]["file_path"])
+        img_path = Path(records.iloc[0]["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
 
         img = nib.nifti1.load(img_path)
@@ -147,13 +150,13 @@ class ViewGenerator(ABC, Generic[T]):
             # Temporary logic to handle multiple overlays
             if len(records) > 2:
                 raise NotImplementedError("Multi-image overlay not yet implemented")
-            for overlay_record in records[1:]:
+            for _, overlay_record in records[1:].iterrows():
                 overlay_path = Path(overlay_record["finfo"]["file_path"])
                 overlay = nib.nifti1.load(overlay_path)
                 overlays.append(noimg.to_iso_ras(overlay))
                 self.view_kwargs["overlay"] = overlays.pop()
 
-        existing_entities = BIDSEntities.from_dict(records[0]["ent"])
+        existing_entities = BIDSEntities.from_dict(records.iloc[0]["ent"])
         out_path = existing_entities.with_update(self.entities).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
 
