@@ -53,8 +53,8 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
     """Create selected generators dynamically from config with default settings."""
     generators: list["ViewGenerator"] = []
 
-    for group in config.get("figures", None).values():
-        queries = group.get("queries", "")
+    for group in config.get("figures", {}).values():
+        queries = group.get("queries", [])
         join_entities = group.get("join_entities", ["sub", "ses"])
         views = group.get("views", {})
 
@@ -115,7 +115,7 @@ class ViewGenerator(ABC, Generic[T]):
         ]
 
         for inds in zip(*indices):
-            records = table.nested.loc[list[inds]]  # type: ignore [valid-type]
+            records = [table.nested.loc[ind] for ind in inds]
             self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
 
     def _figure_name(self) -> None:
@@ -127,7 +127,7 @@ class ViewGenerator(ABC, Generic[T]):
 
     def generate(
         self,
-        records: pd.DataFrame,
+        records: list[pd.Series],
         out_dir: Path,
         overwrite: bool,
     ) -> None:
@@ -138,25 +138,25 @@ class ViewGenerator(ABC, Generic[T]):
         # Update figure name if necessary
         self._figure_name()
 
-        img_path = Path(records.iloc[0]["finfo"]["file_path"])
+        img_path = Path(records[0]["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
 
         img = nib.nifti1.load(img_path)
         img = noimg.to_iso_ras(img)
 
         # Handle overlays - currently only handles 1, update to handle multiple
-        overlays: list[nib.Nifti1Image] = []
         if len(records) > 1:
             # Temporary logic to handle multiple overlays
             if len(records) > 2:
                 raise NotImplementedError("Multi-image overlay not yet implemented")
-            for _, overlay_record in records[1:].iterrows():
+            overlays: list[nib.Nifti1Image] = []
+            for overlay_record in records[1:]:
                 overlay_path = Path(overlay_record["finfo"]["file_path"])
                 overlay = nib.nifti1.load(overlay_path)
                 overlays.append(noimg.to_iso_ras(overlay))
                 self.view_kwargs["overlay"] = overlays.pop()
 
-        existing_entities = BIDSEntities.from_dict(records.iloc[0]["ent"])
+        existing_entities = BIDSEntities.from_dict(records[0]["ent"])
         out_path = existing_entities.with_update(self.entities).to_path(prefix=out_dir)
         out_path.parent.mkdir(exist_ok=True, parents=True)
 
