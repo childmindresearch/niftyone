@@ -27,6 +27,7 @@ def group(
     bids_dir: StrPath,
     out_dir: StrPath,
     ds_name: str | None = None,
+    qc_key: str | None = None,
     overwrite: bool = False,
 ) -> None:
     """NiftyOne group analysis level.
@@ -39,12 +40,15 @@ def group(
     out_dir = Path(out_dir)
     if ds_name is None:
         ds_name = Path(bids_dir).name
+    if qc_key:
+        ds_name = f"{ds_name}-{qc_key}"
 
     logging.info(
         "Starting niftyone group-level:"
         f"\n\tdataset: {bids_dir}"
         f"\n\tout: {out_dir}"
         f"\n\tds_name: {ds_name}"
+        f"\n\tqc_key: {qc_key}"
         f"\n\toverwrite: {overwrite}"
     )
 
@@ -74,15 +78,15 @@ def group(
 
     by = [k for k in entities.columns if k not in {"figure", "metrics", "ext"}]
     grouped = index.groupby(by, dropna=False)
-
     logging.info("Collecting dataset samples for %d groups", len(grouped))
 
     dataset: fo.Dataset = fo.Dataset(ds_name, persistent=True, overwrite=overwrite)
 
     dataset.add_group_field("group")
-    samples = []
+    samples: list[fo.Sample] = []
     for _, group_index in tqdm(grouped):
         group_samples = _get_group_samples(group_index)
+        assert group_samples
         samples.extend(group_samples)
 
     logging.info("Collected samples: %d", len(samples))
@@ -115,7 +119,7 @@ def group(
     logging.info("Done! elapsed: %.2fs", time.monotonic() - tic)
 
 
-def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
+def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample] | None:
     samples = []
     group = fo.Group()
 
@@ -150,6 +154,9 @@ def _get_group_samples(group_index: pd.DataFrame) -> list[fo.Sample]:
 
 def _load_qc_metrics(group_index: pd.DataFrame) -> dict[str, Any]:
     # Find the metrics record
+    if "metrics" not in group_index.columns:
+        return {}
+
     metrics = group_index.query("metrics == 'QCMetrics' and ext == '.tsv'")
     assert len(metrics) in {0, 1}, "Expected at most QCMetrics tsv"
 

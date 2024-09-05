@@ -70,7 +70,7 @@ def multi_view_frame(
     grid = noimg.image_grid(panels_list, nrows=nrows)
     grid_img = noimg.topil(grid)
 
-    if out is not None:
+    if out:
         grid_img.save(out)
     return grid_img
 
@@ -96,6 +96,9 @@ def three_view_frame(
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
+
+    if overlay is not None and overlay.ndim == 4:
+        overlay = noimg.index_img(overlay, idx=idx)
 
     if coord is None:
         coord = get_default_coord(img)
@@ -125,6 +128,7 @@ def three_view_video(
     coord: tuple[float, float, float] | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
@@ -145,6 +149,7 @@ def three_view_video(
                 idx=idx,
                 vmin=vmin,
                 vmax=vmax,
+                overlay=overlay,
                 panel_height=panel_height,
                 cmap=cmap,
                 fontsize=fontsize,
@@ -163,9 +168,12 @@ def slice_video(
     idx: int | None = 0,
     vmin: float | None = None,
     vmax: float | None = None,
+    overlay: nib.Nifti1Image | None = None,
     panel_height: int | None = 256,
     cmap: str = "gray",
+    overlay_cmap: str = "brg",
     fontsize: int = 14,
+    alpha: float = 0.3,
     figure: str | None = None,
 ) -> None:
     """Save video scrolling through range of slices."""
@@ -174,6 +182,11 @@ def slice_video(
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
     check_iso_ras(img)
+
+    if overlay is not None and overlay.ndim == 4:
+        overlay = noimg.index_img(overlay, idx=idx)
+        check_iso_ras(overlay)
+
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     # Find range of slices that intersect with a rough mask
@@ -202,4 +215,15 @@ def slice_video(
                 cmap=cmap,
                 fontsize=fontsize,
             )
+
+            if overlay is not None:
+                frame_overlay = noimg.render_slice(
+                    overlay,
+                    axis=axis,
+                    coord=coord,
+                    cmap=overlay_cmap,
+                    fontsize=fontsize,
+                )
+                frame = noimg.overlay(frame, frame_overlay, alpha=alpha)
+
             writer.put(frame)

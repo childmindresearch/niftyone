@@ -1,4 +1,4 @@
-"""Generators associated with multi-view."""
+"""Generators associated with functional data."""
 
 from niclips.figures import bold
 from niftyone.figures.generator import ViewGenerator, register

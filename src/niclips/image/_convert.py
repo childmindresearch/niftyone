@@ -50,7 +50,7 @@ def overlay(
     img1 = img1.convert("RGBA")
     img2 = img2.convert("RGBA")
 
-    if alpha is not None:
+    if alpha:
         img2.putalpha(int(alpha * 255))
     img = Image.alpha_composite(img1, img2)
     return img
@@ -75,9 +75,14 @@ def normalize(
 def scale(
     img: Image.Image, height: int, resample: Image.Resampling | None = None
 ) -> Image.Image:
-    """Scale an image to a target height."""
+    """Scale an image to a target height.
+
+    Ensure width is even numbered.
+    """
+    height += height % 2
     scale = height / img.height
-    size = int(scale * img.width), height
+    width = int(scale * img.width) + (int(scale * img.width) % 2)
+    size = width, height
     img = img.resize(size, resample=resample)
     return img
 
@@ -89,7 +94,9 @@ def reorient(img: np.ndarray) -> np.ndarray:
 
 def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     """Convert a nifti image to RAS orientation with isotropic resolution."""
-    img = reorder_img(img)
+    # Grab original filepath
+    img_path = img.get_filename()
+    img = reorder_img(img, resample="nearest")
     affine = img.affine
     pixdim = np.diag(affine)[:3]
     if not np.all(pixdim == pixdim[0]):
@@ -102,4 +109,7 @@ def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
             img = resample_img(
                 img, target_affine=target_affine, interpolation="nearest"
             )
+    # Set filepath to original incase it is needed
+    if img_path:
+        img.set_filename(img_path)
     return img

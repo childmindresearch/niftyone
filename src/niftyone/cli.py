@@ -1,6 +1,6 @@
 """CLI-related functions."""
 
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -12,16 +12,20 @@ class NiftyOneArgumentParser:
         self.parser = ArgumentParser(
             prog="niftyone",
             usage="%(prog)s bids_dir output_dir analysis_level [options]",
+            formatter_class=RawDescriptionHelpFormatter,
             description="""
-            NiftyOne is a comphrensive tool designed to aid
-            large-scale QC of BIDS datasets through visualization
-            and quantitative metrics.
-            """,
+NiftyOne is a comphrensive tool designed to aid large-scale
+QC of BIDS datasets through visualization and quantitative
+metrics.
+
+The different analysis levels perform the following tasks:
+    * participant - generation of figures
+    * group - collects figures + qc metrics as NiftyOne samples
+    * launch - launches NiftyOne application""",
         )
         self._add_common_args()
         self._add_participant_args()
-        self._add_group_args()
-        self._add_launch_args()
+        self._add_group_launch_args()
 
     def _add_common_args(self) -> None:
         """Common (non-analysis specific) arguments."""
@@ -42,7 +46,7 @@ class NiftyOneArgumentParser:
             metavar="analysis_level",
             type=str,
             choices=["participant", "group", "launch"],
-            help="analysis level",
+            help="analysis level - one of [%(choices)s]",
         )
         self.parser.add_argument(
             "--overwrite",
@@ -57,7 +61,8 @@ class NiftyOneArgumentParser:
     def _add_participant_args(self) -> None:
         """Participant-level CLI arguments."""
         self.participant_level = self.parser.add_argument_group(
-            "participant level options"
+            title="participant level options",
+            description="Generates figures for individual participants.",
         )
         self.participant_level.add_argument(
             "--participant-label",
@@ -101,26 +106,24 @@ class NiftyOneArgumentParser:
             default=1,
         )
 
-    def _add_group_args(self) -> None:
-        """group-level CLI arguments."""
-        self.group_level = self.parser.add_argument_group("Group level options")
-        self.group_level.add_argument(
+    def _add_group_launch_args(self) -> None:
+        """Application group / launch CLI arguments."""
+        self.launch_group = self.parser.add_argument_group(
+            title="group / launch level options",
+        )
+        self.launch_group.add_argument(
             "--ds-name",
             metavar="DATASET",
             type=str,
             default=None,
-            help="name of NiftyOne dataset",
+            help="name of NiftyOne dataset (default: bids_dir)",
         )
-
-    def _add_launch_args(self) -> None:
-        """Application launch CLI arguments."""
-        self.launch_group = self.parser.add_argument_group("launch level options")
         self.launch_group.add_argument(
             "--qc-key",
             metavar="LABEL",
             type=str,
             default=None,
-            help="extra identifier for the QC session",
+            help="extra identifier for the QC session (default: %(default)s)",
         )
 
     def parse_args(self, args: Sequence[str] | None = None) -> Namespace:

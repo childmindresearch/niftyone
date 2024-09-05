@@ -2,7 +2,6 @@
 
 import math
 
-import matplotlib as mpl
 import matplotlib.figure as mpl_figure
 import nibabel as nib
 import numpy as np
@@ -20,7 +19,6 @@ from .multi_view import three_view_frame
 
 EPS = 1e-6
 plt.style.use("bmh")
-mpl.use("Agg")
 
 
 def cluster_timeseries(
@@ -71,6 +69,7 @@ def carpet_plot(
     label_cmap: str = "brg",
     alpha: float = 0.3,
     figure: str | None = None,
+    **kwargs,
 ) -> mpl_figure.Figure:
     """BOLD "carpet" plot showing timeseries for a subset of voxels."""
     rng = np.random.default_rng(seed)
@@ -150,7 +149,7 @@ def carpet_plot(
     ax2.tick_params(colors="w", labelsize=8, direction="in", pad=-8)
 
     fig.set_facecolor("black")
-    if out is not None:
+    if out:
         fig.savefig(out, bbox_inches="tight", dpi=150)
     return fig
 
@@ -161,6 +160,7 @@ def bold_mean_std(
     *,
     std_vmax_ratio: float = 0.1,
     figure: str | None = None,
+    **kwargs,
 ) -> Image.Image:
     """Panel showing three-view BOLD mean and three-view tSNR."""
     check_4d(bold)
@@ -216,6 +216,6 @@ def bold_mean_std(
     grid = noimg.stack_images([panel_mean, panel_std], axis=0)
     grid_img = noimg.topil(grid)
 
-    if out is not None:
+    if out:
         grid_img.save(out)
     return grid_img

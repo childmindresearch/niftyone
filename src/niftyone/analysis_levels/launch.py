@@ -51,9 +51,14 @@ def launch(
         tags.apply(dataset)
 
     session = fo.launch_app(dataset)
-    session.wait()
-
-    logging.info("Saving QC tags to %s", tags_path)
-    group_tags = GroupTags.from_dataset(dataset)
-    tags_path.parent.mkdir(exist_ok=True)
-    group_tags.to_json(tags_path)
+    try:
+        print("Press ctrl+c to exit...")
+        session.wait()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        logging.info("Saving QC tags to %s", tags_path)
+        group_tags = GroupTags.from_dataset(dataset)
+        tags_path.parent.mkdir(exist_ok=True)
+        group_tags.to_json(tags_path)
+        session.close()
