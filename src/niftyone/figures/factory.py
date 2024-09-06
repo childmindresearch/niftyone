@@ -146,9 +146,6 @@ class View(ABC, Generic[T]):
 
         # Handle overlays - currently only handles 1, update to handle multiple
         if len(records) > 1:
-            # Temporary logic to handle multiple overlays
-            if len(records) > 2:
-                raise NotImplementedError("Multi-image overlay not yet implemented")
             overlays: list[nib.Nifti1Image] = []
             for overlay_record in records[1:]:
                 overlay_path = Path(overlay_record["finfo"]["file_path"])
