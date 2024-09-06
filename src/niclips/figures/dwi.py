@@ -161,8 +161,6 @@ def signal_per_volume(
     (dot,) = ax2.plot([], [], "ro")
     ax2.set_xlim(0, signal.shape[-1] + 1)
     ax2.set_ylim(0, np.max(signal) + 1)
-    # aspect = w / h / 2
-    # ax2.set_aspect(aspect)
     ax2.set_xlabel("Volume")
     ax2.set_ylabel("Signal")
 

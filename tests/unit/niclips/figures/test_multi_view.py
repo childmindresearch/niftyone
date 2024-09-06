@@ -21,7 +21,7 @@ class TestMultiViewFrame:
             img=nii_3d_img,
             coords=[(0, 0, 0)],
             axes=[0],
-            overlay=nii_3d_img,
+            overlay=[nii_3d_img, nii_3d_img],
         )
         assert isinstance(frame, Image.Image)
 
@@ -42,7 +42,7 @@ class TestThreeViewFrame:
         assert isinstance(grid, Image.Image)
 
     def test_overlay(self, nii_4d_img: nib.Nifti1Image):
-        grid = mv.three_view_frame(nii_4d_img, overlay=nii_4d_img)
+        grid = mv.three_view_frame(nii_4d_img, overlay=[nii_4d_img, nii_4d_img])
         assert isinstance(grid, Image.Image)
 
 
@@ -69,5 +69,5 @@ class TestSliceVideo:
     def test_overlay(self, tmp_path: Path):
         out_fpath = tmp_path / "test_overlay.mp4"
         test_img = nib.Nifti1Image(np.random.rand(10, 10, 10, 3), affine=np.eye(4))
-        mv.slice_video(img=test_img, out=out_fpath, overlay=test_img)
+        mv.slice_video(img=test_img, out=out_fpath, overlay=[test_img])
         assert out_fpath.exists()

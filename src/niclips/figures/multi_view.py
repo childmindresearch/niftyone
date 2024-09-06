@@ -1,9 +1,11 @@
 """Generation of different multi-views."""
 
 from collections.abc import Sequence
+from itertools import zip_longest
 
 import nibabel as nib
 import numpy as np
+from matplotlib.pyplot import cm
 from PIL import Image
 
 import niclips.image as noimg
@@ -21,11 +23,11 @@ def multi_view_frame(
     axes: list[int],
     vmin: float | None = None,
     vmax: float | None = None,
-    overlay: nib.Nifti1Image | None = None,
+    overlay: list[nib.Nifti1Image] = [],
     nrows: int = 1,
     panel_height: int | None = 256,
     cmap: str = "gray",
-    overlay_cmap: str = "turbo",
+    overlay_cmap: list[str] = [],
     alpha: float = 0.5,
     fontsize: int = 14,
     figure: str | None = None,
@@ -33,13 +35,14 @@ def multi_view_frame(
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
     check_iso_ras(img)
-    if overlay is not None:
-        check_3d(overlay)
-        check_iso_ras(overlay)
+    if len(overlay) > 0:
+        for ov in overlay:
+            check_3d(ov)
+            check_iso_ras(ov)
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     panels: list[Image.Image] = []
-    for coord, axis in zip(coords, axes):
+    for coord, axis in zip_longest(coords, axes):
         panel = noimg.render_slice(
             img,
             axis=axis,
@@ -52,16 +55,18 @@ def multi_view_frame(
             fontsize=fontsize,
         )
 
-        if overlay is not None:
-            panel_overlay = noimg.render_slice(
-                overlay,
-                axis=axis,
-                coord=coord,
-                height=panel_height,
-                cmap=overlay_cmap,
-                fontsize=fontsize,
-            )
-            panel = noimg.overlay(panel, panel_overlay, alpha=alpha)
+        if len(overlay) > 0:
+            colors = iter(cm.turbo(np.linspace(0, 1, len(overlay))))
+            for ov, ov_cmap in zip(overlay, overlay_cmap):
+                panel_overlay = noimg.render_slice(
+                    ov,
+                    axis=axis,
+                    coord=coord,
+                    height=panel_height,
+                    cmap=ov_cmap or next(colors),
+                    fontsize=fontsize,
+                )
+                panel = noimg.overlay(panel, panel_overlay, alpha - alpha)
 
         panels.append(panel)
 
@@ -83,10 +88,10 @@ def three_view_frame(
     idx: int | None = 0,
     vmin: float | None = None,
     vmax: float | None = None,
-    overlay: nib.Nifti1Image | None = None,
+    overlay: list[nib.Nifti1Image] = [],
     panel_height: int | None = 256,
     cmap: str = "gray",
-    overlay_cmap: str = "turbo",
+    overlay_cmap: list[str] = [],
     alpha: float = 0.5,
     fontsize: int = 14,
     figure: str | None = None,
@@ -97,8 +102,11 @@ def three_view_frame(
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
 
-    if overlay is not None and overlay.ndim == 4:
-        overlay = noimg.index_img(overlay, idx=idx)
+    if len(overlay) > 0:
+        print("Are we in here?")
+        for idx, ov in enumerate(overlay):
+            if ov.ndim == 4:
+                overlay[idx] = noimg.index_img(ov, idx=idx)
 
     if coord is None:
         coord = get_default_coord(img)
@@ -128,7 +136,7 @@ def three_view_video(
     coord: tuple[float, float, float] | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
-    overlay: nib.Nifti1Image | None = None,
+    overlay: list[nib.Nifti1Image] = [],
     panel_height: int | None = 256,
     cmap: str = "gray",
     fontsize: int = 14,
@@ -168,7 +176,7 @@ def slice_video(
     idx: int | None = 0,
     vmin: float | None = None,
     vmax: float | None = None,
-    overlay: nib.Nifti1Image | None = None,
+    overlay: list[nib.Nifti1Image] = [],
     panel_height: int | None = 256,
     cmap: str = "gray",
     overlay_cmap: str = "brg",
@@ -183,9 +191,12 @@ def slice_video(
     assert isinstance(img, nib.Nifti1Image)
     check_iso_ras(img)
 
-    if overlay is not None and overlay.ndim == 4:
-        overlay = noimg.index_img(overlay, idx=idx)
-        check_iso_ras(overlay)
+    if len(overlay) > 0:
+        for idx, ov in enumerate(overlay):
+            if ov.ndim == 4:
+                ov = noimg.index_img(ov, idx=idx)
+                check_iso_ras(ov)
+                overlay[idx] = ov
 
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
@@ -216,14 +227,15 @@ def slice_video(
                 fontsize=fontsize,
             )
 
-            if overlay is not None:
-                frame_overlay = noimg.render_slice(
-                    overlay,
-                    axis=axis,
-                    coord=coord,
-                    cmap=overlay_cmap,
-                    fontsize=fontsize,
-                )
-                frame = noimg.overlay(frame, frame_overlay, alpha=alpha)
+            if len(overlay) > 0:
+                for ov in overlay:
+                    frame_overlay = noimg.render_slice(
+                        ov,
+                        axis=axis,
+                        coord=coord,
+                        cmap=overlay_cmap,
+                        fontsize=fontsize,
+                    )
+                    frame = noimg.overlay(frame, frame_overlay, alpha=alpha)
 
             writer.put(frame)
