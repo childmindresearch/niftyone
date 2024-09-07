@@ -1,11 +1,11 @@
 """Generation of different multi-views."""
 
+import logging
 from collections.abc import Sequence
 from itertools import zip_longest
 
 import nibabel as nib
 import numpy as np
-from matplotlib.pyplot import cm
 from PIL import Image
 
 import niclips.image as noimg
@@ -27,7 +27,7 @@ def multi_view_frame(
     nrows: int = 1,
     panel_height: int | None = 256,
     cmap: str = "gray",
-    overlay_cmap: list[str] = [],
+    overlay_cmap: list[str] = ["turbo"],
     alpha: float = 0.5,
     fontsize: int = 14,
     figure: str | None = None,
@@ -42,7 +42,7 @@ def multi_view_frame(
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
 
     panels: list[Image.Image] = []
-    for coord, axis in zip_longest(coords, axes):
+    for coord, axis in zip(coords, axes):
         panel = noimg.render_slice(
             img,
             axis=axis,
@@ -56,14 +56,17 @@ def multi_view_frame(
         )
 
         if len(overlay) > 0:
-            colors = iter(cm.turbo(np.linspace(0, 1, len(overlay))))
-            for ov, ov_cmap in zip(overlay, overlay_cmap):
+            if len(overlay_cmap) < len(overlay):
+                logging.warning(
+                    "More overlays than overlay color maps- will use 'turbo'",
+                )
+            for ov, ov_cmap in zip_longest(overlay, overlay_cmap):
                 panel_overlay = noimg.render_slice(
                     ov,
                     axis=axis,
                     coord=coord,
                     height=panel_height,
-                    cmap=ov_cmap or next(colors),
+                    cmap=ov_cmap or "turbo",
                     fontsize=fontsize,
                 )
                 panel = noimg.overlay(panel, panel_overlay, alpha - alpha)
@@ -91,7 +94,7 @@ def three_view_frame(
     overlay: list[nib.Nifti1Image] = [],
     panel_height: int | None = 256,
     cmap: str = "gray",
-    overlay_cmap: list[str] = [],
+    overlay_cmap: list[str] = ["turbo"],
     alpha: float = 0.5,
     fontsize: int = 14,
     figure: str | None = None,
@@ -103,7 +106,6 @@ def three_view_frame(
     assert isinstance(img, nib.Nifti1Image)
 
     if len(overlay) > 0:
-        print("Are we in here?")
         for idx, ov in enumerate(overlay):
             if ov.ndim == 4:
                 overlay[idx] = noimg.index_img(ov, idx=idx)
@@ -179,7 +181,7 @@ def slice_video(
     overlay: list[nib.Nifti1Image] = [],
     panel_height: int | None = 256,
     cmap: str = "gray",
-    overlay_cmap: str = "brg",
+    overlay_cmap: list[str] = ["brg"],
     fontsize: int = 14,
     alpha: float = 0.3,
     figure: str | None = None,
@@ -228,12 +230,12 @@ def slice_video(
             )
 
             if len(overlay) > 0:
-                for ov in overlay:
+                for ov, ov_cmap in zip_longest(overlay, overlay_cmap):
                     frame_overlay = noimg.render_slice(
                         ov,
                         axis=axis,
                         coord=coord,
-                        cmap=overlay_cmap,
+                        cmap=ov_cmap,
                         fontsize=fontsize,
                     )
                     frame = noimg.overlay(frame, frame_overlay, alpha=alpha)
