@@ -2,6 +2,7 @@
 
 import logging
 from abc import ABC
+from copy import deepcopy
 from functools import reduce
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar
@@ -118,12 +119,14 @@ class ViewGenerator(ABC, Generic[T]):
             records = [table.nested.loc[ind] for ind in inds]
             self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
 
-    def _figure_name(self) -> None:
+    def _figure_name(self) -> dict[str, Any]:
         """Helper function to grab figure entity in view kwarg and update entities."""
+        assert self.entities
         if "figure" in self.view_kwargs:
-            assert self.entities
-            self.entities["extra_entities"]["figure"] = self.view_kwargs["figure"]
-            del self.view_kwargs["figure"]
+            figure_entities = deepcopy(self.entities)
+            figure_entities["extra_entities"]["figure"] = self.view_kwargs["figure"]
+            return figure_entities
+        return self.entities
 
     def generate(
         self,
@@ -136,7 +139,7 @@ class ViewGenerator(ABC, Generic[T]):
             raise ValueError("View is not provided, unable to create generator.")
 
         # Update figure name if necessary
-        self._figure_name()
+        figure_entities = self._figure_name()
 
         img_path = Path(records[0]["finfo"]["file_path"])
         logging.info("Processing: %s", img_path)
@@ -157,7 +160,9 @@ class ViewGenerator(ABC, Generic[T]):
                 self.view_kwargs["overlay"] = overlays.pop()
 
         existing_entities = BIDSEntities.from_dict(records[0]["ent"])
-        out_path = existing_entities.with_update(self.entities).to_path(prefix=out_dir)
+        out_path = existing_entities.with_update(figure_entities).to_path(
+            prefix=out_dir
+        )
         out_path.parent.mkdir(exist_ok=True, parents=True)
 
         if not out_path.exists() or overwrite:

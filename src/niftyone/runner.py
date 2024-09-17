@@ -2,10 +2,11 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from bids2table import BIDSEntities, BIDSTable
 
-from niftyone.figures.generator import ViewGenerator
+from niftyone.figures.generator import create_generators
 from niftyone.metrics import gen_niftyone_metrics_tsv
 
 
@@ -16,15 +17,15 @@ class Runner:
 
     def __init__(
         self,
-        figure_generators: list[ViewGenerator],
         out_dir: Path,
         qc_dir: Path | None,
         overwrite: bool,
+        config: dict[str, Any],
     ) -> None:
-        self.figure_generators = figure_generators
         self.out_dir = out_dir
         self.qc_dir = qc_dir
         self.overwrite = overwrite
+        self.config = config
 
     def gen_figures(self) -> None:
         """Function to generate figures."""
@@ -38,7 +39,8 @@ class Runner:
             num_images,
             "\n\t".join(self.table.finfo["file_path"].tolist()),
         )
-        for figure_generator in self.figure_generators:
+        figure_generators = create_generators(config=self.config)
+        for figure_generator in figure_generators:
             figure_generator(
                 table=images, out_dir=self.out_dir, overwrite=self.overwrite
             )

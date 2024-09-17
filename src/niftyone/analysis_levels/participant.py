@@ -15,7 +15,6 @@ from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
 
 from niftyone import Runner
-from niftyone.figures import generator
 
 
 def load_config(config: Path | None) -> dict[str, Any]:
@@ -76,13 +75,12 @@ def participant(
 
     logging.info("Creating figure generators")
     config: dict[str, Any] = load_config(config=config)
-    figure_generators = generator.create_generators(config=config)
 
     runner = Runner(
         out_dir=out_dir,
         qc_dir=qc_dir,
         overwrite=overwrite,
-        figure_generators=figure_generators,
+        config=config,
     )
 
     _worker = partial(
