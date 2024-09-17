@@ -6,7 +6,7 @@ from pathlib import Path
 import niftyone
 
 
-def make_dataset_description(out_dir: Path) -> None:
+def make_dataset_description(out_dir: Path, overwrite: bool) -> None:
     """Create dataset_description.json for BIDS dataset."""
     description = {
         "Name": "NiftyOne",
@@ -23,5 +23,7 @@ def make_dataset_description(out_dir: Path) -> None:
         "License": "LGPL-2.1",
     }
 
-    with (out_dir / "dataset_description.json").open("w") as f:
-        json.dump(description, f, indent=4)
+    ds_fpath = out_dir.joinpath("dataset_description.json")
+    if not ds_fpath.exists() or overwrite:
+        with ds_fpath.open("w") as f:
+            json.dump(description, f, indent=4)
