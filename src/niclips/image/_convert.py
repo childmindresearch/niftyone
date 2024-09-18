@@ -107,7 +107,10 @@ def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             img = resample_img(
-                img, target_affine=target_affine, interpolation="nearest"
+                img,
+                target_affine=target_affine,
+                target_shape=img.header.get_data_shape(),
+                interpolation="nearest",
             )
     # Set filepath to original incase it is needed
     if img_path:
