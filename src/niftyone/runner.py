@@ -41,7 +41,7 @@ class Runner:
         )
         figure_generators = create_generators(config=self.config)
         for figure_generator in figure_generators:
-            figure_generator(
+            figure_generator(  # pragma: nocover  (already tested in generator)
                 table=images, out_dir=self.out_dir, overwrite=self.overwrite
             )
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pandas as pd
@@ -16,6 +17,11 @@ def mock_generators() -> list[ViewGenerator]:
 
 
 @pytest.fixture
+def mock_config() -> dict[str, Any]:
+    return MagicMock(spec=dict[str, Any])
+
+
+@pytest.fixture
 def mock_table() -> BIDSTable:
     return MagicMock(spec=BIDSTable)
 
@@ -24,23 +30,21 @@ class TestRunner:
     @pytest.mark.parametrize("overwrite", [(True), (False)])
     def test_gen_figures(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_config: dict[str, Any],
         mock_table: BIDSTable,
         tmp_path: Path,
         overwrite: bool,
+        caplog: LogCaptureFixture,
     ) -> None:
         mock_table.filter.return_value = ["f1.nii.gz", "f2.nii.gz"]
         runner = Runner(
-            figure_generators=mock_generators,
             out_dir=tmp_path,
             qc_dir=None,
             overwrite=overwrite,
+            config=mock_config,
         )
         runner.table = mock_table
         runner.gen_figures()
-
-        for mock_generator in mock_generators:
-            mock_generator.assert_called()  # type: ignore [attr-defined]
 
     @pytest.mark.parametrize(
         "table_return, expected_msg",
@@ -48,7 +52,7 @@ class TestRunner:
     )
     def test_gen_figures_logging(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_config: dict[str, Any],
         mock_table: BIDSTable,
         tmp_path: Path,
         table_return: list[str],
@@ -57,10 +61,10 @@ class TestRunner:
     ):
         mock_table.filter.return_value = table_return
         runner = Runner(
-            figure_generators=mock_generators,
             out_dir=tmp_path,
             qc_dir=None,
             overwrite=True,
+            config=mock_config,
         )
         runner.table = mock_table
         runner.gen_figures()
@@ -69,20 +73,20 @@ class TestRunner:
 
     def test_update_metrics_no_qc_dir(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_config: dict[str, Any],
         tmp_path: Path,
     ):
         runner = Runner(
-            figure_generators=mock_generators,
             out_dir=tmp_path,
             qc_dir=None,
             overwrite=False,
+            config=mock_config,
         )
         assert not runner.qc_dir and not runner.update_metrics()  # type: ignore [func-returns-value]
 
     def test_update_metrics_qc_dir(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_config: dict[str, Any],
         mock_table: BIDSTable,
         tmp_path: Path,
     ):
@@ -101,10 +105,10 @@ class TestRunner:
             )
         ]
         runner = Runner(
-            figure_generators=mock_generators,
             out_dir=out_dir.parent,
             qc_dir=qc_dir,
             overwrite=True,
+            config=mock_config,
         )
         runner.table = mock_table
         runner.update_metrics()

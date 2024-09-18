@@ -123,6 +123,7 @@ class ViewGenerator(ABC, Generic[T]):
         """Helper function to grab figure entity in view kwarg and update entities."""
         assert self.entities
         if "figure" in self.view_kwargs:
+            # deepcopy entities to avoid mutation entities within Runner use
             figure_entities = deepcopy(self.entities)
             figure_entities["extra_entities"]["figure"] = self.view_kwargs["figure"]
             return figure_entities
