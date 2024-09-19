@@ -2,10 +2,8 @@ ARG FO_VERSION=0.25.0
 ARG PY_VERSION=python3.11
 FROM voxel51/fiftyone:${FO_VERSION}-${PY_VERSION} AS builder
 
-# NOTE: Set version to be able to checkout tag in future
-# (for now, installing latest from `main`)
+# Will install version currently checked out
 FROM builder AS niftyone
-ARG NO_VERSION=0.0.0
 COPY . /opt/niftyone/
 RUN apt-get update -qq \
     && apt-get install -y git \
