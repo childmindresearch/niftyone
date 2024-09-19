@@ -19,10 +19,9 @@ def main() -> None:
     out_dir = Path(args.out_dir)
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    bids.make_dataset_description(out_dir=out_dir)
-
     match args.analysis_level:
         case "participant":
+            bids.make_dataset_description(out_dir=out_dir, overwrite=args.overwrite)
             analysis_levels.participant(
                 bids_dir=args.bids_dir,
                 out_dir=out_dir,

@@ -1,13 +1,16 @@
 import json
 from pathlib import Path
 
+import pytest
+
 import niftyone
 from niftyone.metadata import bids
 
 
-def test_make_dataset_description(tmp_path: Path) -> None:
+@pytest.mark.parametrize("overwrite", [(True), (False)])
+def test_make_dataset_description(tmp_path: Path, overwrite: bool) -> None:
     out_dir = tmp_path
-    bids.make_dataset_description(out_dir=out_dir)
+    bids.make_dataset_description(out_dir=out_dir, overwrite=overwrite)
 
     # Check file created
     json_fpath = out_dir / "dataset_description.json"
