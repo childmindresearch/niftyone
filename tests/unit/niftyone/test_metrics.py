@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from _pytest.logging import LogCaptureFixture
 from bids2table import BIDSEntities, BIDSTable
 
 from niftyone.metrics import create_niftyone_metrics_tsv
@@ -33,7 +32,7 @@ class TestCreateNiftyOneMetricsTSV:
         b2t_index: BIDSTable,
         tmp_path: Path,
         qc_dir: Path,
-        caplog: LogCaptureFixture,
+        caplog: pytest.LogCaptureFixture,
     ):
         out_dir = tmp_path / "output"
         record = b2t_index.filter_multi(sub="01", suffix="T1w").nested.iloc[0]

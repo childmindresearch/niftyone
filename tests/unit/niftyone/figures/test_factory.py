@@ -1,4 +1,4 @@
-from collections.abc import Generator
+from collections.abc import Generator, Mapping
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -90,7 +90,7 @@ class TestCreateFactory:
         )
         assert isinstance(factory, View)
         assert factory.queries == ["suffix == 'T1w'"]
-        assert isinstance(factory.view_kwargs, dict)
+        assert isinstance(factory.view_kwargs, Mapping)
 
     def test_create_views(self, setup_registry: View):
         config = {

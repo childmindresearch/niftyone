@@ -5,7 +5,6 @@ from unittest.mock import MagicMock, patch
 
 import fiftyone as fo
 import pytest
-from _pytest.logging import LogCaptureFixture
 
 from niftyone.analysis_levels import launch
 from niftyone.metadata import tags
@@ -30,7 +29,7 @@ def test_config(tmp_path: Path) -> dict[str, str | Path]:
 
 class TestLaunch:
     def test_load_existing(
-        self, test_config: dict[str, Any], caplog: LogCaptureFixture
+        self, test_config: dict[str, Any], caplog: pytest.LogCaptureFixture
     ):
         # Setup
         mock_ds_exists = MagicMock(return_value=True)
@@ -62,7 +61,7 @@ class TestLaunch:
         assert "Saving QC tags" in caplog.text
 
     def test_load_directory(
-        self, test_config: dict[str, Any], caplog: LogCaptureFixture
+        self, test_config: dict[str, Any], caplog: pytest.LogCaptureFixture
     ):
         # Setup
         mock_ds_exists = MagicMock(return_value=False)
@@ -93,7 +92,7 @@ class TestLaunch:
         assert f"from {test_config['out_dir'] / 'fiftyone'}" in caplog.text
 
     def test_load_missing_directory(
-        self, test_config: dict[str, Any], caplog: LogCaptureFixture
+        self, test_config: dict[str, Any], caplog: pytest.LogCaptureFixture
     ):
         # Setup
         mock_ds_exists = MagicMock(return_value=False)
@@ -122,7 +121,7 @@ class TestLaunch:
         assert f"from {test_config['out_dir'] / 'fiftyone'}" in caplog.text
 
     def test_load_no_dataset_name(
-        self, test_config: dict[str, Any], caplog: LogCaptureFixture
+        self, test_config: dict[str, Any], caplog: pytest.LogCaptureFixture
     ):
         # Setup
         mock_ds_exists = MagicMock(return_value=True)
@@ -149,7 +148,9 @@ class TestLaunch:
         mock_ds_exists.assert_called_once_with(test_config["bids_dir"].name)
         mock_load_ds.assert_called_once_with(test_config["bids_dir"].name)
 
-    def test_load_qc_key(self, test_config: dict[str, Any], caplog: LogCaptureFixture):
+    def test_load_qc_key(
+        self, test_config: dict[str, Any], caplog: pytest.LogCaptureFixture
+    ):
         # Setup
         mock_ds_exists = MagicMock(return_value=True)
         mock_load_ds = MagicMock()
@@ -178,7 +179,7 @@ class TestLaunch:
         mock_load_ds.assert_called_once_with(f"{test_config['ds_name']}-QC")
 
     def test_tags_path_exists(
-        self, test_config: dict[str, Any], caplog: LogCaptureFixture
+        self, test_config: dict[str, Any], caplog: pytest.LogCaptureFixture
     ):
         # Setup
         mock_ds_exists = MagicMock(return_value=True)

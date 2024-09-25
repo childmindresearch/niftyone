@@ -41,9 +41,8 @@ def _get_bval_indices(bvals: np.ndarray, bval: int) -> np.ndarray:
 def visualize_qspace(
     dwi: nib.Nifti1Image,
     out: StrPath | None = None,
-    *,
     thresh: int = 10,
-    figure: str | None = None,
+    **kwargs,
 ) -> FuncAnimation:
     """Visualize diffusion gradients in q-space."""
     # Grab paths and check existence
@@ -93,7 +92,6 @@ def visualize_qspace(
 def three_view_per_shell(
     dwi: nib.Nifti1Image,
     out: StrPath | None = None,
-    *,
     thresh: int = 10,
     replace_str: str = "bval",
 ) -> list[nib.Nifti1Image]:
@@ -125,9 +123,8 @@ def three_view_per_shell(
 def signal_per_volume(
     dwi: nib.Nifti1Image,
     out: StrPath | None = None,
-    *,
     fontsize: int = 14,
-    figure: str | None = None,
+    **kwargs,
 ) -> None:
     """Generate plot of signal per volume (side-by-side)."""
     signal = np.mean(dwi.dataobj, axis=(0, 1, 2))
@@ -161,8 +158,6 @@ def signal_per_volume(
     (dot,) = ax2.plot([], [], "ro")
     ax2.set_xlim(0, signal.shape[-1] + 1)
     ax2.set_ylim(0, np.max(signal) + 1)
-    # aspect = w / h / 2
-    # ax2.set_aspect(aspect)
     ax2.set_xlabel("Volume")
     ax2.set_ylabel("Signal")
 

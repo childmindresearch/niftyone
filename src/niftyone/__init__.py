@@ -4,14 +4,14 @@ from ._version import __version__, __version_tuple__
 
 # Register existing views
 from .figures.dwi import (
-    DwiPerShellGenerator,
-    QSpaceShellsGenerator,
-    SignalPerVolumeGenerator,
+    DwiPerShell,
+    QSpaceShells,
+    SignalPerVolume,
 )
-from .figures.func import CarpetPlotGenerator, MeanStdGenerator
+from .figures.func import CarpetPlot, MeanStd
 from .figures.multi_view import (
-    SliceVideoGenerator,
-    ThreeViewGenerator,
-    ThreeViewVideoGenerator,
+    SliceVideo,
+    ThreeView,
+    ThreeViewVideo,
 )
 from .runner import Runner
