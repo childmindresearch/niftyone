@@ -93,7 +93,7 @@ The different analysis levels perform the following tasks:
             default=None,
             help=(
                 "filters to apply to bids2table for figure generation - "
-                "if none provided, generate all available figures"
+                "if none provided, create all available figures"
             ),
         )
         self.participant_level.add_argument(

@@ -15,7 +15,7 @@ from bids2table import BIDSTable, bids2table
 from elbow.utils import cpu_count, setup_logging
 
 from niftyone import Runner
-from niftyone.figures import generator
+from niftyone.figures import factory
 
 
 def load_config(config: Path | None) -> dict[str, Any]:
@@ -74,15 +74,15 @@ def participant(
     else:
         subs = [sub]
 
-    logging.info("Creating figure generators")
+    logging.info("Creating figure views")
     config: dict[str, Any] = load_config(config=config)
-    figure_generators = generator.create_generators(config=config)
+    figure_views = factory.create_views(config=config)
 
     runner = Runner(
         out_dir=out_dir,
         qc_dir=qc_dir,
         overwrite=overwrite,
-        figure_generators=figure_generators,
+        figure_views=figure_views,
     )
 
     _worker = partial(
@@ -142,7 +142,7 @@ def _participant_single(
 
     runner.table = index.filter("sub", sub)
     mpl.use("agg")
-    runner.gen_figures()
+    runner.create_figures()
     runner.update_metrics()
 
     logging.info(

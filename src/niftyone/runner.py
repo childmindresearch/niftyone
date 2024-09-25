@@ -1,12 +1,12 @@
-"""Runner for running generator."""
+"""Runner for creating figures and extracting QC metrics."""
 
 import logging
 from pathlib import Path
 
 from bids2table import BIDSEntities, BIDSTable
 
-from niftyone.figures.generator import ViewGenerator
-from niftyone.metrics import gen_niftyone_metrics_tsv
+from niftyone.figures.factory import View
+from niftyone.metrics import create_niftyone_metrics_tsv
 
 
 class Runner:
@@ -16,18 +16,18 @@ class Runner:
 
     def __init__(
         self,
-        figure_generators: list[ViewGenerator],
+        figure_views: list[View],
         out_dir: Path,
         qc_dir: Path | None,
         overwrite: bool,
     ) -> None:
-        self.figure_generators = figure_generators
+        self.figure_views = figure_views
         self.out_dir = out_dir
         self.qc_dir = qc_dir
         self.overwrite = overwrite
 
-    def gen_figures(self) -> None:
-        """Function to generate figures."""
+    def create_figures(self) -> None:
+        """Function to create figures."""
         images = self.table.filter("ext", items={".nii", ".nii.gz"})
         if (num_images := len(images)) == 0:
             logging.info("Found no images")
@@ -38,10 +38,8 @@ class Runner:
             num_images,
             "\n\t".join(self.table.finfo["file_path"].tolist()),
         )
-        for figure_generator in self.figure_generators:
-            figure_generator(
-                table=images, out_dir=self.out_dir, overwrite=self.overwrite
-            )
+        for figure_view in self.figure_views:
+            figure_view(table=images, out_dir=self.out_dir, overwrite=self.overwrite)
 
     def update_metrics(self) -> None:
         """Function to create / update QC metrics.
@@ -56,7 +54,7 @@ class Runner:
 
         images = self.table.filter("ext", items={".nii.gz", ".nii"})
         for _, record in images.nested.iterrows():
-            gen_niftyone_metrics_tsv(
+            create_niftyone_metrics_tsv(
                 record=record,
                 entities=BIDSEntities.from_dict(record["ent"]),
                 out_dir=self.out_dir,

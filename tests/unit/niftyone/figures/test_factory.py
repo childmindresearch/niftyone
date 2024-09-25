@@ -7,12 +7,12 @@ import pandas as pd
 import pytest
 from bids2table import BIDSTable
 
-from niftyone.figures.generator import (
-    ViewGenerator,
-    create_generator,
-    create_generators,
-    generator_registry,
+from niftyone.figures.factory import (
+    View,
+    create_view,
+    create_views,
     register,
+    view_registry,
 )
 
 
@@ -27,25 +27,25 @@ def b2t_mock():
 
 
 @pytest.fixture
-def test_generator() -> ViewGenerator:
-    class TestGenerator(ViewGenerator):
+def test_view() -> View:
+    class TestGenerator(View):
         entities = {"desc": "test", "ext": ".png"}
         view_fn = None
 
     return TestGenerator(["suffix == 'T1w'"], None, {})
 
 
-class TestViewGenerator:
-    def test_generator_call_generate(
-        self, b2t_mock: BIDSTable, test_generator: ViewGenerator, tmp_path: Path
+class TestViewFactory:
+    def test_view_call_create(
+        self, b2t_mock: BIDSTable, test_view: View, tmp_path: Path
     ) -> None:
-        test_generator.generate = MagicMock()  # type: ignore [method-assign]
-        test_generator(table=b2t_mock, out_dir=tmp_path, overwrite=True)
-        test_generator.generate.assert_called()
+        test_view.create = MagicMock()  # type: ignore [method-assign]
+        test_view(table=b2t_mock, out_dir=tmp_path, overwrite=True)
+        test_view.create.assert_called()
 
-    def test_generator_no_view_fn(self, test_generator: ViewGenerator) -> None:
-        with pytest.raises(ValueError, match="View is not provided.*"):
-            test_generator.generate(
+    def test_view_no_view_fn(self, test_view: View) -> None:
+        with pytest.raises(ValueError, match=".*unable to create view.*"):
+            test_view.create(
                 records=MagicMock(),
                 out_dir=MagicMock(spec=Path),
                 overwrite=True,
@@ -55,10 +55,10 @@ class TestViewGenerator:
 @pytest.fixture
 def setup_registry():
     """Fixture to setup and tear down test registry."""
-    generator_registry.clear()
+    view_registry.clear()
 
-    class TestGenerator(ViewGenerator):
-        def generate(
+    class TestView(View):
+        def create(
             self,
             records: pd.Series,
             out_dir: Path,
@@ -66,12 +66,12 @@ def setup_registry():
         ) -> None:
             pass
 
-    register("test_view")(TestGenerator)
+    register("test_view")(TestView)
     yield
-    generator_registry.clear()
+    view_registry.clear()
 
 
-class TestCreateGenerator:
+class TestCreateFactory:
     @pytest.mark.parametrize(
         ("view", "view_kwargs"),
         [
@@ -79,43 +79,43 @@ class TestCreateGenerator:
             ("test_view", {"param1": "value1", "param2": 2, "param3": 0.1}),
         ],
     )
-    def test_create_generators_view_kwargs(
-        self, setup_registry: Generator, view: str, view_kwargs: dict[str, Any]
+    def test_create_views_view_kwargs(
+        self, setup_registry: View, view: str, view_kwargs: dict[str, Any]
     ):
-        generator = create_generator(
+        factory = create_view(
             view=view,
             view_kwargs=view_kwargs,
             join_entities=["sub"],
             queries=["suffix == 'T1w'"],
         )
-        assert isinstance(generator, ViewGenerator)
-        assert generator.queries == ["suffix == 'T1w'"]
-        assert isinstance(generator.view_kwargs, dict)
+        assert isinstance(factory, View)
+        assert factory.queries == ["suffix == 'T1w'"]
+        assert isinstance(factory.view_kwargs, dict)
 
-    def test_create_generators(self, setup_registry: Generator):
+    def test_create_views(self, setup_registry: View):
         config = {
             "figures": {
                 "test1": {"queries": "suffix == 'T1w'", "views": {"test_view": None}},
                 "test2": {"queries": "suffix == 'bold'", "views": {"test_view": None}},
             }
         }
-        generators = create_generators(config)
-        assert len(generators) == 2
-        assert all(isinstance(generator, ViewGenerator) for generator in generators)
-        assert generators[0].queries == config["figures"]["test1"]["queries"]
-        assert generators[1].queries == config["figures"]["test2"]["queries"]
+        views = create_views(config)
+        assert len(views) == 2
+        assert all(isinstance(factory, View) for factory in views)
+        assert views[0].queries == config["figures"]["test1"]["queries"]
+        assert views[1].queries == config["figures"]["test2"]["queries"]
 
-    def test_generator_view_not_found(self):
+    def test_view_view_not_found(self):
         config = {"figures": {"test": {"queries": "", "views": {"view1": None}}}}
         with pytest.raises(KeyError, match=".*not found in registry"):
-            create_generators(config)
+            create_views(config)
 
-    def test_generator_no_views(self):
+    def test_view_no_views(self):
         config = {"figures": {"test": {"queries": "", "views": {}}}}
-        generators = create_generators(config)
-        assert generators == []
+        views = create_views(config)
+        assert views == []
 
-    def test_generator_mixed_views(self, setup_registry: Generator):
+    def test_view_mixed_views(self, setup_registry: Generator):
         config = {
             "figures": {
                 "test1": {"queries": "suffix == 'T1w'", "views": {"test_view": None}},
@@ -124,4 +124,4 @@ class TestCreateGenerator:
         }
 
         with pytest.raises(KeyError, match=".*not found in registry"):
-            create_generators(config)
+            create_views(config)
