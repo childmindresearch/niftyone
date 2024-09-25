@@ -6,13 +6,13 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 from bids2table import BIDSTable
 
-from niftyone.figures.generator import ViewGenerator
+from niftyone.figures.factory import View
 from niftyone.runner import Runner
 
 
 @pytest.fixture
-def mock_generators() -> list[ViewGenerator]:
-    return [MagicMock(spec=ViewGenerator) for _ in range(2)]
+def mock_views() -> list[View]:
+    return [MagicMock(spec=View) for _ in range(2)]
 
 
 @pytest.fixture
@@ -22,33 +22,33 @@ def mock_table() -> BIDSTable:
 
 class TestRunner:
     @pytest.mark.parametrize("overwrite", [(True), (False)])
-    def test_gen_figures(
+    def test_create_figures(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_views: list[View],
         mock_table: BIDSTable,
         tmp_path: Path,
         overwrite: bool,
     ) -> None:
         mock_table.filter.return_value = ["f1.nii.gz", "f2.nii.gz"]
         runner = Runner(
-            figure_generators=mock_generators,
+            figure_views=mock_views,
             out_dir=tmp_path,
             qc_dir=None,
             overwrite=overwrite,
         )
         runner.table = mock_table
-        runner.gen_figures()
+        runner.create_figures()
 
-        for mock_generator in mock_generators:
-            mock_generator.assert_called()  # type: ignore [attr-defined]
+        for mock_view in mock_views:
+            mock_view.assert_called()  # type: ignore [attr-defined]
 
     @pytest.mark.parametrize(
         "table_return, expected_msg",
         [([], "Found no images"), (["f1.nii.gz", "f2.nii"], "Found 2 images")],
     )
-    def test_gen_figures_logging(
+    def test_create_figures_logging(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_views: list[View],
         mock_table: BIDSTable,
         tmp_path: Path,
         table_return: list[str],
@@ -57,23 +57,23 @@ class TestRunner:
     ):
         mock_table.filter.return_value = table_return
         runner = Runner(
-            figure_generators=mock_generators,
+            figure_views=mock_views,
             out_dir=tmp_path,
             qc_dir=None,
             overwrite=True,
         )
         runner.table = mock_table
-        runner.gen_figures()
+        runner.create_figures()
 
         assert expected_msg in caplog.text
 
     def test_update_metrics_no_qc_dir(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_views: list[View],
         tmp_path: Path,
     ):
         runner = Runner(
-            figure_generators=mock_generators,
+            figure_views=mock_views,
             out_dir=tmp_path,
             qc_dir=None,
             overwrite=False,
@@ -82,7 +82,7 @@ class TestRunner:
 
     def test_update_metrics_qc_dir(
         self,
-        mock_generators: list[ViewGenerator],
+        mock_views: list[View],
         mock_table: BIDSTable,
         tmp_path: Path,
     ):
@@ -101,7 +101,7 @@ class TestRunner:
             )
         ]
         runner = Runner(
-            figure_generators=mock_generators,
+            figure_views=mock_views,
             out_dir=out_dir.parent,
             qc_dir=qc_dir,
             overwrite=True,

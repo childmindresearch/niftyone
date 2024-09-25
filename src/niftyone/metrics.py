@@ -49,7 +49,7 @@ def _load_qc_group_metrics(qc_dir: Path, suffix: str = "T1w") -> pd.DataFrame | 
     return metrics
 
 
-def gen_niftyone_metrics_tsv(
+def create_niftyone_metrics_tsv(
     record: pd.Series,
     entities: BIDSEntities,
     out_dir: Path,
@@ -70,5 +70,5 @@ def gen_niftyone_metrics_tsv(
     # Find metrics matching image
     img_metrics = _filter_metrics_by_image(metrics=metrics, record=record)
     if len(img_metrics) > 0:
-        logging.info("Generating: %s", out_path)
+        logging.info("Creating: %s", out_path)
         img_metrics.to_csv(out_path, sep="\t", index=False)

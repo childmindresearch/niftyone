@@ -1,4 +1,4 @@
-"""Generator classes for different views."""
+"""Factory module for creating different figures."""
 
 import logging
 from abc import ABC
@@ -15,52 +15,52 @@ from PIL.Image import Image
 
 import niclips.image as noimg
 
-T = TypeVar("T", bound="ViewGenerator")
+T = TypeVar("T", bound="View")
 
-generator_registry: dict[str, type["ViewGenerator"]] = {}
+view_registry: dict[str, type["View"]] = {}
 
 
 def register(name: str) -> Callable[[type[T]], type[T]]:
-    """Function to register generator to registry."""
+    """Function to register view to registry."""
 
     def decorator(cls: type[T]) -> type[T]:
-        generator_registry[name] = cls
+        view_registry[name] = cls
         return cls
 
     return decorator
 
 
-def create_generator(
+def create_view(
     view: str,
     view_kwargs: dict[str, Any] | None,
     join_entities: list[str],
     queries: list[str],
-) -> "ViewGenerator":
-    """Function to create generator."""
+) -> "View":
+    """Function to create view."""
     if view_kwargs is None:
         view_kwargs = {}
 
     try:
-        generator_cls = generator_registry[view]
-        generator_instance = generator_cls(queries, join_entities, view_kwargs)
-        return generator_instance
+        view_cls = view_registry[view]
+        view_instance = view_cls(queries, join_entities, view_kwargs)
+        return view_instance
     except KeyError:
-        msg = f"Generator for '{view}' for not found in registry."
+        msg = f"Factory for '{view}' for not found in registry."
         raise KeyError(msg)
 
 
-def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
-    """Create selected generators dynamically from config with default settings."""
-    generators: list["ViewGenerator"] = []
+def create_views(config: dict[str, Any]) -> list["View"]:
+    """Create selected views dynamically from config with default settings."""
+    views: list["View"] = []
 
     for group in config.get("figures", {}).values():
         queries = group.get("queries", [])
         join_entities = group.get("join_entities", ["sub", "ses"])
-        views = group.get("views", {})
+        views_map = group.get("views", {})
 
-        for view, view_kwargs in views.items():
-            generators.append(
-                create_generator(
+        for view, view_kwargs in views_map.items():
+            views.append(
+                create_view(
                     view=view,
                     view_kwargs=view_kwargs,
                     join_entities=join_entities,
@@ -68,11 +68,11 @@ def create_generators(config: dict[str, Any]) -> list["ViewGenerator"]:
                 )
             )
 
-    return generators
+    return views
 
 
-class ViewGenerator(ABC, Generic[T]):
-    """Base view generator class."""
+class View(ABC, Generic[T]):
+    """Base view class."""
 
     entities: dict[str, Any] | None = None
     view_fn: Callable[[nib.Nifti1Image, Path], Image | Figure | None] | None = None
@@ -116,7 +116,7 @@ class ViewGenerator(ABC, Generic[T]):
 
         for inds in zip(*indices):
             records = [table.nested.loc[ind] for ind in inds]
-            self.generate(records=records, out_dir=out_dir, overwrite=overwrite)
+            self.create(records=records, out_dir=out_dir, overwrite=overwrite)
 
     def _figure_name(self) -> None:
         """Helper function to grab figure entity in view kwarg and update entities."""
@@ -125,15 +125,15 @@ class ViewGenerator(ABC, Generic[T]):
             self.entities["extra_entities"]["figure"] = self.view_kwargs["figure"]
             del self.view_kwargs["figure"]
 
-    def generate(
+    def create(
         self,
         records: list[pd.Series],
         out_dir: Path,
         overwrite: bool,
     ) -> None:
-        """Main call for generating view."""
+        """Main call for creating view."""
         if not self.view_fn:
-            raise ValueError("View is not provided, unable to create generator.")
+            raise ValueError("No view factory provided, unable to create view.")
 
         # Update figure name if necessary
         self._figure_name()
@@ -161,7 +161,7 @@ class ViewGenerator(ABC, Generic[T]):
         out_path.parent.mkdir(exist_ok=True, parents=True)
 
         if not out_path.exists() or overwrite:
-            logging.info("Generating %s", out_path)
+            logging.info("Creating %s", out_path)
             self.view_fn(img, out_path, **self.view_kwargs)
 
         plt.close("all")

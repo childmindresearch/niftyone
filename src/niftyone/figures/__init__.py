@@ -1,1 +1,1 @@
-"""Initialize sub-module for generating pipeline figures."""
+"""Initialize sub-module for creating pipeline figures."""

@@ -2,7 +2,7 @@
 
 from ._version import __version__, __version_tuple__
 
-# Register existing generators
+# Register existing views
 from .figures.dwi import (
     DwiPerShellGenerator,
     QSpaceShellsGenerator,
