@@ -87,6 +87,14 @@ The different analysis levels perform the following tasks:
             help="pre-computed QC metrics if available",
         )
         self.participant_level.add_argument(
+            "--plugin-dir",
+            metavar="PATH",
+            type=Path,
+            default=None,
+            help="directory to search for plugins in;plugins should be "
+            "prepended with 'niftyone_'",
+        )
+        self.participant_level.add_argument(
             "--config",
             metavar="PATH",
             type=Path,

@@ -58,6 +58,8 @@ def setup_registry():
     view_registry.clear()
 
     class TestView(View):
+        view_name = "test_view"
+
         def create(
             self,
             records: pd.Series,
@@ -66,7 +68,7 @@ def setup_registry():
         ) -> None:
             pass
 
-    register("test_view")(TestView)
+    register(TestView)
     yield
     view_registry.clear()
 

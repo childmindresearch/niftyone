@@ -1,10 +1,13 @@
 """Factory module for creating different figures."""
 
+import importlib.util
+import inspect
 import logging
+import pkgutil
 from abc import ABC
 from functools import reduce
 from pathlib import Path
-from types import MappingProxyType
+from types import MappingProxyType, ModuleType
 from typing import Any, Callable, Generic, TypeVar
 
 import matplotlib.pyplot as plt
@@ -19,50 +22,12 @@ T = TypeVar("T", bound="View")
 view_registry: dict[str, type["View"]] = {}
 
 
-def register(name: str) -> Callable:
-    """Function to register view to registry."""
-
-    def decorator(cls: type[T]) -> type[T]:
-        view_registry[name] = cls
-        return cls
-
-    return decorator
-
-
-def create_view(
-    view: str,
-    view_kwargs: dict[str, Any] | None,
-    join_entities: list[str],
-    queries: list[str],
-) -> "View":
-    """Function to create view."""
-    view_kwargs = view_kwargs or {}
-    try:
-        view_cls = view_registry[view]
-        return view_cls(queries, join_entities, view_kwargs)
-    except KeyError:
-        raise KeyError(f"Factory for '{view}' for not found in registry.")
-
-
-def create_views(config: dict[str, Any]) -> list["View"]:
-    """Create selected views dynamically from config with default settings."""
-    return [
-        create_view(
-            view=view,
-            view_kwargs=view_kwargs,
-            join_entities=group.get("join_entities", ["sub", "ses"]),
-            queries=group.get("queries", []),
-        )
-        for group in config.get("figures", {}).values()
-        for view, view_kwargs in group.get("views", {}).items()
-    ]
-
-
 class View(ABC, Generic[T]):
     """Base view class."""
 
     entities: dict[str, Any] | None = None
     view_fn: Callable | None = None
+    view_name: str | None = None  # Name for registry (defaults to class)
 
     def __init__(
         self,
@@ -153,3 +118,65 @@ class View(ABC, Generic[T]):
             self.view_fn(img, out_path, overlays=overlays, **self.view_kwargs)
 
         plt.close("all")
+
+
+def create_view(
+    view: str,
+    view_kwargs: dict[str, Any] | None,
+    join_entities: list[str],
+    queries: list[str],
+) -> "View":
+    """Function to create view."""
+    view_kwargs = view_kwargs or {}
+    try:
+        view_cls = view_registry[view]
+        return view_cls(queries, join_entities, view_kwargs)
+    except KeyError:
+        raise KeyError(f"Factory for '{view}' for not found in registry.")
+
+
+def create_views(config: dict[str, Any]) -> list["View"]:
+    """Create selected views dynamically from config with default settings."""
+    return [
+        create_view(
+            view=view,
+            view_kwargs=view_kwargs,
+            join_entities=group.get("join_entities", ["sub", "ses"]),
+            queries=group.get("queries", []),
+        )
+        for group in config.get("figures", {}).values()
+        for view, view_kwargs in group.get("views", {}).items()
+    ]
+
+
+def register(cls: type[T]) -> type[T]:
+    """Function to add view to registry."""
+    view_registry[cls.view_name or cls.__name__] = cls
+    return cls
+
+
+def register_views(search_path: str | None, plugin_prefix: str | None = None) -> None:
+    """Register all views."""
+
+    def _import_module(module_name: str) -> ModuleType:
+        """Import module."""
+        if search_path is not None:
+            module_path = Path(search_path) / f"{module_name}.py"
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            if spec is None or spec.loader is None:
+                raise ImportError(f"Unable to load {module_name}")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        else:
+            module = importlib.import_module(module_name)
+        return module
+
+    for _, module_name, _ in pkgutil.iter_modules(
+        path=[search_path] if search_path else None
+    ):
+        if plugin_prefix is None or module_name.startswith(plugin_prefix):
+            module = _import_module(module_name=module_name)
+
+            for _, obj in inspect.getmembers(module, inspect.isclass):
+                if issubclass(obj, View) and obj is not View:
+                    register(obj)

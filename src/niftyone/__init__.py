@@ -1,19 +1,11 @@
 """Large-scale neuroimaging visualization using FiftyOne."""
 
-# Import all plugins. In particular this should register user's custom generators
-from . import plugins
-from ._version import __version__, __version_tuple__
+from pathlib import Path
 
-# Register existing views
-from .figures.dwi import (
-    DwiPerShell,
-    QSpaceShells,
-    SignalPerVolume,
-)
-from .figures.func import CarpetPlot, MeanStd
-from .figures.multi_view import (
-    SliceVideo,
-    ThreeView,
-    ThreeViewVideo,
-)
+from ._version import __version__, __version_tuple__
+from .figures.factory import __file__ as factory_path
+from .figures.factory import register_views
 from .runner import Runner
+
+# Register all default views
+register_views(search_path=str(Path(factory_path).parent))

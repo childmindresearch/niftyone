@@ -28,6 +28,7 @@ def main() -> None:
                 sub=args.participant_label,
                 index_path=args.index,
                 qc_dir=args.qc_dir,
+                plugin_dir=args.plugin_dir,
                 config=args.config,
                 workers=args.workers,
                 overwrite=args.overwrite,
