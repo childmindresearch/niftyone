@@ -32,15 +32,7 @@ def check_atmost_4d(img: NiftiLike) -> None:
 
 def check_ras(img: nib.nifti1.Nifti1Image) -> None:
     """Check that an image has RAS axis orientation."""
-    rot = img.affine[:3, :3]
-    expected = np.abs(np.diag(np.diag(rot)))
-    if not np.allclose(rot, expected, rtol=0.1, atol=0.1):
-        raise ValueError(f"Expected RAS orientation; got rotation {rot}")
-
-
-def check_iso_ras(img: nib.nifti1.Nifti1Image) -> None:
-    """Check that an image has RAS axis orientation with isotropic voxels."""
-    check_ras(img)
-    # pixdim = np.diag(img.affine[:3, :3])
-    # if not np.allclose(pixdim, pixdim[0]):
-    #     raise ValueError(f"Expected isotropic voxels; got pixdim {pixdim}")
+    trgt_ornt = np.array([[0, 1], [1, 1], [2, 1]])
+    img_ornt = nib.orientations.io_orientation(img.affine)
+    if not np.array_equal(img_ornt, trgt_ornt):
+        raise ValueError("Expected RAS orientation")
