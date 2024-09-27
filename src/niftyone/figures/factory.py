@@ -150,6 +150,6 @@ class View(ABC, Generic[T]):
 
         if not out_path.exists() or overwrite:
             logging.info("Creating %s", out_path)
-            self.view_fn(img, out_path, overlays=overlays, **self.view_kwargs)
+            self.view_fn(img, out_path, overlay=overlays, **self.view_kwargs)
 
         plt.close("all")
