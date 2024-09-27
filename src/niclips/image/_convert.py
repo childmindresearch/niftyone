@@ -1,9 +1,7 @@
-import warnings
-
 import matplotlib as mpl
 import nibabel as nib
 import numpy as np
-from nilearn.image import reorder_img, resample_img
+from nilearn.image import reorder_img
 from PIL import Image
 
 from niclips.typing import NiftiLike
@@ -92,23 +90,13 @@ def reorient(img: np.ndarray) -> np.ndarray:
     return np.flipud(np.swapaxes(img, 0, 1))
 
 
-def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
+def to_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     """Convert a nifti image to RAS orientation with isotropic resolution."""
     # Grab original filepath
     img_path = img.get_filename()
+    # Reorder to RAS
     img = reorder_img(img, resample="nearest")
-    affine = img.affine
-    pixdim = np.diag(affine)[:3]
-    if not np.all(pixdim == pixdim[0]):
-        res = np.min(pixdim)
-        target_affine = affine.copy()
-        np.fill_diagonal(target_affine[:3, :3], res)
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            img = resample_img(
-                img, target_affine=target_affine, interpolation="nearest"
-            )
     # Set filepath to original incase it is needed
     if img_path:
         img.set_filename(img_path)

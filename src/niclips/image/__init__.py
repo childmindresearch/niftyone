@@ -2,7 +2,7 @@
 
 from ._annotate import annotate
 from ._centroid import center_of_mass, peak_of_mass
-from ._convert import get_fdata, normalize, overlay, reorient, scale, to_iso_ras, topil
+from ._convert import get_fdata, normalize, overlay, reorient, scale, to_ras, topil
 from ._coord import apply_affine, coord2ind, ind2coord
 from ._pad import Align, pad_to_equal, pad_to_size, pad_to_square
 from ._render import render_slice

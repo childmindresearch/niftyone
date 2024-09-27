@@ -108,7 +108,7 @@ class View(ABC, Generic[T]):
             logging.info("Processing %s", img_path)
         img = nib.nifti1.load(img_path)
 
-        return noimg.to_iso_ras(img)
+        return noimg.to_ras(img)
 
     def _load_overlays(self, overlay_records: list[pd.Series]) -> list[nib.Nifti1Image]:
         """Helper to load overlays."""
