@@ -35,6 +35,7 @@ def participant(
     sub: str | None = None,
     index_path: Path | None = None,
     qc_dir: Path | None = None,
+    plugin_dir: Path | None = None,
     config: Path | None = None,
     workers: int = 1,
     overwrite: bool = False,
@@ -60,9 +61,15 @@ def participant(
         f"\n\tsubject: {sub}"
         f"\n\tindex: {index_path}"
         f"\n\tqc: {qc_dir}"
+        f"\n\tplugin: {plugin_dir}"
         f"\n\tconfig: {config}"
         f"\n\tworkers: {workers}"
         f"\n\toverwrite: {overwrite}"
+    )
+
+    # Register any plugin figure views
+    factory.register_views(
+        search_path=str(plugin_dir) if plugin_dir else None, plugin_prefix="niftyone_"
     )
 
     logging.info("Loading dataset index")
