@@ -1,6 +1,7 @@
 import matplotlib as mpl
 import nibabel as nib
 import numpy as np
+from numpy.typing import ArrayLike
 from PIL import Image
 
 from niclips.typing import NiftiLike
@@ -8,11 +9,10 @@ from niclips.typing import NiftiLike
 EPS = 1e-8
 
 
-def get_fdata(img: NiftiLike) -> np.ndarray:
+def get_fdata(img: NiftiLike) -> ArrayLike:
     """Get the array data of a nifti-like image."""
     if isinstance(img, nib.nifti1.Nifti1Image):
-        img = img.get_fdata()
-    img = np.asarray(img)
+        img = img.dataobj
     return img
 
 
