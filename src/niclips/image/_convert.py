@@ -59,7 +59,6 @@ def normalize(
     vmax: float | None = None,
 ) -> np.ndarray:
     """Normalize data using vmin/vmax if provided, otherwise data min/max."""
-    data = np.asarray(data)
     if vmin is None:
         vmin = np.nanmin(data)
     if vmax is None:

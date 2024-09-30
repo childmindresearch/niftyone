@@ -13,8 +13,7 @@ def apply_affine(affine: np.ndarray, coord: np.ndarray) -> np.ndarray:
     Returns:
         transformed coordinates
     """
-    affine = np.asarray(affine)
-    coord = np.asarray(coord).astype(affine.dtype)
+    coord = coord.astype(affine.dtype)
     assert affine.shape == (4, 4), "Invalid affine"
 
     singleton = coord.ndim == 1
