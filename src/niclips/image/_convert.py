@@ -71,16 +71,18 @@ def normalize(
 def scale(
     img: Image.Image, height: int, resample: Image.Resampling | None = None
 ) -> Image.Image:
-    """Scale an image to a target height.
+    """Scale image isotropically to a target height.
 
-    Ensure width is even numbered.
+    Note: Ensure size is even numbered for video codec.
     """
-    height += height % 2
-    scale = height / img.height
-    width = int(scale * img.width) + (int(scale * img.width) % 2)
-    size = width, height
-    img = img.resize(size, resample=resample)
-    return img
+    # Currently rescale to isotropic to not stretch images in generated figures
+    # Can maintain aspect ratio by using image size (width, height)
+    # Leaving the code below to do so.
+    # scale = height / img.height
+    # width = int(img.width * scale) & ~1
+    height = height & ~1
+
+    return img.resize((height, height), resample=resample)
 
 
 def reorient(img: np.ndarray) -> np.ndarray:
