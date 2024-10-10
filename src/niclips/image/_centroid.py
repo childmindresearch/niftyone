@@ -22,7 +22,7 @@ def center_of_mass(img: NiftiLike, mask: bool = False) -> np.ndarray:
     if mask:
         data = data > data.mean()
 
-    centroid = ndimage.center_of_mass(data)
+    centroid = np.asarray(ndimage.center_of_mass(data))
     if isinstance(img, nib.Nifti1Image):
         centroid = ind2coord(img.affine, centroid)
     return centroid

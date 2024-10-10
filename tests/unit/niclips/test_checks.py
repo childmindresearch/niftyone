@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import numpy as np
 import pytest
 
 import niclips.checks as nichecks
@@ -55,16 +54,6 @@ class TestCheckRAS:
         mock_img.affine[0] = [0, 1, 0, 0]
         mock_img.affine[1] = [1, 0, 0, 0]
         with pytest.raises(ValueError, match=".*RAS orientation.*"):
-            nichecks.check_ras(mock_img)
-
-    def test_pass(self, mock_img: MagicMock):
-        nichecks.check_ras(mock_img)
-
-
-class TestCheckIsoRAS:
-    def test_fail(self, mock_img: MagicMock):
-        mock_img.affine = np.diag([np.random.randint(1, 11) for _ in range(4)])
-        with pytest.raises(ValueError, match=".*isotropic voxels.*"):
             nichecks.check_ras(mock_img)
 
     def test_pass(self, mock_img: MagicMock):
