@@ -59,13 +59,12 @@ def normalize(
     vmax: float | None = None,
 ) -> np.ndarray:
     """Normalize data using vmin/vmax if provided, otherwise data min/max."""
-    if vmin is None:
-        vmin = np.nanmin(data)
-    if vmax is None:
-        vmax = np.nanmax(data)
-    data = (data - vmin) / max(vmax - vmin, EPS)
-    data = np.clip(data, 0, 1)
-    return data
+    vmin = np.nanmin(data) if vmin is None else vmin
+    vmax = np.nanmax(data) if vmax is None else vmax
+    scale = vmax - vmin
+    if scale > EPS:
+        return np.clip((data - vmin) / scale, 0, 1)
+    return np.zeros_like(data)
 
 
 def scale(
