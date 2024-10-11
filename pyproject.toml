@@ -29,7 +29,6 @@ dependencies = [
   "fiftyone",
   "matplotlib",
   "nibabel",
-  "nilearn",
   "numpy",
   "pandas",
   "Pillow",
