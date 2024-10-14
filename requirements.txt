@@ -4,6 +4,7 @@ elbow==0.1.1
 fiftyone==0.25.0
 matplotlib==3.9.1
 nibabel==5.2.1
+git+https://github.com/childmindresearch/nifti.git@acde447
 numpy==2.0.1
 pandas==2.2.2
 pillow==10.4.0

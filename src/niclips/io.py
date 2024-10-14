@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import av
+import nibabel as nib
 import numpy as np
 from av.container import OutputContainer
 from av.stream import Stream
@@ -12,6 +13,27 @@ from PIL import Image
 
 from niclips.image._convert import topil
 from niclips.typing import StrPath
+
+try:
+    import nifti
+
+    HAVE_NIFTI = True
+except ImportError:  # pragma: no cover
+    HAVE_NIFTI = False
+
+
+def load_nifti(fpath: str | Path) -> nib.Nifti1Image:
+    """Wrapper to load Nifti images using library."""
+    if HAVE_NIFTI:
+        hdr, arr = nifti.read_volume(str(fpath))
+        new_hdr = nib.Nifti1Header()
+        for key, val in hdr.items():
+            if key in new_hdr:
+                new_hdr[key] = val
+        aff = new_hdr.get_best_affine()
+        return nib.Nifti1Image(dataobj=arr, affine=aff, header=new_hdr)
+    else:
+        return nib.load(fpath)
 
 
 class VideoWriter:

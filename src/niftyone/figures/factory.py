@@ -13,6 +13,7 @@ import pandas as pd
 from bids2table import BIDSEntities, BIDSTable
 
 import niclips.image as noimg
+from niclips.io import load_nifti
 
 T = TypeVar("T", bound="View")
 
@@ -106,7 +107,7 @@ class View(ABC, Generic[T]):
         img_path = Path(record["finfo"]["file_path"])
         if log:
             logging.info("Processing %s", img_path)
-        img = nib.nifti1.load(img_path)
+        img = load_nifti(img_path)
 
         return noimg.to_ras(img)
 

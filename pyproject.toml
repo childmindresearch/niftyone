@@ -29,6 +29,7 @@ dependencies = [
   "fiftyone",
   "matplotlib",
   "nibabel",
+  "nifti @ git+https://github.com/childmindresearch/nifti",
   "numpy",
   "pandas",
   "Pillow",
