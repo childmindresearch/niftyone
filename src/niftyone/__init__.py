@@ -1,5 +1,7 @@
 """Large-scale neuroimaging visualization using FiftyOne."""
 
+# Import all plugins. In particular this should register user's custom generators
+from . import plugins
 from ._version import __version__, __version_tuple__
 
 # Register existing views
