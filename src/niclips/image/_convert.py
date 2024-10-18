@@ -1,6 +1,9 @@
+import logging
+
 import matplotlib as mpl
 import nibabel as nib
 import numpy as np
+from nibabel.processing import resample_to_output
 from PIL import Image
 
 from niclips.typing import NiftiLike
@@ -67,20 +70,24 @@ def normalize(
 
 
 def scale(
-    img: Image.Image, height: int, resample: Image.Resampling | None = None
+    img: Image.Image,
+    target_height: int,
+    resample: Image.Resampling | None = None,
 ) -> Image.Image:
-    """Scale image isotropically to a target height.
+    """Scale to targeted height.
 
     Note: Ensure size is even numbered for video codec.
     """
-    # Currently rescale to isotropic to not stretch images in generated figures
-    # Can maintain aspect ratio by using image size (width, height)
-    # Leaving the code below to do so.
-    # scale = height / img.height
-    # width = int(img.width * scale) & ~1
-    height = height & ~1
+    # Scale to target height and ensure even-numbered dims for video codec
+    # (Using bitwise operation, for performance, to set even-number)
+    if target_height & 1:
+        target_height -= 1
+        logging.warning(f"Scaling target height to {target_height}")
+    imw, imh = img.size
+    target_width = int(target_height * (imw / imh)) & ~1
 
-    return img.resize((height, height), resample=resample)
+    # Return image scaled to target height
+    return img.resize((target_width, target_height), resample=resample)
 
 
 def reorient(img: np.ndarray) -> np.ndarray:
@@ -99,3 +106,14 @@ def to_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     if img_path:
         img.set_filename(img_path)
     return img
+
+def to_iso(
+    img: nib.nifti1.Nifti1Image, target_res: int | None = None
+) -> nib.nifti1.Nifti1Image:
+    """Convert 3D nifti image to isotropic resolution."""
+    if target_res is not None:
+        voxel_sizes = [target_res] * len(img.shape)
+    else:
+        voxel_sizes = [np.min(img.header["pixdim"][1:4])] * len(img.shape)
+    
+    return resample_to_output(img, voxel_sizes=voxel_sizes)
