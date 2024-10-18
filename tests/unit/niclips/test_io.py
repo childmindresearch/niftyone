@@ -16,8 +16,20 @@ class TestLoadNifti:
         self, tmp_path: Path, nii_3d_img: nib.Nifti1Image, nifti_lib: bool
     ):
         nib.save(nii_3d_img, (nii_fpath := (tmp_path / "test.nii")))
-        with patch("niclips.io.HAVE_NIFTI", nifti_lib):
-            res = noio.load_nifti(nii_fpath)
+        res = noio.load_nifti(nii_fpath, use_niftilib=nifti_lib)
+
+        assert isinstance(res, nib.Nifti1Image)
+
+    def test_unavailable_nifti(
+        self,
+        tmp_path: Path,
+        nii_3d_img: nib.Nifti1Image,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        nib.save(nii_3d_img, (nii_fpath := (tmp_path / "test.nii")))
+        with patch("niclips.io.HAVE_NIFTI", False):
+            res = noio.load_nifti(nii_fpath, use_niftilib=True)
+            assert "unavailable" in caplog.text
 
         assert isinstance(res, nib.Nifti1Image)
 

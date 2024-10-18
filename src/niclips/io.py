@@ -1,5 +1,6 @@
 """Handling of inputs/outputs."""
 
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -22,9 +23,11 @@ except ImportError:  # pragma: no cover
     HAVE_NIFTI = False
 
 
-def load_nifti(fpath: str | Path) -> nib.Nifti1Image:
+def load_nifti(fpath: str | Path, use_niftilib: bool = True) -> nib.Nifti1Image:
     """Wrapper to load Nifti images using library."""
-    if HAVE_NIFTI:
+    # Uses nifti library if available and user selects it
+    use_niftilib = use_niftilib and HAVE_NIFTI
+    if use_niftilib:
         hdr, arr = nifti.read_volume(str(fpath))
         new_hdr = nib.Nifti1Header()
         for key, val in hdr.items():
@@ -33,6 +36,8 @@ def load_nifti(fpath: str | Path) -> nib.Nifti1Image:
         aff = new_hdr.get_best_affine()
         return nib.Nifti1Image(dataobj=arr, affine=aff, header=new_hdr)
     else:
+        if not HAVE_NIFTI:
+            logging.warning("`nifti` library is unavailable - using `nibabel`")
         return nib.load(fpath)
 
 
