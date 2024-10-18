@@ -104,7 +104,7 @@ class TestScale:
         assert img.size == expected_size
 
 
-class TestToIsoRas:
+class TestToRas:
     def test_non_ras_nii(self, nii_3d_non_iso_ras: nib.Nifti1Image):
         img = noconvert.to_ras(nii_3d_non_iso_ras)
 

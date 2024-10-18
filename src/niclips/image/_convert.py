@@ -93,13 +93,7 @@ def to_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     # Grab original filepath
     img_path = img.get_filename()
     # Reorient to RAS
-    trgt_ornt = np.array([[0, 1], [1, 1], [2, 1]])
-    crnt_ornt = nib.orientations.io_orientation(img.affine)
-    xfm = nib.orientations.ornt_transform(crnt_ornt, trgt_ornt)
-    reoriented_affine = nib.orientations.inv_ornt_aff(xfm, img.shape)
-    new_affine = img.affine @ reoriented_affine
-    reoriented_data = nib.orientations.apply_orientation(get_fdata(img), xfm)
-    img = nib.Nifti1Image(dataobj=reoriented_data, affine=new_affine)
+    img = nib.funcs.as_closest_canonical(img)
 
     # Set filepath to original incase it is needed
     if img_path:
