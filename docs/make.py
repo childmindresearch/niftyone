@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+"""Module to build API documentation."""
+
 import os
 import pathlib as pl
 import shutil
@@ -9,6 +11,7 @@ import lazydocs
 
 
 def build_toc(files: list[str]) -> dict[str, Any]:
+    """Build the table of contents."""
     toc: dict[str, Any] = defaultdict(lambda: defaultdict(dict))
 
     for file in files:
@@ -25,6 +28,7 @@ def build_toc(files: list[str]) -> dict[str, Any]:
 
 
 def stringify_toc(toc: dict[str, Any], level: int = 0) -> str:
+    """Set up table of contents with proper indentation."""
     toc_string = ""
     indent = "  " * level
 
@@ -37,7 +41,8 @@ def stringify_toc(toc: dict[str, Any], level: int = 0) -> str:
     return toc_string
 
 
-def main():
+def main() -> None:
+    """Generate API docs."""
     here = pl.Path(__file__).parent
     out = here / "src" / "api"
     summary_tpl = here / "SUMMARY.tpl"
@@ -49,7 +54,7 @@ def main():
     lazydocs.generate_docs(
         paths=[str(here.parent / "src")],
         output_path=str(out),
-        src_base_url=(   # UPDATE WITH V0.1.0 TO GRAB TAG
+        src_base_url=(  # UPDATE WITH V0.1.0 TO GRAB TAG
             "https://github.com/childmindresearch/niftyone/tree/main"
         ),
         watermark=False,
