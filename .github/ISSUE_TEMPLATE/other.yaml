@@ -1,7 +1,7 @@
 name: 📝 Other
 description: Report any other type of issue or provide general information.
 title: "[Other]: "
-labels: other
+labels: [other]
 body:
   - type: input
     id: summary
