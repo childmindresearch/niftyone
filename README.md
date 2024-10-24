@@ -4,8 +4,10 @@
 
 ![Python3](https://img.shields.io/badge/python->=3.10-blue.svg)
 [![codecov](https://codecov.io/gh/childmindresearch/niftyone/branch/main/graph/badge.svg?token=22HWWFWPW5)](https://codecov.io/gh/childmindresearch/niftyone)
+[![stability-alpha](https://img.shields.io/badge/stability-alpha-f4d03f.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#alpha)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/childmindresearch/niftyone/blob/main/LICENSE)
+
 <!-- [![Documentation](https://img.shields.io/badge/documentation-8CA1AF?logo=readthedocs&logoColor=fff)](https://childmindresearch.github.io/niftyone) -->
 
 ![NiftyOne Mosaic](.github/static/niftyone_mosaic_view.png)
