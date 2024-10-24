@@ -85,7 +85,7 @@ def visualize_qspace(
     ani = FuncAnimation(fig, _rotate, frames=np.arange(0, 360, 1), interval=30)
 
     if out:
-        ani.save(out, writer="ffmpeg", fps=30, dpi=150)
+        ani.save(out, writer="ffmpeg", fps=10, dpi=100)
     return ani
 
 
@@ -132,7 +132,7 @@ def signal_per_volume(
     vmin, vmax = get_default_vmin_vmax(dwi)
 
     # Create plot
-    fig = plt.figure(layout="tight", dpi=150, figsize=(6.4, 4.8))
+    fig = plt.figure(layout="tight", figsize=(6.4, 4.8))
 
     aspect1 = dwi.shape[1] / dwi.shape[0]
     aspect2 = np.max(signal) / signal.shape[-1]
@@ -179,4 +179,4 @@ def signal_per_volume(
     ani = FuncAnimation(fig, _update, frames=signal.shape[-1], interval=30)
 
     if out:
-        ani.save(out, writer="ffmpeg", fps=30, dpi=150)
+        ani.save(out, writer="ffmpeg", fps=10, dpi=100)

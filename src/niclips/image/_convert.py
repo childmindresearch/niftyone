@@ -107,6 +107,7 @@ def to_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
         img.set_filename(img_path)
     return img
 
+
 def to_iso(
     img: nib.nifti1.Nifti1Image, target_res: int | None = None
 ) -> nib.nifti1.Nifti1Image:
@@ -115,5 +116,5 @@ def to_iso(
         voxel_sizes = [target_res] * len(img.shape)
     else:
         voxel_sizes = [np.min(img.header["pixdim"][1:4])] * len(img.shape)
-    
-    return resample_to_output(img, voxel_sizes=voxel_sizes)
+
+    return resample_to_output(img, voxel_sizes=voxel_sizes, order=1, mode="nearest")

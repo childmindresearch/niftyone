@@ -34,7 +34,9 @@ def load_nifti(fpath: str | Path, use_niftilib: bool = True) -> nib.Nifti1Image:
             if key in new_hdr:
                 new_hdr[key] = val
         aff = new_hdr.get_best_affine()
-        return nib.Nifti1Image(dataobj=arr, affine=aff, header=new_hdr)
+        nii = nib.Nifti1Image(dataobj=arr, affine=aff, header=new_hdr)
+        nii.set_filename(str(fpath))
+        return nii
     else:
         if not HAVE_NIFTI:
             logging.warning("`nifti` library is unavailable - using `nibabel`")
