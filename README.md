@@ -19,6 +19,7 @@ leveraging features of [FiftyOne] with popular neuroimaging python packages.
 > [!TIP]
 > For stability, NiftyOne should be installed in its own environment. For example, to
 > install NiftyOne using `conda`:
+>
 > ```sh
 > conda create -y -n niftyone python=3.10
 > conda activate niftyone
@@ -45,11 +46,13 @@ niftyone <bids_directory> <output_directory> <analysis-level>
 
 > [!TIP]
 > To see all arguments, run:
+>
 > ```sh
 > niftyone --help
 > ```
 
 ### Quick-start
+
 1. Generate figures for each participant
 
     ```sh
@@ -90,7 +93,5 @@ If you encounter any issues or have questions, please open an issue on the
 <!-- Links -->
 [FiftyOne]: https://docs.voxel51.com/
 [FFmpeg]: https://ffmpeg.org/
-[Documentations]: #
-[Contributions]: #
-[MIT license]: https://github.com/childmindresearch/niftyone/blob/66af7e168379a4f58bd93d4ffa228afb756b4141/LICENSE
+[MIT license]: https://github.com/childmindresearch/niftyone/blob/main/LICENSE
 [issue tracker]: https://github.com/childmindresearch/niftyone/issues
