@@ -1,1 +1,1 @@
-"""Module for handling metadata associated with dataset or application."""
+"""Utilities for handling metadata associated with dataset or application."""

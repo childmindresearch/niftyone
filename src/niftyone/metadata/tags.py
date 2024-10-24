@@ -1,4 +1,4 @@
-"""Niftyone tags."""
+"""Utilities for handling NiftyOne tags."""
 
 import ast
 import json
@@ -69,19 +69,19 @@ class GroupTags:
 
     @classmethod
     def from_df(cls, df: pd.DataFrame) -> "GroupTags":
-        """Return tags from datafame."""
+        """Extract tags from datafame."""
         return cls(df.to_dict(orient="index"))
 
     @classmethod
     def from_csv(cls, path: str | Path) -> "GroupTags":
-        """Return tags from csv."""
+        """Extract tags from csv."""
         # TODO: is there a better way to read the _Extra column?
         df = pd.read_csv(path, index_col=0, converters={"_Extra": ast.literal_eval})
         return cls.from_df(df)
 
     @classmethod
     def from_json(cls, path: str | Path) -> "GroupTags":
-        """Return tags from json file."""
+        """Extract tags from json file."""
         with open(path) as f:
             return cls(json.load(f))
 
@@ -99,15 +99,15 @@ class GroupTags:
                         label.tags.append(tag)
 
     def to_df(self) -> pd.DataFrame:
-        """Convert tags dict to pandas dataframe."""
+        """Convert tags from dict to pandas dataframe."""
         return pd.DataFrame.from_dict(self.tags_dict, orient="index")
 
     def to_csv(self, path: str | Path) -> None:
-        """Save to csv."""
+        """Save tags to csv."""
         self.to_df().to_csv(path)
 
     def to_json(self, path: str | Path) -> None:
-        """Save to json."""
+        """Save tags to json."""
         with open(path, "w") as f:
             json.dump(self.tags_dict, f)
 

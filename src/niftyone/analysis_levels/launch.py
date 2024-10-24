@@ -1,4 +1,4 @@
-"""Launch application."""
+"""Launch analysis-level."""
 
 import logging
 from pathlib import Path
@@ -18,7 +18,7 @@ def launch(
     ds_name: str | None = None,
     qc_key: str | None = None,
 ) -> None:
-    """Launch the FiftyOne app to visualize a dataset (after it has been generated)."""
+    """Launch FiftyOne application to visualize a dataset."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
     if ds_name is None:

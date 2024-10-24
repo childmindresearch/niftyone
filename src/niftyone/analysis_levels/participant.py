@@ -1,4 +1,4 @@
-"""Participant-level."""
+"""Participant analysis-level."""
 
 import logging
 import time
@@ -19,7 +19,7 @@ from niftyone.figures import factory
 
 
 def load_config(config: Path | None) -> dict[str, Any]:
-    """Helper to load configuration file."""
+    """Load configuration file describing figures to be generated."""
     if not config:
         config = Path(resources.files("niftyone").joinpath("resources/config.yaml"))  # type: ignore
 
@@ -40,7 +40,7 @@ def participant(
     overwrite: bool = False,
     verbose: bool = False,
 ) -> None:
-    """NiftyOne participant analysis level."""
+    """Generate visualization images."""
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)
 
