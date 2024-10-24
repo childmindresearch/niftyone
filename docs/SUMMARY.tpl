@@ -1,6 +1,6 @@
 # SUMMARY
 
-[Introduction](./README.md)
+[Getting started](../../README.md)
 
 ---
 
