@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+    # Setup python 
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
@@ -27,14 +30,39 @@ jobs:
     - name: Build docs
       run: |
         python doc/make.py
-    - name: Setup mdBook
-      uses: peaceiris/actions-mdbook@v2
+    # Set up Rust for mdbook
+    - name: Install cargo
+      uses: actions-rs/toolchain@v1
       with:
-        mdbook-version: 'latest'
-    - run:
-        mdbook build docs
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
+        toolchain: stable
+        profile: minimal
+    - name: Cache cargo registry
+      uses: actions/cache@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/book
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+    - name: Cache cargo index
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install mdbook and preprocessors
+      uses: actions-rs/cargo@v1
+      with:
+        command: install
+        args: mdbook mdbook-alerts
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+    - name: Build Book
+      run: |
+        mdbook build ./docs
+        touch ./docs/book/.nojekyll
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./docs/book
