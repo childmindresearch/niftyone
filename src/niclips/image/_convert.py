@@ -1,9 +1,8 @@
-import warnings
+import logging
 
 import matplotlib as mpl
 import nibabel as nib
 import numpy as np
-from nilearn.image import reorder_img, resample_img
 from PIL import Image
 
 from niclips.typing import NiftiLike
@@ -15,7 +14,6 @@ def get_fdata(img: NiftiLike) -> np.ndarray:
     """Get the array data of a nifti-like image."""
     if isinstance(img, nib.nifti1.Nifti1Image):
         img = img.get_fdata()
-    img = np.asarray(img)
     return img
 
 
@@ -62,29 +60,52 @@ def normalize(
     vmax: float | None = None,
 ) -> np.ndarray:
     """Normalize data using vmin/vmax if provided, otherwise data min/max."""
-    data = np.asarray(data)
-    if vmin is None:
-        vmin = np.nanmin(data)
-    if vmax is None:
-        vmax = np.nanmax(data)
-    data = (data - vmin) / max(vmax - vmin, EPS)
-    data = np.clip(data, 0, 1)
-    return data
+    vmin = np.nanmin(data) if vmin is None else vmin
+    vmax = np.nanmax(data) if vmax is None else vmax
+    scale = vmax - vmin
+    if scale > EPS:
+        return np.clip((data - vmin) / scale, 0, 1)
+    return np.zeros_like(data)
 
 
 def scale(
-    img: Image.Image, height: int, resample: Image.Resampling | None = None
+    img: Image.Image,
+    target_height: int,
+    resample: Image.Resampling | None = None,
 ) -> Image.Image:
-    """Scale an image to a target height.
+    """Scale to targeted height."""
+    # Note: Ensure size is even numbered for video codec.
+    if not (target_height % 2) == 0:
+        target_height += 1
+        logging.warning(f"Scaling target height to {target_height}")
 
-    Ensure width is even numbered.
-    """
-    height += height % 2
-    scale = height / img.height
-    width = int(scale * img.width) + (int(scale * img.width) % 2)
-    size = width, height
-    img = img.resize(size, resample=resample)
-    return img
+    scale = target_height / img.height
+    target_width = int(scale * img.width)
+    target_width += target_width % 2
+
+    # Resize image
+    return img.resize((target_width, target_height), resample=resample)
+
+
+def to_iso(
+    img: Image.Image,
+    pixdims: list[float],
+    axis: int = 0,
+    resample: Image.Resampling | None = None,
+) -> Image.Image:
+    """Scale frame to isotropic pixels."""
+    if axis > 2:
+        raise ValueError("Axis must be 0, 1, or 2")
+
+    target_scales = pixdims / np.min(pixdims)
+    if axis == 0:
+        target_scales = target_scales[1:]
+    elif axis == 2:
+        target_scales = target_scales[:2]
+    else:
+        target_scales = target_scales[[0, 2]]
+    new_size = (int(img.width * target_scales[0]), int(img.height * target_scales[1]))
+    return img.resize(new_size, resample=resample)
 
 
 def reorient(img: np.ndarray) -> np.ndarray:
@@ -92,23 +113,13 @@ def reorient(img: np.ndarray) -> np.ndarray:
     return np.flipud(np.swapaxes(img, 0, 1))
 
 
-def to_iso_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
+def to_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     """Convert a nifti image to RAS orientation with isotropic resolution."""
     # Grab original filepath
     img_path = img.get_filename()
-    img = reorder_img(img, resample="nearest")
-    affine = img.affine
-    pixdim = np.diag(affine)[:3]
-    if not np.all(pixdim == pixdim[0]):
-        res = np.min(pixdim)
-        target_affine = affine.copy()
-        np.fill_diagonal(target_affine[:3, :3], res)
+    # Reorient to RAS
+    img = nib.funcs.as_closest_canonical(img)
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            img = resample_img(
-                img, target_affine=target_affine, interpolation="nearest"
-            )
     # Set filepath to original incase it is needed
     if img_path:
         img.set_filename(img_path)

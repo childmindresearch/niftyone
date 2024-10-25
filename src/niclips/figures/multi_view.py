@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 import niclips.image as noimg
-from niclips.checks import check_3d, check_3d_4d, check_4d, check_iso_ras
+from niclips.checks import check_3d, check_3d_4d, check_4d, check_ras
 from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.io import VideoWriter
 from niclips.typing import Coord, NiftiLike, StrPath
@@ -34,14 +34,14 @@ def multi_view_frame(
 ) -> Image.Image:
     """Construct a multi view image panel. Returns a PIL Image."""
     check_3d(img)
-    check_iso_ras(img)
+    check_ras(img)
 
     overlay = [overlay] if isinstance(overlay, nib.Nifti1Image) else (overlay or [])
     overlay_cmap = [overlay_cmap] if isinstance(overlay_cmap, str) else overlay_cmap
     if len(overlay) > 0:
         for ov in overlay:
             check_3d(ov)
-            check_iso_ras(ov)
+            check_ras(ov)
 
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)
     panels: list[Image.Image] = []
@@ -199,14 +199,14 @@ def slice_video(
     if img.ndim == 4:
         img = noimg.index_img(img, idx=idx)
     assert isinstance(img, nib.Nifti1Image)
-    check_iso_ras(img)
+    check_ras(img)
 
     overlay = [overlay] if isinstance(overlay, nib.Nifti1Image) else (overlay or [])
     if len(overlay) > 0:
         for ov_idx, ov in enumerate(overlay):
             if ov.ndim == 4:
                 ov = noimg.index_img(ov, idx=idx)
-                check_iso_ras(ov)
+                check_ras(ov)
                 overlay[ov_idx] = ov
 
     vmin, vmax = get_default_vmin_vmax(img, vmin, vmax)

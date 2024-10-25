@@ -11,7 +11,7 @@ from PIL import Image
 from sklearn.cluster import KMeans
 
 import niclips.image as noimg
-from niclips.checks import check_3d, check_4d, check_iso_ras
+from niclips.checks import check_3d, check_4d, check_ras
 from niclips.defaults import get_default_coord, get_default_vmin_vmax
 from niclips.typing import StrPath
 
@@ -73,11 +73,11 @@ def carpet_plot(
     rng = np.random.default_rng(seed)
 
     check_4d(bold)
-    check_iso_ras(bold)
+    check_ras(bold)
     if label is None:
         label = cluster_timeseries(bold)
     check_3d(label)
-    check_iso_ras(label)
+    check_ras(label)
 
     # get bold data and mean image
     bold_data = bold.get_fdata()
@@ -160,7 +160,7 @@ def bold_mean_std(
 ) -> Image.Image:
     """Panel showing three-view BOLD mean and three-view tSNR."""
     check_4d(bold)
-    check_iso_ras(bold)
+    check_ras(bold)
 
     # bold mean and std
     bold_data = bold.get_fdata()
