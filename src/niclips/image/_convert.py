@@ -74,19 +74,17 @@ def scale(
     target_height: int,
     resample: Image.Resampling | None = None,
 ) -> Image.Image:
-    """Scale to targeted height.
-
-    Note: Ensure size is even numbered for video codec.
-    """
-    # Scale to target height and ensure even-numbered dims for video codec
-    # (Using bitwise operation, for performance, to set even-number)
-    if target_height & 1:
-        target_height -= 1
+    """Scale to targeted height."""
+    # Note: Ensure size is even numbered for video codec.
+    if not (target_height % 2) == 0:
+        target_height += 1
         logging.warning(f"Scaling target height to {target_height}")
-    imw, imh = img.size
-    target_width = int(target_height * (imw / imh)) & ~1
 
-    # Return image scaled to target height
+    scale = target_height / img.height
+    target_width = int(scale * img.width)
+    target_width += target_width % 2
+
+    # Resize image
     return img.resize((target_width, target_height), resample=resample)
 
 
