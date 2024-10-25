@@ -1,4 +1,4 @@
-"""Initialize module for generating pipelines."""
+"""Analysis-level workflows."""
 
 from .group import group
 from .launch import launch

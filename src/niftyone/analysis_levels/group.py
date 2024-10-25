@@ -1,4 +1,4 @@
-"""Group-level."""
+"""Group analysis-level."""
 
 import logging
 import time
@@ -30,11 +30,7 @@ def group(
     qc_key: str | None = None,
     overwrite: bool = False,
 ) -> None:
-    """NiftyOne group analysis level.
-
-    Collects image samples into a FiftyOne dataset and exports
-    to the output directory.
-    """
+    """Collects samples into a FiftyOne dataset and exports to the output directory."""
     tic = time.monotonic()
     bids_dir = Path(bids_dir)
     out_dir = Path(out_dir)

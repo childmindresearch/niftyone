@@ -1,4 +1,4 @@
-"""Functions associated with BIDS dataset metadata."""
+"""Utilties for handling BIDS dataset associated metadata."""
 
 import json
 from pathlib import Path

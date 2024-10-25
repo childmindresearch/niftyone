@@ -1,4 +1,4 @@
-"""Factory module for creating different figures."""
+"""Factory for creating different figures."""
 
 import logging
 from abc import ABC
@@ -20,7 +20,7 @@ view_registry: dict[str, type["View"]] = {}
 
 
 def register(name: str) -> Callable:
-    """Function to register view to registry."""
+    """Register view be callable in figure generation pipeline."""
 
     def decorator(cls: type[T]) -> type[T]:
         view_registry[name] = cls
@@ -35,7 +35,7 @@ def create_view(
     join_entities: list[str],
     queries: list[str],
 ) -> "View":
-    """Function to create view."""
+    """Create a registered view."""
     view_kwargs = view_kwargs or {}
     try:
         view_cls = view_registry[view]
@@ -45,7 +45,7 @@ def create_view(
 
 
 def create_views(config: dict[str, Any]) -> list["View"]:
-    """Create selected views dynamically from config with default settings."""
+    """Create selected views dynamically from config."""
     return [
         create_view(
             view=view,
@@ -59,7 +59,7 @@ def create_views(config: dict[str, Any]) -> list["View"]:
 
 
 class View(ABC, Generic[T]):
-    """Base view class."""
+    """Base class for a View."""
 
     entities: dict[str, Any] | None = None
     view_fn: Callable | None = None
@@ -136,7 +136,7 @@ class View(ABC, Generic[T]):
         out_dir: Path,
         overwrite: bool,
     ) -> None:
-        """Main call for creating view."""
+        """Create and save figure from a list of relevant records."""
         if not self.view_fn:
             raise ValueError("No view factory provided, unable to create view.")
 

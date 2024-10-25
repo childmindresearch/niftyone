@@ -1,4 +1,4 @@
-"""Functions for participant-level metrics."""
+"""Utilities for handling QC metrics."""
 
 import logging
 from functools import lru_cache
@@ -56,7 +56,7 @@ def create_niftyone_metrics_tsv(
     qc_dir: Path,
     overwrite: bool = False,
 ) -> None:
-    """Filter for metrics associated with image."""
+    """Filter for metrics associated with record (image)."""
     out_path = entities.with_update(
         ext=".tsv", extra_entities={"metrics": "QCMetrics"}
     ).to_path(prefix=out_dir)

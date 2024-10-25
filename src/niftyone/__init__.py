@@ -1,17 +1,17 @@
 """Large-scale neuroimaging visualization using FiftyOne."""
 
-from ._version import __version__, __version_tuple__
+from niftyone._version import __version__, __version_tuple__
 
 # Register existing views
-from .figures.dwi import (
+from niftyone.figures.dwi import (
     DwiPerShell,
     QSpaceShells,
     SignalPerVolume,
 )
-from .figures.func import CarpetPlot, MeanStd
-from .figures.multi_view import (
+from niftyone.figures.func import CarpetPlot, MeanStd
+from niftyone.figures.multi_view import (
     SliceVideo,
     ThreeView,
     ThreeViewVideo,
 )
-from .runner import Runner
+from niftyone.runner import Runner

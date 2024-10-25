@@ -1,4 +1,4 @@
-"""CLI-related functions."""
+"""Command line interface (CLI) utilities."""
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from collections.abc import Sequence
@@ -127,5 +127,5 @@ The different analysis levels perform the following tasks:
         )
 
     def parse_args(self, args: Sequence[str] | None = None) -> Namespace:
-        """Parse CLI arguments."""
+        """Parse command-line arguments."""
         return self.parser.parse_args(args)
