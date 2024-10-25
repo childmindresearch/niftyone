@@ -87,9 +87,7 @@ class TestScale:
         ],
     )
     def test_resample(self, img_pil: Image.Image, resample: Image.Resampling):
-        img = noconvert.scale(
-            img=img_pil, target_height=120, resample=resample
-        )
+        img = noconvert.scale(img=img_pil, target_height=120, resample=resample)
         expected_scale = 120 / img_pil.height
         expected_size = int(expected_scale * img_pil.width), 120
 
@@ -118,15 +116,14 @@ def test_reorient(img_array: np.ndarray):
     assert img_array[:, :99, :3].shape == (100, 99, 3)
     assert reoriented_img.shape == (99, 100, 3)
 
+
 class TestToIso:
-    def test_non_iso_nii_no_target(self, nii_3d_non_iso_ras: nib.Nifti1Image):
-        img = noconvert.to_iso(nii_3d_non_iso_ras)
-        min_pixdim = np.min(nii_3d_non_iso_ras.header["pixdim"][1:4])
-        assert isinstance(img, nib.Nifti1Image)
-        assert np.all(img.header["pixdim"][1:4] == min_pixdim)
-    
-    def test_non_iso_nii_target(self, nii_3d_non_iso_ras: nib.Nifti1Image):
-        img = noconvert.to_iso(nii_3d_non_iso_ras, target_res=1)
-        min_pixdim = np.min(nii_3d_non_iso_ras.header["pixdim"][1:4])
-        assert isinstance(img, nib.Nifti1Image)
-        assert np.all(img.header["pixdim"][1:4] == 1)
+    @pytest.mark.parametrize("axis", [(0), (1), (2)])
+    def test_to_iso(self, img_pil: Image.Image, axis: int):
+        img = noconvert.to_iso(img_pil, pixdims=[1, 1, 1], axis=axis)
+        assert isinstance(img, Image.Image)
+        assert img.width == img.height
+
+    def test_bad_axis(self, img_pil: Image.Image):
+        with pytest.raises(ValueError, match=".*must be"):
+            noconvert.to_iso(img_pil, pixdims=[1, 1, 1], axis=3)

@@ -85,7 +85,7 @@ def visualize_qspace(
     ani = FuncAnimation(fig, _rotate, frames=np.arange(0, 360, 1), interval=30)
 
     if out:
-        ani.save(out, writer="ffmpeg", fps=10, dpi=100)
+        ani.save(out, writer="ffmpeg", fps=10, dpi=150)
     return ani
 
 
@@ -179,4 +179,4 @@ def signal_per_volume(
     ani = FuncAnimation(fig, _update, frames=signal.shape[-1], interval=30)
 
     if out:
-        ani.save(out, writer="ffmpeg", fps=10, dpi=100)
+        ani.save(out, writer="ffmpeg", fps=10, dpi=150)

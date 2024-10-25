@@ -20,10 +20,12 @@ def render_slice(
     fontsize: int = 14,
 ) -> Image.Image:
     """Render one slice of a volume as a PIL image."""
-    img = to_iso(img)
     frame = slice_volume(img, coord=coord, axis=axis)
     frame = reorient(frame)
     frame = topil(frame, vmin=vmin, vmax=vmax, cmap=cmap)
+    frame = to_iso(
+        frame, pixdims=img.header["pixdim"][1:4], axis=axis, resample=resample
+    )
     if height:
         # Get pixel dimensions of slice
         frame = scale(frame, target_height=height, resample=resample)

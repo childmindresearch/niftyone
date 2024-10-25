@@ -3,7 +3,6 @@ import logging
 import matplotlib as mpl
 import nibabel as nib
 import numpy as np
-from nibabel.processing import resample_to_output
 from PIL import Image
 
 from niclips.typing import NiftiLike
@@ -88,6 +87,27 @@ def scale(
     return img.resize((target_width, target_height), resample=resample)
 
 
+def to_iso(
+    img: Image.Image,
+    pixdims: list[float],
+    axis: int = 0,
+    resample: Image.Resampling | None = None,
+) -> Image.Image:
+    """Scale frame to isotropic pixels."""
+    if axis > 2:
+        raise ValueError("Axis must be 0, 1, or 2")
+
+    target_scales = pixdims / np.min(pixdims)
+    if axis == 0:
+        target_scales = target_scales[1:]
+    elif axis == 2:
+        target_scales = target_scales[:2]
+    else:
+        target_scales = target_scales[[0, 2]]
+    new_size = (int(img.width * target_scales[0]), int(img.height * target_scales[1]))
+    return img.resize(new_size, resample=resample)
+
+
 def reorient(img: np.ndarray) -> np.ndarray:
     """Reorient image axes from XY (i.e. Nifti-like) to IJ (i.e. typical image-like)."""
     return np.flipud(np.swapaxes(img, 0, 1))
@@ -104,15 +124,3 @@ def to_ras(img: nib.nifti1.Nifti1Image) -> nib.nifti1.Nifti1Image:
     if img_path:
         img.set_filename(img_path)
     return img
-
-
-def to_iso(
-    img: nib.nifti1.Nifti1Image, target_res: int | None = None
-) -> nib.nifti1.Nifti1Image:
-    """Convert 3D nifti image to isotropic resolution."""
-    if target_res is not None:
-        voxel_sizes = [target_res] * len(img.shape)
-    else:
-        voxel_sizes = [np.min(img.header["pixdim"][1:4])] * len(img.shape)
-
-    return resample_to_output(img, voxel_sizes=voxel_sizes, order=1, mode="nearest")
