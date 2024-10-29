@@ -60,7 +60,6 @@ def pad_to_equal(
 
 def pad_to_square(img: np.ndarray, fill_value: int = 0) -> np.ndarray:
     """Pad an image to be square."""
-    img = np.asarray(img)
     h, w = img.shape[:2]
     size = max(w, h)
     axis = 0 if w > h else 1

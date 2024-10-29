@@ -3,7 +3,7 @@ from PIL import Image
 
 from ..typing import Coord
 from ._annotate import annotate as draw_annotation
-from ._convert import reorient, scale, topil
+from ._convert import reorient, scale, to_iso, topil
 from ._slice import slice_volume
 
 
@@ -14,6 +14,7 @@ def render_slice(
     vmin: float | None = None,
     vmax: float | None = None,
     height: int | None = 256,
+    resample: Image.Resampling | None = None,
     cmap: str = "gray",
     annotate: bool = True,
     fontsize: int = 14,
@@ -22,8 +23,12 @@ def render_slice(
     frame = slice_volume(img, coord=coord, axis=axis)
     frame = reorient(frame)
     frame = topil(frame, vmin=vmin, vmax=vmax, cmap=cmap)
+    frame = to_iso(
+        frame, pixdims=img.header["pixdim"][1:4], axis=axis, resample=resample
+    )
     if height:
-        frame = scale(frame, height, resample=Image.Resampling.NEAREST)
+        # Get pixel dimensions of slice
+        frame = scale(frame, target_height=height, resample=resample)
 
     # Annotation for coordinate and left side
     if annotate:

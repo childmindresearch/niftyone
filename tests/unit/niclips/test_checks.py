@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import numpy as np
 import pytest
 
 import niclips.checks as nichecks
@@ -59,13 +58,3 @@ class TestCheckRAS:
 
     def test_pass(self, mock_img: MagicMock):
         nichecks.check_ras(mock_img)
-
-
-class TestCheckIsoRAS:
-    def test_fail(self, mock_img: MagicMock):
-        mock_img.affine = np.diag([np.random.randint(1, 11) for _ in range(4)])
-        with pytest.raises(ValueError, match=".*isotropic voxels.*"):
-            nichecks.check_iso_ras(mock_img)
-
-    def test_pass(self, mock_img: MagicMock):
-        nichecks.check_iso_ras(mock_img)

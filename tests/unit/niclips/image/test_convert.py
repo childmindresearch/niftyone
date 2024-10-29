@@ -74,18 +74,10 @@ class TestNormalize:
 
 
 class TestScale:
-    def test_no_resample(self, img_pil: Image.Image):
-        img = noconvert.scale(img=img_pil, height=120)
-
-        expected_scale = 120 / img_pil.height
-        expected_size = int(expected_scale * img_pil.width), 120
-
-        assert isinstance(img, Image.Image)
-        assert img.size == expected_size
-
     @pytest.mark.parametrize(
         "resample",
         [
+            (None),
             (Image.Resampling.NEAREST),
             (Image.Resampling.BOX),
             (Image.Resampling.BILINEAR),
@@ -95,18 +87,23 @@ class TestScale:
         ],
     )
     def test_resample(self, img_pil: Image.Image, resample: Image.Resampling):
-        img = noconvert.scale(img=img_pil, height=120, resample=resample)
-
+        img = noconvert.scale(img=img_pil, target_height=120, resample=resample)
         expected_scale = 120 / img_pil.height
         expected_size = int(expected_scale * img_pil.width), 120
 
         assert isinstance(img, Image.Image)
         assert img.size == expected_size
 
+    def test_resample_odd_height(
+        self, img_pil: Image.Image, caplog: pytest.LogCaptureFixture
+    ):
+        noconvert.scale(img=img_pil, target_height=121)
+        assert "Scaling target" in caplog.text
 
-class TestToIsoRas:
+
+class TestToRas:
     def test_non_ras_nii(self, nii_3d_non_iso_ras: nib.Nifti1Image):
-        img = noconvert.to_iso_ras(nii_3d_non_iso_ras)
+        img = noconvert.to_ras(nii_3d_non_iso_ras)
 
         assert isinstance(img, nib.Nifti1Image)
         assert not np.allclose(nii_3d_non_iso_ras.affine, img.affine)
@@ -118,3 +115,15 @@ def test_reorient(img_array: np.ndarray):
     # Assert the sub-array shape is correct before asserting flip
     assert img_array[:, :99, :3].shape == (100, 99, 3)
     assert reoriented_img.shape == (99, 100, 3)
+
+
+class TestToIso:
+    @pytest.mark.parametrize("axis", [(0), (1), (2)])
+    def test_to_iso(self, img_pil: Image.Image, axis: int):
+        img = noconvert.to_iso(img_pil, pixdims=[1, 1, 1], axis=axis)
+        assert isinstance(img, Image.Image)
+        assert img.width == img.height
+
+    def test_bad_axis(self, img_pil: Image.Image):
+        with pytest.raises(ValueError, match=".*must be"):
+            noconvert.to_iso(img_pil, pixdims=[1, 1, 1], axis=3)

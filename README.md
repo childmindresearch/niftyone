@@ -43,7 +43,7 @@ pip install git+https://github.com/childmindresearch/niftyone.git
 To get started, try using the boilerplate command:
 
 ```sh
-niftyone <bids_directory> <output_directory> <analysis-level>
+niftyone <bids_directory> <output_directory> <analysis_level>
 ```
 
 > [!TIP]
