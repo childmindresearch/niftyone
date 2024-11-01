@@ -20,11 +20,11 @@ leveraging features of [FiftyOne] with popular neuroimaging python packages.
 
 > [!TIP]
 > For stability, NiftyOne should be installed in its own environment. For example, to
-> install NiftyOne using `conda`:
+> install NiftyOne using `virtualenv`:
 >
 > ```sh
-> conda create -y -n niftyone python=3.10
-> conda activate niftyone
+> python -m venv niftyone
+> source niftyone/venv/activate
 > ```
 
 NiftyOne can be installed using pip:
