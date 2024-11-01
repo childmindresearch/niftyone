@@ -4,7 +4,7 @@
 
 # User Guide
 
-- [Installation]()
+- [Installation](./guide/installation/README.md)
 - [Features]()
   - [Figure Generation]()
   - [Metrics]()
