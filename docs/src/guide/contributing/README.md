@@ -65,6 +65,30 @@ To contribute a change to the code base, checkout a new branch from the main bra
 git checkout -b feature/your-feature-name main
 ```
 
+## Testing
+
+While all new contributions will be tested, testing can also be done locally making use
+of the same dataset, [ds000102], available as a sub-module in the testing directory. To
+download the sub-module:
+
+```sh
+git submodule update --init --recursive
+```
+
+Unit tests can be performed via `pytest`:
+
+```sh
+pytest --cov-report term-missing --cov src/ tests/ -s
+```
+
+> [!NOTE]
+> `niftyone` workflows can also be tested by calling them directly using the datasets as
+> the `<bids_directory>` input and setting a separate `<output_directory>`
+>
+> ```sh
+> niftyone tests/data/ds000102 /tmp/niftyone_test participant
+> ```
+
 ## Pull requests
 
 Once you have made your changes and are ready to contribute, follow the steps to submit a pull request:
@@ -102,3 +126,4 @@ provide feedback or request changes to ensure the quality of the codebase.
 [FFmpeg]: https://ffmpeg.org/
 [pyproject.toml]: https://github.com/childmindresearch/niftyone/blob/main/pyproject.toml
 [requirements.txt]: https://github.com/childmindresearch/niftyone/blob/main/requirements.txt
+[ds000102]: https://www.openfmri.org/dataset/ds000102/
