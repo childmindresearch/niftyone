@@ -17,7 +17,7 @@
     - [Sharing QC results]()
     - [Adding new figures]()
 - [Examples]()
-- [Contributing]()
+- [Contributing](./guide/contributing/README.md)
 - [FAQ]()
 - [Version]()
 
