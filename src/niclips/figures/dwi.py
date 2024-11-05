@@ -133,10 +133,7 @@ def signal_per_volume(
 
     # Create plot
     fig = plt.figure(layout="tight", figsize=(6.4, 4.8))
-
-    aspect1 = dwi.shape[1] / dwi.shape[0]
-    aspect2 = np.max(signal) / signal.shape[-1]
-    gs = GridSpec(1, 2, figure=fig, width_ratios=[aspect1, aspect2])
+    gs = GridSpec(1, 2, figure=fig)
 
     # Plot frame over time
     ax1 = fig.add_subplot(gs[0, 0])
