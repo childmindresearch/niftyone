@@ -5,9 +5,9 @@
 # User Guide
 
 - [Installation](./guide/installation/README.md)
-- [Features]()
-  - [Figure Generation]()
-  - [Metrics]()
+- [Features](./guide/features/README.md)
+  - [Figure Generation](./guide/features/figure_generation.md)
+  - [Metrics](./guide/features/metrics.md)
 - [Usage]()
   - [Workflows]()
   - [Local]()
