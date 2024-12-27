@@ -18,8 +18,8 @@
     - [Adding new figures]()
 - [Examples]()
 - [Contributing](./guide/contributing/README.md)
-- [FAQ]()
-- [Version]()
+- [FAQ](./guide/faq/README.md)
+- [Version](./guide/version/README.md)
 
 ---
 
