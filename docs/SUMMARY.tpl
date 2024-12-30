@@ -14,7 +14,7 @@
   - [Container](./guide/usage/container.md)
   - [Advanced](./guide/usage/advanced/README.md)
     - [Cluster]()
-    - [Sharing QC results]()
+    - [Sharing QC results](./guide/usage/advanced/qc.md)
     - [Adding new figures]()
 - [Examples](./guide/examples/README.md)
 - [Contributing](./guide/contributing/README.md)
