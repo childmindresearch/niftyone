@@ -12,7 +12,7 @@
   - [Workflows](./guide/usage/workflows.md)
   - [Local](./guide/usage/local.md)
   - [Container](./guide/usage/container.md)
-  - [Advanced]()
+  - [Advanced](./guide/usage/advanced/README.md)
     - [Cluster]()
     - [Sharing QC results]()
     - [Adding new figures]()
