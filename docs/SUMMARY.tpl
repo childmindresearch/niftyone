@@ -10,7 +10,7 @@
   - [Metrics](./guide/features/metrics.md)
 - [Usage](./guide/usage/README.md)
   - [Workflows](./guide/usage/workflows.md)
-  - [Local]()
+  - [Local](./guide/usage/local.md)
   - [Container]()
   - [Advanced]()
     - [Cluster]()
