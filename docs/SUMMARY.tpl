@@ -16,7 +16,7 @@
     - [Cluster]()
     - [Sharing QC results]()
     - [Adding new figures]()
-- [Examples]()
+- [Examples](./guide/examples/README.md)
 - [Contributing](./guide/contributing/README.md)
 - [FAQ](./guide/faq/README.md)
 - [Version](./guide/version/README.md)
