@@ -44,6 +44,6 @@ App launched. Point your web browser to http://localhost:5151
 To exit, close the App or press ctrl + c
 ```
 
-Enter the address in your web browser or choice to launch the application.
+Enter the address in your web browser of choice to launch the application.
 
-<!-- Add screenshot -->
+![Browser](./images/browser.png)
