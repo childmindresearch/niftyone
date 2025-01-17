@@ -42,3 +42,7 @@ notebooks/
 
 # mdbook
 book/
+
+# JOSS files / directory
+paper.pdf
+jats/
