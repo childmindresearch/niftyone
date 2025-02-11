@@ -15,7 +15,6 @@ jobs:
         uses: FedericoCarboni/setup-ffmpeg@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup python environment
         uses: actions/setup-python@v5
         with:
