@@ -29,7 +29,7 @@ jobs:
         pip install -e .\[doc\]
     - name: Build docs
       run: |
-        python doc/make.py
+        python docs/make.py
     # Set up Rust for mdbook
     - name: Install cargo
       uses: actions-rs/toolchain@v1
