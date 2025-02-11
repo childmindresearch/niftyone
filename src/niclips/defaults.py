@@ -6,9 +6,9 @@ import niclips.image as noimg
 
 
 def get_default_coord(img: nib.Nifti1Image) -> tuple[float, float, float]:
-    """Get default coordinate of an image."""
-    coord = noimg.peak_of_mass(img, mask=True)
-    coord = tuple(coord + [1.0, 0.0, 0.0])
+    """Get default coordinates of an image (middle of volume)."""
+    coord = noimg.ind2coord(img.affine, img.header["dim"][1:4] // 2)
+    coord = tuple(coord)
     return coord
 
 

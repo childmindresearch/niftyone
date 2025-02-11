@@ -1,16 +1,14 @@
 from unittest.mock import MagicMock, patch
 
-import numpy as np
+import nibabel as nib
 import pytest
 
 import niclips.defaults as nodefaults
 
 
-def test_get_default_coord(mock_img: MagicMock):
-    mock_peak_mass = MagicMock(return_value=np.array([1.0, 2.0, 3.0]))
-    with patch("niclips.image.peak_of_mass", mock_peak_mass):
-        default_coord = nodefaults.get_default_coord(mock_img)
-    assert default_coord == (2.0, 2.0, 3.0)
+def test_get_default_coord(nii_3d_img: nib.Nifti1Image):
+    default_coord = nodefaults.get_default_coord(nii_3d_img)
+    assert default_coord == (5.0, 5.0, 5.0)
 
 
 def test_get_default_window(mock_img: MagicMock):
